@@ -1,0 +1,53 @@
+@header: #76bad5;
+.ant-table table {
+	border-collapse: collapse;
+	th, td {
+		text-align: center;
+		line-height: 30px;
+		max-width: 130px;
+		min-width: 130px;
+		padding: 8px;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		.anticon {
+			font-size: 22px;
+			margin-left: 6px;
+			vertical-align: middle;
+		}
+	}
+	th {
+		font-weight: bold;
+	}
+}
+.logo {
+	height: 32px;
+	margin: 16px;
+}
+.c-sider {
+	height: 100vh;
+	overflow: auto;
+}
+.c-layout {
+	height: 100vh;
+	.ant-layout-content {
+		overflow: auto;
+	}
+}
+.c-header, .c-footer, .logo {
+	background-color: @header;
+}
+.it-margin {
+	margin: 10px 0;
+}
+.ot-padding {
+	padding: 10px 20px;
+}
+.strike {
+	color: #ddd;
+	text-decoration: line-through;
+}
+button[disabled] {
+	background-color: #eee;
+	color: #aaa;
+}

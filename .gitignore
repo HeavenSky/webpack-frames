@@ -1,0 +1,15 @@
+.ds_store
+.git
+.svn
+.hg
+cvs
+dist
+build
+target
+.*/
+*~
+*tmp
+*temp
+*cache
+*node_modules*
+*package*.json

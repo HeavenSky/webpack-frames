@@ -1,0 +1,20 @@
+{
+	"name": "eslint-es6",
+	"version": "0.0.1",
+	"license": "MIT",
+	"main": "index.js",
+	"author": "HeavenSky",
+	"description": "eslint check es6 react vue",
+	"scripts": {
+		"start": "eslint ./ --cache --ext .js,.jsx,.vue --fix"
+	},
+	"devDependencies": {
+		"babel-eslint": "^8.2.3",
+		"eslint": "^4.19.1",
+		"eslint-plugin-import": "^2.12.0",
+		"eslint-plugin-jsx-a11y": "^6.0.3",
+		"eslint-plugin-promise": "^3.8.0",
+		"eslint-plugin-react": "^7.9.1",
+		"eslint-plugin-vue": "^4.5.0"
+	}
+}
