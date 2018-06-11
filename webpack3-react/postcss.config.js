@@ -20,5 +20,4 @@ const plugins = {
 		mediaQuery: false
 	}, */
 };
-// delete plugins.cssnano;
 module.exports = { plugins };

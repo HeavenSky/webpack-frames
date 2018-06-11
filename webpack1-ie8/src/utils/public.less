@@ -39,16 +39,22 @@ body {
 	/* 等宽字体 常用字体颜色 #444 #666 #999 #bbb #ddd #eee #fff */
 	font-family: Menlo, Monaco, Verdana, Consolas, monospace;
 }
-@c-btntx: #3ab4e2; // 右上角按钮文字颜色
-@c-btnth: #89d2ee; // 右上角按钮文字颜色hover
-@c-btnpx: #60c6cf; // 版块内按钮, 常规按钮, 文字链接色
-@c-btnph: #afe2e7; // 版块内按钮, 常规按钮hover
-@c-btnwx: #ff7373; // 示警按钮颜色
-@c-btnwh: #ffa7a0; // 示警按钮颜色hover
-@c-numup: #059baa; // 数值增长颜色
-@c-numdn: #e74948; // 数值减少预警色
-@c-txtbg: #39c6cd; // header文字颜色, 选中背景色
-@c-altbg: #76bad5; // 醒目提示文字色, 个别板块背景色
+.icon {
+	speak: none;
+	line-height: 1;
+	text-align: center;
+	font-size: inherit;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	display: inline-block;
+	vertical-align: baseline;
+	text-rendering: optimizeLegibility;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+}
+// ***
 @c-linkx: #409eff; // 链接文字颜色
 @c-linkh: #66b1ff; // 链接文字颜色hover
 @c-goodx: #67c23a; // 成功文字颜色
@@ -57,6 +63,26 @@ body {
 @c-warnh: #ebb563; // 警告文字颜色hover
 @c-errox: #f56c6c; // 危险文字颜色
 @c-erroh: #f78989; // 危险文字颜色hover
+// ***
+@c-btntx: #3ab4e2; // 右上角按钮文字颜色
+@c-btnth: #89d2ee; // 右上角按钮文字颜色hover
+@c-btnpx: #60c6cf; // 版块内按钮, 常规按钮, 文字链接色
+@c-btnph: #afe2e7; // 版块内按钮, 常规按钮hover
+@c-btnwx: #ff7373; // 示警按钮颜色
+@c-btnwh: #ffa7a0; // 示警按钮颜色hover
+// ***
+@c-numup: #059baa; // 数值增长颜色
+@c-numdn: #e74948; // 数值减少预警色
+@c-txtbg: #39c6cd; // header文字颜色, 选中背景色
+@c-altbg: #76bad5; // 醒目提示文字色, 个别板块背景色
+// ***
+@c-dashb: #10b2e0; // dashboard基本色 蓝色 blue
+@c-dashc: #60c6cf; // dashboard基本色 青色 cyan
+@c-dashr: #f35958; // dashboard基本色 红色 red
+@c-dashg: #55c69e; // dashboard基本色 绿色 green verdancy
+@c-dashp: #989cff; // dashboard基本色 紫色 purple violet
+@c-dasho: #ff9c4b; // dashboard基本色 橘色 orange
+// ***
 a, :focus {
 	outline: none;
 }
@@ -103,22 +129,21 @@ a, .anchor {
 	::-webkit-scrollbar-thumb {
 		outline: none;
 		border-radius: 3px;
-		background-color: rgba(0, 0, 0, 0.2);
+		background-color: fade(#000, 20%);
 		&:hover {
-			background-color: rgba(0, 0, 0, 0.25);
+			background-color: fade(#000, 25%);
 		}
 	}
 	::-webkit-scrollbar-track {
-		background-color: rgba(0, 0, 0, 0.1);
+		background-color: fade(#000, 10%);
 		&:hover {
-			background-color: rgba(0, 0, 0, 0.15);
+			background-color: fade(#000, 15%);
 		}
 	}
 	::-webkit-scrollbar-track-piece {
 		background-color: transparent;
 	}
 }
-/*
 .ant-menu-submenu-horizontal {
 	>.ant-menu-submenu-title:after {
 		font-family: "anticon";
@@ -136,4 +161,3 @@ a, .anchor {
 .ant-input-group-addon .ant-select-selection__rendered {
 	padding-right: 1em;
 }
-*/

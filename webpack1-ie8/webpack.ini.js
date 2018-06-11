@@ -21,6 +21,7 @@ const templateFolder = "src/views";
 // https://github.com/vuejs/vue-style-loader
 const styleLoader = "style-loader?sourceMap=true";
 // https://github.com/webpack-contrib/css-loader#options
+// 在webpack1压缩css对于less-loader有效,但是css-loader莫名失败了,干脆全部取消minimize
 const cssStyleLoader = "css-loader?modules=false&minimize=false&sourceMap=true";
 const cssModuleLoader = "css-loader?localIdentName=[name]_[local]_[hash:base64:5]&modules=true&minimize=false&sourceMap=true";
 // https://github.com/postcss/postcss-loader#options

@@ -30,7 +30,7 @@ const cssStyleLoader = {
 	loader: "css-loader",
 	options: {
 		modules: false,
-		minimize: false,
+		minimize: true,
 		sourceMap: true,
 	},
 };
@@ -38,7 +38,7 @@ const cssModuleLoader = {
 	loader: "css-loader",
 	options: {
 		modules: true,
-		minimize: false,
+		minimize: true,
 		sourceMap: true,
 		localIdentName: "[name]_[local]_[hash:base64:5]",
 	},
@@ -47,7 +47,7 @@ const cssModuleLoader = {
 const postStyleLoader = {
 	loader: "postcss-loader",
 	options: {
-		minimize: false,
+		minimize: true,
 		sourceMap: true,
 	},
 };
@@ -56,7 +56,7 @@ const lessStyleLoader = {
 	loader: "less-loader",
 	options: {
 		javascriptEnabled: true,
-		minimize: false,
+		minimize: true,
 		sourceMap: true,
 		modifyVars: {
 			"@primary-color": "#39c6cd",
