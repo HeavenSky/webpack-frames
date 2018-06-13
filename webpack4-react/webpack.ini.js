@@ -77,7 +77,6 @@ const entry = {
 	isProd, ver, min, ts, styleLoader,
 	dll: {
 		shim: [
-			"console-polyfill",
 			"babel-polyfill",
 			"raf/polyfill",
 			"media-match",
@@ -109,7 +108,6 @@ const entry = {
 	},
 	ipt: {
 		public: [
-			"console-polyfill",
 			"babel-polyfill",
 			"raf/polyfill", // 支持 react16 所必须
 			"media-match", // 支持 antd 所必须

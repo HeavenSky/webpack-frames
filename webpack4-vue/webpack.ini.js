@@ -77,7 +77,6 @@ const entry = {
 	isProd, ver, min, ts, styleLoader,
 	dll: {
 		shim: [
-			"console-polyfill",
 			"babel-polyfill",
 		],
 		common: [
@@ -104,7 +103,6 @@ const entry = {
 	},
 	ipt: {
 		public: [
-			"console-polyfill",
 			"babel-polyfill",
 			dir("src/utils/public.js"),
 		],

@@ -80,7 +80,7 @@ export const getTxtLen = v => {
 };
 export const validator = (rule, value, callback) => {
 	let err;
-	const { label, type, step, min, max, _min, _max, pattern, msg, notNull, required } = rule;
+	const { label, type, int, min, max, _min, _max, pattern, msg, notNull, required } = rule;
 	const need = notNull || required;
 	const checkNull = value == null || /^[\f\n\r\s\t\v]*$/.test(value);
 	if (need && checkNull) {
@@ -90,7 +90,7 @@ export const validator = (rule, value, callback) => {
 	} else if (type === "number") {
 		if (!/^\s*-?\d+(?:.\d*)?\s*$/.test(value)) {
 			err = `${label}必须为数字!`;
-		} else if (step === 1 && /\./.test(value)) {
+		} else if (int && /\./.test(value)) {
 			err = `${label}必须为整数!`;
 		} else if (min != null && value < min) {
 			err = `${label}最小值为${min}!`;
@@ -113,11 +113,11 @@ export const logger = (key, msg, err) =>
 	console[key](msg) || console.dir(err);
 export const log = (msg, err) => logger("log", msg, err);
 [
-	"assert", "clear", "count", "debug", "dir",
-	"dirxml", "error", "exception", "group",
-	"groupCollapsed", "groupEnd", "info", "log",
-	"markTimeline", "profile", "profileEnd", "table",
-	"time", "timeEnd", "timeStamp", "trace", "warn",
+	"debug", "error", "info", "log", "warn", "dir",
+	"dirxml", "table", "trace", "group", "groupCollapsed",
+	"groupEnd", "clear", "count", "assert", "markTimeline",
+	"profile", "profileEnd", "timeline", "timelineEnd",
+	"time", "timeEnd", "timeStamp", "context",
 ].forEach(key => {
 	log[key] = (msg, err) => logger(key, msg, err);
 });

@@ -49,7 +49,6 @@ const entry = {
 		shim: [
 			"es5-shim", // 支持 IE8 所必须,且顺序在babel-polyfill前
 			"es5-shim/es5-sham",
-			"console-polyfill",
 			"babel-polyfill",
 			"media-match", // 支持 antd 所必须
 		],
