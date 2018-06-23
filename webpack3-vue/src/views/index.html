@@ -5,8 +5,8 @@
 	<meta http-equiv="cache-control" content="no-transform" />
 	<meta http-equiv="cache-control" content="no-siteapp" />
 	<meta http-equiv="cache-control" content="no-cache" />
-	<meta http-equiv="pragma" content="no-cache" />
 	<meta http-equiv="imagetoolbar" content="no" />
+	<meta http-equiv="pragma" content="no-cache" />
 	<meta charset="utf-8" />
 	<meta name="renderer" content="webkit" />
 	<meta name="apple-touch-fullscreen" content="yes" />
@@ -15,15 +15,29 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no" />
 	<title><%= htmlWebpackPlugin.options.title %></title>
-	<link rel="shortcut icon" href="<%= htmlWebpackPlugin.options.ico %>" />
-	<% for (let v of htmlWebpackPlugin.options.css||[]) { %>
-		<link rel="stylesheet" href="<%= v %>" />
+	<% for (let v of [htmlWebpackPlugin.options.ico]) { %>
+		<link rel="shortcut icon" href="<%=
+			/^(https?:)?\/\//.test(v)?v:webpackConfig.output.publicPath+v
+		%>" />
 	<% } %>
-	<% for (let v of htmlWebpackPlugin.options.js||[]) { %>
-		<script type="text/javascript" src="<%= v %>"></script>
+	<% for (let v of htmlWebpackPlugin.options.css||[]) { %>
+		<link rel="stylesheet" href="<%=
+			/^(https?:)?\/\//.test(v)?v:webpackConfig.output.publicPath+v
+		%>" />
 	<% } %>
 </head>
 <body>
 	<div id="app"></div>
+	<!-- publicPath: <%= webpackConfig.output.publicPath %> -->
+	<!-- prefixAjax: <%= htmlWebpackPlugin.options.prefixAjax %> -->
+	<script type="text/javascript">
+		window.publicPath = "<%= webpackConfig.output.publicPath %>";
+		window.prefixAjax = "<%= htmlWebpackPlugin.options.prefixAjax %>";
+	</script>
+	<% for (let v of htmlWebpackPlugin.options.js||[]) { %>
+		<script type="text/javascript" src="<%=
+			/^(https?:)?\/\//.test(v)?v:webpackConfig.output.publicPath+v
+		%>"></script>
+	<% } %>
 </body>
 </html>

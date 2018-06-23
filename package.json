@@ -9,8 +9,8 @@
 		"start": "eslint ./ --cache --ext .js,.jsx,.vue --fix"
 	},
 	"devDependencies": {
-		"babel-eslint": "^8.2.3",
-		"eslint": "^4.19.1",
+		"babel-eslint": "^8.2.4",
+		"eslint": "^5.0.0",
 		"eslint-plugin-import": "^2.12.0",
 		"eslint-plugin-jsx-a11y": "^6.0.3",
 		"eslint-plugin-promise": "^3.8.0",

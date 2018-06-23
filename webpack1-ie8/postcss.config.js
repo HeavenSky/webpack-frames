@@ -20,4 +20,7 @@ const plugins = {
 		mediaQuery: false
 	}, */
 };
-module.exports = { plugins };
+const minimize = floor === 8;
+const sourceMap = true;
+// https://github.com/postcss/postcss-loader#options
+module.exports = { plugins, minimize, sourceMap };

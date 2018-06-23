@@ -1,11 +1,10 @@
 {
 	"parserOptions": {
 		"parser": "babel-eslint",
-		"ecmaVersion": 8,
 		"sourceType": "module",
+		"ecmaVersion": 9,
 		"ecmaFeatures": {
-			"jsx": true,
-			"experimentalObjectRestSpread": true
+			"jsx": true
 		}
 	},
 	"env": {

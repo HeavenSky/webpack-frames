@@ -5,6 +5,7 @@
 cvs
 dist
 build
+static
 target
 .*/
 *~

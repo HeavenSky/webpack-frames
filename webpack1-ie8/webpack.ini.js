@@ -10,9 +10,9 @@ const format = (f, app) => "" + f === f ? f : f(app);
 
 const bootcdn = "https://cdn.bootcss.com/";
 const elecdn = "https://npm.elemecdn.com/";
-// 路径常量请尽可能以`/`结尾
+// 路径常量请尽可能以`/`结尾 webpackConfig.output.publicPath
 const publicPath = "";
-const prefixPath = "";
+const prefixAjax = "";
 const buildFolder = "build";
 const outputFolder = "dist";
 const staticFolder = "src/static";
@@ -25,7 +25,8 @@ const styleLoader = "style-loader?sourceMap=true";
 const cssStyleLoader = "css-loader?modules=false&minimize=false&sourceMap=true";
 const cssModuleLoader = "css-loader?localIdentName=[name]_[local]_[hash:base64:5]&modules=true&minimize=false&sourceMap=true";
 // https://github.com/postcss/postcss-loader#options
-const postStyleLoader = "postcss-loader?minimize=false&sourceMap=true";
+const postStyleLoader = "postcss-loader";
+// 若使用 postcss.config.js 则 postcss-loader 需删除 options
 // https://github.com/webpack-contrib/less-loader
 const lessStyleLoader = "less-loader?javascriptEnabled=true&minimize=false&sourceMap=true";
 // webpack1对于非字符串形式的loader报莫名其妙错误
@@ -33,7 +34,7 @@ const lessStyleLoader = "less-loader?javascriptEnabled=true&minimize=false&sourc
 const entry = {
 	page: [""],
 	distinct, format, dir,
-	publicPath, prefixPath,
+	publicPath, prefixAjax,
 	buildFolder, outputFolder,
 	staticFolder, templateFolder,
 	cssStyleLoader, cssModuleLoader,
@@ -59,7 +60,7 @@ const entry = {
 	},
 	html: {
 		title: "",
-		ico: `${prefixPath}favicon.ico`,
+		ico: `favicon.ico`,
 		js: [
 			`${bootcdn}pace/1.0.2/pace.min.js`,
 			`${bootcdn}jquery/1.12.4/jquery.min.js`,
@@ -110,10 +111,14 @@ module.exports = entry;
 
 const css = [];
 if (css.length) {
-	delete entry.page;
-	delete entry.dll;
-	delete entry.ipt;
+	if (cssStyleLoader.options) {
+		cssStyleLoader.options.url = false;
+	} else {
+		entry.cssStyleLoader = cssStyleLoader + "&url=false";
+	}
 	const map = {};
 	css.forEach(v => v && (map[v] = "@/styles/" + v));
 	entry.ipt = map;
+	delete entry.dll;
+	delete entry.page;
 }

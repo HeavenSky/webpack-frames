@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const iniConfig = require("./webpack.ini");
 const {
-	publicPath, prefixPath,
+	publicPath, prefixAjax,
 	buildFolder, outputFolder,
 	staticFolder, templateFolder,
 	cssStyleLoader, cssModuleLoader,
@@ -200,18 +200,18 @@ const addEntryPage = name => {
 	) || `Home Page for ${app}`;
 	const ico = iniConfig.format(
 		iniConfig.html.ico, app
-	) || `${prefixPath}favicon.ico`;
+	) || `favicon.ico`;
 	const css = (iniConfig.html.css || []).map(
 		v => v && iniConfig.format(v, app)
 	).filter(v => v);
 	const js1 = Object.keys(iniConfig.lib || {}).map(
-		v => v && `${prefixPath}js/${v}.lib.js?${ts}`
+		v => v && `js/${v}.lib.js?${ts}`
 	);
 	const js2 = (iniConfig.html.js || []).map(
 		v => v && iniConfig.format(v, app)
 	);
 	const js3 = Object.keys(iniConfig.dll || {}).map(
-		v => v && `${prefixPath}js/${v}.dll.js?${ts}`
+		v => v && `js/${v}.dll.js?${ts}`
 	);
 	const js = iniConfig.distinct(
 		[...js1, ...js2, ...js3].filter(v => v)
@@ -224,9 +224,9 @@ const addEntryPage = name => {
 	chunks.splice(0, 0, "manifest", "runtime");
 	commonConfig.plugins.push(
 		new HtmlWebpackPlugin({
-			chunks, title, ico, css, js,
 			filename: app + ".html",
 			template: dir(templateFolder, "index.html"),
+			prefixAjax, chunks, title, ico, css, js,
 			chunksSortMode: "manual",
 			showErrors: true,
 			minify: false,
