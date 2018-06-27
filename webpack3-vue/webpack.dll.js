@@ -16,7 +16,7 @@ const fm = (list, file) => {
 Object.keys(iniConfig.lib || {}).forEach(js => {
 	const libs = [];
 	(iniConfig.lib[js] || []).forEach(v => {
-		const fv = iniConfig.format(v) || "";
+		const fv = iniConfig.fmt(v) || "";
 		if (fv) {
 			libs.push(
 				fv[0] === "." ? `${fv}.js`

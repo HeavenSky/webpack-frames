@@ -182,38 +182,41 @@ const addEntryPage = name => {
 		dir(templateFolder, app + ".js"),
 	];
 
-	const title = iniConfig.format(
+	const title = iniConfig.fmt(
 		iniConfig.html.title, app
 	) || `Home Page for ${app}`;
-	const ico = iniConfig.format(
+	const ico = iniConfig.fmt(
 		iniConfig.html.ico, app
 	) || `favicon.ico`;
 	const css = (iniConfig.html.css || []).map(
-		v => v && iniConfig.format(v, app)
+		v => v && iniConfig.fmt(v, app)
 	).filter(v => v);
 	const js1 = Object.keys(iniConfig.lib || {}).map(
 		v => v && `js/${v}.lib.js?${ts}`
 	);
 	const js2 = (iniConfig.html.js || []).map(
-		v => v && iniConfig.format(v, app)
+		v => v && iniConfig.fmt(v, app)
 	);
 	const js3 = Object.keys(iniConfig.dll || {}).map(
 		v => v && `js/${v}.dll.js?${ts}`
 	);
-	const js = iniConfig.distinct(
+	const js = iniConfig.dst(
 		[...js1, ...js2, ...js3].filter(v => v)
 	);
 
 	const chunks = (iniConfig.html.chunks || []).map(
-		v => v && iniConfig.format(v, app)
+		v => v && iniConfig.fmt(v, app)
 	).filter(v => v);
 	chunks.push(app);
-	chunks.splice(0, 0, "manifest", "runtime");
+	chunks.unshift("manifest", "runtime");
+	const prefix = prefixAjax || "";
+	const pubrel = publicPath ||
+		iniConfig.rel(app, "").slice(0, -2);
 	commonConfig.plugins.push(
 		new HtmlWebpackPlugin({
 			filename: app + ".html",
 			template: dir(templateFolder, "index.html"),
-			prefixAjax, chunks, title, ico, css, js,
+			prefix, pubrel, chunks, title, ico, css, js,
 			chunksSortMode: "manual",
 			showErrors: true,
 			minify: false,

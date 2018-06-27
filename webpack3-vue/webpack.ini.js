@@ -4,15 +4,16 @@ const ver = "." || `-${pkg.version}-`;
 const min = isProd ? ".min" : "";
 const ts = new Date().getTime();
 const path = require("path");
+const rel = path.relative.bind(path);
 const dir = path.join.bind(path, __dirname);
-const distinct = v => v ? [...new Set(v)] : [];
-const format = (f, app) => "" + f === f ? f : f(app);
+const dst = v => v ? [...new Set(v)] : [];
+const fmt = (f, app) => "" + f === f ? f : f(app);
 
 const bootcdn = "https://cdn.bootcss.com/";
 const elecdn = "https://npm.elemecdn.com/";
 // 路径常量请尽可能以`/`结尾 webpackConfig.output.publicPath
-const publicPath = "";
-const prefixAjax = "";
+const publicPath = undefined;
+const prefixAjax = undefined;
 const buildFolder = "build";
 const outputFolder = "dist";
 const staticFolder = "src/static";
@@ -63,7 +64,7 @@ const lessStyleLoader = {
 
 const entry = {
 	page: [""],
-	distinct, format, dir,
+	rel, dir, dst, fmt,
 	publicPath, prefixAjax,
 	buildFolder, outputFolder,
 	staticFolder, templateFolder,

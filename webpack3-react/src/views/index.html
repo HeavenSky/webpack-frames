@@ -17,26 +17,29 @@
 	<title><%= htmlWebpackPlugin.options.title %></title>
 	<% for (let v of [htmlWebpackPlugin.options.ico]) { %>
 		<link rel="shortcut icon" href="<%=
-			/^(https?:)?\/\//.test(v)?v:webpackConfig.output.publicPath+v
+			((p,v)=>/^(https?:)?\/\//i.test(v)?v:p+v)
+			(htmlWebpackPlugin.options.pubrel,v)
 		%>" />
 	<% } %>
 	<% for (let v of htmlWebpackPlugin.options.css||[]) { %>
 		<link rel="stylesheet" href="<%=
-			/^(https?:)?\/\//.test(v)?v:webpackConfig.output.publicPath+v
+			((p,v)=>/^(https?:)?\/\//i.test(v)?v:p+v)
+			(htmlWebpackPlugin.options.pubrel,v)
 		%>" />
 	<% } %>
 </head>
 <body>
 	<div id="app"></div>
-	<!-- publicPath: <%= webpackConfig.output.publicPath %> -->
-	<!-- prefixAjax: <%= htmlWebpackPlugin.options.prefixAjax %> -->
+	<!-- publicPath: <%= htmlWebpackPlugin.options.pubrel %> -->
+	<!-- prefixAjax: <%= htmlWebpackPlugin.options.prefix %> -->
 	<script type="text/javascript">
-		window.publicPath = "<%= webpackConfig.output.publicPath %>";
-		window.prefixAjax = "<%= htmlWebpackPlugin.options.prefixAjax %>";
+		window.publicPath = "<%= htmlWebpackPlugin.options.pubrel %>";
+		window.prefixAjax = "<%= htmlWebpackPlugin.options.prefix %>";
 	</script>
 	<% for (let v of htmlWebpackPlugin.options.js||[]) { %>
 		<script type="text/javascript" src="<%=
-			/^(https?:)?\/\//.test(v)?v:webpackConfig.output.publicPath+v
+			((p,v)=>/^(https?:)?\/\//i.test(v)?v:p+v)
+			(htmlWebpackPlugin.options.pubrel,v)
 		%>"></script>
 	<% } %>
 </body>
