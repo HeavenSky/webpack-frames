@@ -15,6 +15,10 @@ const Icon = ({ type, className, ...res }) => {
 		: " anticon anticon-" + type;
 	return <i className={cls} {...res} />;
 };
+const idxPath = href => {
+	const { pathname = "", search = "", hash = "" } = window.location;
+	return (pathname + search + hash).indexOf(href);
+};
 const LinkItem =
 	({ link, pathname, cursor = CURSOR_DEFAULT, gutter = 10 }) => {
 		const { type, icon, label, title, confirm, children, ...res } = link || {};
@@ -22,7 +26,7 @@ const LinkItem =
 		if (res.disabled) {
 			cursor = CURSOR_NOTALOW;
 		} else if (/^a$/i.test(type)) {
-			cursor = window.location.pathname === res.href
+			cursor = !idxPath(res.href)
 				? CURSOR_DEFAULT : CURSOR_POINTER;
 		} else if (/^(link|navlink)$/i.test(type)) {
 			cursor = pathname === res.to
@@ -165,8 +169,7 @@ const getKeys = (pro, sta) => {
 			pathname === to) {
 			key = x;
 			break;
-		} else if (/^a$/i.test(type) &&
-			window.location.pathname === href) {
+		} else if (/^a$/i.test(type) && !idxPath(href)) {
 			key = x;
 			break;
 		} else {

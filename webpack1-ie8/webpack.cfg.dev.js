@@ -3,8 +3,7 @@ const webpack = require("webpack");
 const FriendlyErrorsPlugin = require("friendly-errors-webpack-plugin");
 const iniConfig = require("./webpack.ini");
 const {
-	dir, ver,
-	staticFolder, styleLoader,
+	dir, staticFolder, styleLoader,
 	cssStyleLoader, cssModuleLoader,
 	postStyleLoader, lessStyleLoader,
 } = iniConfig;
@@ -12,11 +11,6 @@ const {
 const developmentConfig = {
 	// devtool: "cheap-eval-source-map",
 	devtool: "cheap-module-eval-source-map",
-	output: {
-		filename: `js/[name]${ver}[hash:5].js`,
-		chunkFilename: `js/[name]${ver}[hash:5].js`,
-		/* 这里本来应该是[chunkhash]的，但是由于[chunkhash]和webpack-dev-server --hot不兼容。只能妥协*/
-	},
 	module: {
 		loaders: [
 			{

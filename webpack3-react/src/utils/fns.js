@@ -4,6 +4,7 @@ export const getType = v => ({}).toString.call(v).slice(8, -1);
 export const isMap = v => getType(v) === "Map";
 export const isSet = v => getType(v) === "Set";
 export const isDate = v => getType(v) === "Date";
+export const isError = v => getType(v) === "Error";
 export const isArray = v => getType(v) === "Array";
 export const isObject = v => getType(v) === "Object";
 export const isRegExp = v => getType(v) === "RegExp";
@@ -22,7 +23,22 @@ export const isNum = v =>
 export const isInt = v =>
 	["number", "string"].includes(typeof v) &&
 	/^\s*(?:\+|-)?\s*\d+\s*$/.test(v);
-// 若存在类型转换一定要小心,比如:{valueOf:v=>2}=="2"=={toString:v=>2};isFinite会转换类型,Number.isFinite不会转换类型
+// 若存在类型转换一定要小心
+// isFinite会转换类型,Number.isFinite不会转换类型;
+// true+true=={toString:v=>2}=={valueOf:v=>2};
+export const logger = (key, msg, err) =>
+	// eslint-disable-next-line no-console
+	console[key](msg) || console.dir(err);
+export const log = (msg, err) => logger("log", msg, err);
+[
+	"debug", "error", "info", "log", "warn", "dir",
+	"dirxml", "table", "trace", "group", "groupCollapsed",
+	"groupEnd", "clear", "count", "assert", "markTimeline",
+	"profile", "profileEnd", "timeline", "timelineEnd",
+	"time", "timeEnd", "timeStamp", "context",
+].forEach(key => {
+	log[key] = (msg, err) => logger(key, msg, err);
+});
 export const regCheck = (v, ok, no) => {
 	let check = false;
 	ok = isArray(ok) ? ok : [ok];
@@ -58,7 +74,7 @@ const URL_EXP =
 	"(?:(?:[^/@:\\s]+:)?[^/@:\\s]+@)?" + // 支持user:pass@的形式
 	"(?:(?:\\d{1,3}\\.){3}\\d{1,3}|[a-z\\d.-]{0,251}[a-z\\d]\\.[a-z]{2,6})" + // 支持ip和domain的形式
 	"(?:\\:\\d{1,4})?" + // 支持端口
-	"(?:/.*)?"; // 支持url后含其他字符
+	"(?:/.*)?$"; // 支持url后含其他字符
 const URL_REG = new RegExp(URL_EXP, "i");
 export const urlCheck = v => URL_REG.test(v);
 // http://www.miit.gov.cn/n1146285/n1146352/n3054355/n3057709/n3057714/c5622616/content.html 工信部电信网编号
@@ -107,35 +123,6 @@ export const validator = (rule, value, callback) => {
 		err = `${label}长度最大为${max}个汉字或${max * 2}个字母!`;
 	}
 	callback(err);
-};
-export const logger = (key, msg, err) =>
-	// eslint-disable-next-line no-console
-	console[key](msg) || console.dir(err);
-export const log = (msg, err) => logger("log", msg, err);
-[
-	"debug", "error", "info", "log", "warn", "dir",
-	"dirxml", "table", "trace", "group", "groupCollapsed",
-	"groupEnd", "clear", "count", "assert", "markTimeline",
-	"profile", "profileEnd", "timeline", "timelineEnd",
-	"time", "timeEnd", "timeStamp", "context",
-].forEach(key => {
-	log[key] = (msg, err) => logger(key, msg, err);
-});
-export const delay = time => {
-	const res = {};
-	// eslint-disable-next-line promise/avoid-new
-	const promise = new Promise(
-		(resolve, reject) => {
-			res.resolve = resolve;
-			res.reject = reject;
-		}
-	);
-	const n = parseInt(time, 10);
-	const timer = isNaN(n) ? 0
-		: setTimeout(res.resolve, n);
-	res.promise = promise;
-	res.timer = timer;
-	return res;
 };
 export const tryJSON = str => {
 	let res;

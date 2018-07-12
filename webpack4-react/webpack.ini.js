@@ -1,6 +1,7 @@
-const isProd = process.env.NODE_ENV === "production";
+const { NODE_ENV } = process.env;
 const pkg = require("./package.json");
-const ver = "." || `-${pkg.version}-`;
+const isProd = NODE_ENV === "production";
+const ver = isProd ? ".[hash:5]" : "-" + pkg.version;
 const min = isProd ? ".min" : "";
 const ts = new Date().getTime();
 const path = require("path");
@@ -18,49 +19,61 @@ const buildFolder = "build";
 const outputFolder = "dist";
 const staticFolder = "src/static";
 const templateFolder = "src/views";
+
 // https://github.com/webpack-contrib/style-loader#options
-// https://github.com/vuejs/vue-style-loader
 const styleLoader = {
 	loader: "style-loader",
-	options: {
-		sourceMap: true,
-	},
+	options: { sourceMap: !isProd },
 };
 // https://github.com/webpack-contrib/css-loader#options
 const cssStyleLoader = {
 	loader: "css-loader",
 	options: {
+		url: false,
 		modules: false,
-		minimize: true,
-		sourceMap: true,
+		minimize: isProd,
+		sourceMap: !isProd,
 	},
 };
 const cssModuleLoader = {
 	loader: "css-loader",
 	options: {
+		url: false,
 		modules: true,
-		minimize: true,
-		sourceMap: true,
+		minimize: isProd,
+		sourceMap: !isProd,
 		localIdentName: "[name]_[local]_[hash:base64:5]",
 	},
 };
 // https://github.com/postcss/postcss-loader#options
 const postStyleLoader = "postcss-loader";
-// 若使用 postcss.config.js 则 postcss-loader 需删除 options
+// 若使用 postcss.config.js 则 postcss-loader 不能携带 options
 // https://github.com/webpack-contrib/less-loader
 const lessStyleLoader = {
 	loader: "less-loader",
 	options: {
+		minimize: isProd,
+		sourceMap: !isProd,
+		relativeUrls: false,
 		javascriptEnabled: true,
-		minimize: true,
-		sourceMap: true,
 		modifyVars: {
-			"@primary-color": "#39c6cd",
-			"@icon-url": JSON.stringify("/antd/antd"),
+			"@primary-color": "#409eff",
+			"@icon-url": JSON.stringify("../antd/antd"),
 		},
 	},
 };
 // https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
+const dps = Object.assign(
+	{}, pkg.dependencies,
+	pkg.devDependencies
+);
+const verDps = key => parseFloat(
+	String(dps[key]).replace(/[^.\d]+/g, "")
+);
+if (verDps("vue-loader")) {
+	// https://github.com/vuejs/vue-style-loader
+	styleLoader.loader = "vue-style-loader";
+}
 
 const entry = {
 	page: [""],
@@ -88,10 +101,9 @@ const entry = {
 			"moment/locale/zh-cn",
 		],
 		vendor: [
+			"redux",
 			"react",
 			"react-dom",
-			"redux",
-			"redux-undo",
 			"react-redux",
 			"react-router-dom",
 		],
@@ -112,21 +124,35 @@ const entry = {
 	},
 	cdn: {
 		jquery: "$",
+		wangeditor: "wangEditor",
 	},
 	html: {
 		title: "",
 		ico: `favicon.ico`,
 		js: [
-			`${bootcdn}pace/1.0.2/pace.min.js`,
 			`${bootcdn}jquery/1.12.4/jquery.min.js`,
 			`${bootcdn}jqueryui/1.12.1/jquery-ui.min.js`,
-			`${bootcdn}fastclick/1.0.6/fastclick.min.js`,
+			`${bootcdn}wangEditor/3.1.1/wangEditor.min.js`,
+			`${bootcdn}fastclick/1.0.6/fastclick.min.js` > 0,
+			`${bootcdn}pace/1.0.2/pace.min.js` > 0,
 		],
 		css: [
+			`${bootcdn}antd/3.5.4/antd.min.css`,
 			`${bootcdn}normalize/7.0.0/normalize.min.css`,
+			`${bootcdn}wangEditor/3.1.1/wangEditor.min.css`,
 			`${bootcdn}font-awesome/4.7.0/css/font-awesome.min.css`,
-			`${elecdn}vant@1.1.7/lib/vant-css/index.css`,
-			`antd/antd-3.x.min.css`,
+			// highlight.js
+			`${bootcdn}highlight.js/9.12.0/styles/atom-one-light.min.css` > 0,
+			`${bootcdn}highlight.js/9.12.0/highlight.min.js` > 0,
+			// vant
+			`${elecdn}vant@1.1.12/lib/vant-css/index.css` > 0,
+			`${elecdn}vant@1.1.12/lib/vant.min.js` > 0,
+			// wangeditor
+			`editor/wangeditor.min.css` > 0,
+			`editor/wangeditor.min.js` > 0,
+			// antd
+			`antd/antd-3.x.min.css` > 0,
+			`antd/antd-1.x.min.css` > 0,
 		],
 		proxy: {
 			"/abc": {
@@ -166,11 +192,6 @@ module.exports = entry;
 
 const css = [];
 if (css.length) {
-	if (cssStyleLoader.options) {
-		cssStyleLoader.options.url = false;
-	} else {
-		entry.cssStyleLoader = cssStyleLoader + "&url=false";
-	}
 	const map = {};
 	css.forEach(v => v && (map[v] = "@/styles/" + v));
 	entry.ipt = map;

@@ -19,8 +19,7 @@ export const cacheData = (key, fn) => {
 };
 
 export const loadDom = (tag, attr, target) =>
-	// eslint-disable-next-line promise/avoid-new
-	new Promise(
+	new Promise( // eslint-disable-line
 		(resolve, reject) => {
 			const dom = document.createElement(tag);
 			dom.onload = resolve;
@@ -41,7 +40,6 @@ export const loadCss = href => loadDom("link", { rel: "stylesheet", href });
 export const loadJs = src => loadDom("script", { type: "text/javascript", src });
 
 const loadXlsx = () =>
-	// eslint-disable-next-line promise/avoid-new
 	Promise.all([
 		"https://cdn.bootcss.com/xlsx/0.12.12/xlsx.full.min.js",
 		"https://cdn.bootcss.com/FileSaver.js/2014-11-29/FileSaver.min.js",

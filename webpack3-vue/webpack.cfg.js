@@ -81,7 +81,10 @@ const productionConfig = {
 		}),
 		new ExtractTextPlugin({
 			allChunks: true,
-			filename: `css/[name]${ver}[contenthash:5].css`,
+			filename: `css/[name]${ver.replace(
+				/(chunk|content|module)?hash/gi,
+				"contenthash"
+			)}.css`,
 		}),
 	],
 };

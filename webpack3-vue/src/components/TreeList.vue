@@ -114,7 +114,8 @@
 	</div>
 </template>
 <script>
-import { newUuid, ROOT_UUID } from "./utils";
+const ROOT_UUID = Math.random();
+const newUuid = () => Math.random();
 let count = 0;
 export default {
 	props: {

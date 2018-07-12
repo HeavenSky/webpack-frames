@@ -1,14 +1,17 @@
 import Vue from "vue";
 import nprogress from "nprogress";
 import VueRouter from "vue-router";
+import { Button } from "element-ui";
 
-import Frame from "../components/subroute.vue";
-import index from "../components/index.vue";
-import content from "../components/content.vue";
-import index1 from "../components/index.1.vue";
-import index2 from "../components/index.2.vue";
-import index3 from "../components/index.3.vue";
+import Frame from "./frame.vue";
+import index from "./index.vue";
+import index1 from "./index.1.vue";
+import index2 from "./index.2.vue";
+import index3 from "./index.3.vue";
+import content from "./content.vue";
+
 Vue.use(VueRouter);
+Vue.use(Button, { size: "mini" });
 export const routes = [
 	{ path: "/", component: index },
 	{ path: "/content", component: content },

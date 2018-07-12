@@ -9,7 +9,10 @@ const {
 } = require("./webpack.ini");
 
 const extractLoader = new ExtractTextPlugin(
-	`css/[name]${ver}[contenthash:5].css`,
+	`css/[name]${ver.replace(
+		/(chunk|content|module)?hash/gi,
+		"contenthash"
+	)}.css`,
 	{ allChunks: true }
 );
 const productionConfig = {

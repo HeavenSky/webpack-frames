@@ -23,15 +23,22 @@ isProd && copyList.push(staticFolder);
 const currentConfig = require(
 	isProd ? "./webpack.cfg" : "./webpack.cfg.dev"
 );
+// 用import()按需加载 https://doc.webpack-china.org/api/module-methods/#import-
 const commonConfig = {
 	entry: iniConfig.ipt,
 	externals: iniConfig.cdn,
 	output: {
 		publicPath,
 		path: dir(outputFolder),
-		filename: `js/[name]${ver}[chunkhash:5].js`,
-		chunkFilename: `js/[name]${ver}[chunkhash:5].js`,
-		// 用import()按需加载 https://doc.webpack-china.org/api/module-methods/#import-
+		// 开发环境应该是[chunkhash]的,但是由于[chunkhash]和webpack-dev-server --hot不兼容,只能妥协
+		filename: `js/[name]${ver.replace(
+			/(chunk|content|module)?hash/gi,
+			isProd ? "chunkhash" : "hash"
+		)}.js`,
+		chunkFilename: `js/[name]${ver.replace(
+			/(chunk|content|module)?hash/gi,
+			isProd ? "chunkhash" : "hash"
+		)}.js`,
 	},
 	module: {
 		rules: [
@@ -63,7 +70,10 @@ const commonConfig = {
 					loader: "url-loader",
 					options: {
 						limit: 9999,
-						name: `img/[name]${ver}[hash:5].[ext]`,
+						name: `img/[name]${ver.replace(
+							/(chunk|content|module)?hash/gi,
+							"hash"
+						)}.[ext]`,
 					},
 				}],
 			},
@@ -73,7 +83,10 @@ const commonConfig = {
 					loader: "url-loader",
 					options: {
 						limit: 9999,
-						name: `font/[name]${ver}[hash:5].[ext]`,
+						name: `font/[name]${ver.replace(
+							/(chunk|content|module)?hash/gi,
+							"hash"
+						)}.[ext]`,
 					},
 				}],
 			},
@@ -119,8 +132,14 @@ const commonConfig = {
 		new CopyWebpackPlugin(copyList),
 		new MiniCssExtractPlugin({
 			allChunks: true,
-			filename: `css/[name]${ver}[contenthash:5].css`,
-			chunkFilename: `css/[name]${ver}[contenthash:5].css`,
+			filename: `css/[name]${ver.replace(
+				/(chunk|content|module)?hash/gi,
+				"contenthash"
+			)}.css`,
+			chunkFilename: `css/[name]${ver.replace(
+				/(chunk|content|module)?hash/gi,
+				"contenthash"
+			)}.css`,
 		}),
 		new VueLoaderPlugin(),
 		/* new webpack.optimize.CommonsChunkPlugin({

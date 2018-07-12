@@ -10,9 +10,9 @@
 	},
 	"devDependencies": {
 		"babel-eslint": "^8.2.5",
-		"eslint": "^5.0.1",
+		"eslint": "^5.1.0",
 		"eslint-plugin-import": "^2.13.0",
-		"eslint-plugin-jsx-a11y": "^6.0.3",
+		"eslint-plugin-jsx-a11y": "^6.1.0",
 		"eslint-plugin-promise": "^3.8.0",
 		"eslint-plugin-react": "^7.10.0",
 		"eslint-plugin-vue": "^4.5.0"

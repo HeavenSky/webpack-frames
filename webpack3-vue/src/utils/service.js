@@ -15,8 +15,6 @@ export const getCookie = (...args) => Cookies.get(...args);
 export const setCookie = (...args) => Cookies.set(...args);
 export const delCookie = (...args) => Cookies.remove(...args);
 
-export const URL_METHOD = "get,delete,head,options".split(",");
-export const ALL_METHOD = "get,delete,head,options,post,put,patch".split(",");
 export const AUTH_TOKEN_KEY = "x-auth-token";
 export const XSRF_TOKEN_KEY = "x-xsrf-token";
 export const AUTH_KEY = "Authorization";
@@ -28,6 +26,18 @@ export const CONTENT_TYPE = {
 	HTML: "text/html; charset=utf-8",
 	TXT: "text/plain; charset=utf-8",
 	XML: "text/xml; charset=utf-8",
+};
+export const URL_METHOD = "get,delete,head,options".split(",");
+export const ALL_METHOD = "get,delete,head,options,post,put,patch".split(",");
+export const ERR_HANDLE = (data, status, statusText) => {
+	const isOk = /^(2\d+|301)$/.test(status);
+	if (isOk) {
+		const { error } = data || {};
+		const { message } = error || {};
+		return message || "";
+	} else {
+		return `${status} ${statusText}`;
+	}
 };
 
 // jquery常用请求封装
@@ -54,6 +64,20 @@ export const $form =
 			processData: false,
 			contentType: false,
 		});
+export const $promise =
+	// jq 为jquery的Deferred对象
+	jq => new Promise( // eslint-disable-line
+		(resolve, reject) => jq.done(
+			data => {
+				const { error } = data || {};
+				const { message } = error || {};
+				message ? reject(message) : resolve(data);
+			}
+		).fail(
+			({ status, statusText }) =>
+				reject(`${status} ${statusText}`) // eslint-disable-line
+		)
+	);
 
 // 创建axios请求实例
 export const service = axios.create({
@@ -117,7 +141,7 @@ service.interceptors.response.use(
 export const request = (key, check) => {
 	ALL_METHOD.includes(key) || (key = "get");
 	if (typeof check !== "function") {
-		check = (status, data) => [200, 301].includes(status);
+		check = ERR_HANDLE;
 	}
 	return (url, data, config) => {
 		const cfg = { url, method: key };
@@ -129,12 +153,11 @@ export const request = (key, check) => {
 		Object.assign(cfg, config);
 		return service.request(cfg).then(response => {
 			const { data, status, statusText } = response || {};
-			const message = `${status} ${statusText}`;
-			if (check(status, data)) {
-				return data;
+			const message = check(data, status, statusText);
+			if (message) {
+				throw { message, response }; // eslint-disable-line
 			} else {
-				const error = { message, response };
-				throw error;
+				return data;
 			}
 		});
 	};

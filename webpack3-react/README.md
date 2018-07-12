@@ -73,15 +73,15 @@
 
 ## 更新 `package.json` 方法
 * 在当前目录执行 `npm update -D -S`
-* 还可以安装`npm i -g npm-check-updates`,然后在当前目录执行 `ncu` 或 `ncu -a`
+* 还可以安装`npm i -g npm-check-updates`, 然后在当前目录执行 `ncu` 或 `ncu -a`
 
 ## 开发坏境启动
-1. `npm install` 若在前面运行过此命令, 可跳过
+1. `npm i` 和 `npm ddp` 若在前面运行过此命令, 可跳过
 2. `npm run dll` 若在前面运行过此命令, 可跳过
 3. `npm start`
 4. 浏览器打开[http://localhost:8888](http://localhost:8888)
 
 ## 生产坏境部署
-1. `npm install` 若在前面运行过此命令, 可跳过
+1. `npm i` 和 `npm ddp` 若在前面运行过此命令, 可跳过
 2. `npm run app`
 3. 拷贝dist文件夹内容至服务器即可

@@ -1,10 +1,10 @@
 {
 	"presets": [
 		"env",
+		"vue",
 		"stage-0"
 	],
 	"plugins": [
-		"transform-vue-jsx",
 		"transform-runtime",
 		[
 			"import",

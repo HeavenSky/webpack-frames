@@ -1,26 +1,31 @@
+const { NODE_ENV } = process.env;
 const pkg = require("./package.json");
-const floor = /ie8/.test(pkg.name) ? 7 : 8;
+const isProd = NODE_ENV === "production";
+const floor = /ie8/i.test(pkg.name) ? 7 : 8;
 const browsers = [
 	"last 2 versions",
 	"ie > " + floor,
 	"> 0.01%",
 ];
+// 在 package.json 中是 browserslist 参数
 const plugins = {
-	// 在 package.json 中是 browserslist 参数
 	autoprefixer: { browsers },
 	cssnano: { safe: true },
-	/* "postcss-cssnext": {},
+	"postcss-cssnext": {},
 	"postcss-px-to-viewport": {
+		minPixelValue: 1,
+		unitPrecision: 5,
 		viewportWidth: 320,
 		viewportHeight: 568,
-		unitPrecision: 5,
+		mediaQuery: false,
 		viewportUnit: "vw",
 		selectorBlackList: [],
-		minPixelValue: 1,
-		mediaQuery: false
-	}, */
+	},
 };
-const minimize = floor === 8;
-const sourceMap = true;
+delete plugins["postcss-cssnext"];
+delete plugins["postcss-px-to-viewport"];
+// npm ddp 扁平化
+const minimize = isProd;
+const sourceMap = !isProd;
 // https://github.com/postcss/postcss-loader#options
 module.exports = { plugins, minimize, sourceMap };
