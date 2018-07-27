@@ -30,10 +30,7 @@ const getState = (pro, sta) => {
 	let promise;
 	switch (type) {
 		case "callback":
-			// eslint-disable-next-line promise/avoid-new
-			promise = new Promise(
-				(resolve, reject) => entry(resolve)
-			);
+			promise = new Promise(entry);
 			break;
 		case "function":
 			promise = Promise.resolve(entry());

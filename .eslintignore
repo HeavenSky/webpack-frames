@@ -1,7 +1,9 @@
-.ds_store
+.hg
 .git
 .svn
-.hg
+.idea
+.vscode
+.ds_store
 cvs
 dist
 build
@@ -12,5 +14,5 @@ target
 *tmp
 *temp
 *cache
-*node_modules*
-*package*.json
+node_modules*
+package-*.json

@@ -1,5 +1,5 @@
 const webpack = require("webpack");
-const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const {
@@ -65,13 +65,15 @@ const productionConfig = {
 		new webpack.optimize.OccurrenceOrderPlugin(),
 		// new webpack.HashedModuleIdsPlugin(),
 		// new webpack.NoEmitOnErrorsPlugin(),
-		new UglifyJSPlugin({
+		new UglifyJsPlugin({
 			cache: true,
 			parallel: true,
 			sourceMap: false,
 			uglifyOptions: {
 				ie8: true,
+				safari10: false,
 				warnings: false,
+				output: { comments: false },
 				compress: { drop_console: true },
 			},
 		}),

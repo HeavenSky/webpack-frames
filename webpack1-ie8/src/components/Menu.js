@@ -15,25 +15,25 @@ const Icon = ({ type, className, ...res }) => {
 		: " anticon anticon-" + type;
 	return <i className={cls} {...res} />;
 };
-const idxPath = href => {
+const matchPath = href => {
 	const { pathname = "", search = "", hash = "" } = window.location;
-	return (pathname + search + hash).indexOf(href);
+	return (pathname + search + hash).indexOf(href) === 0;
 };
 const LinkItem =
-	({ link, pathname, cursor = CURSOR_DEFAULT, gutter = 10 }) => {
+	({ link, pathname, cursor, gutter = 10 }) => {
 		const { type, icon, label, title, confirm, children, ...res } = link || {};
 		const fn = res.onClick;
 		if (res.disabled) {
 			cursor = CURSOR_NOTALOW;
 		} else if (/^a$/i.test(type)) {
-			cursor = !idxPath(res.href)
+			cursor = matchPath(res.href)
 				? CURSOR_DEFAULT : CURSOR_POINTER;
 		} else if (/^(link|navlink)$/i.test(type)) {
 			cursor = pathname === res.to
 				? CURSOR_DEFAULT : CURSOR_POINTER;
 		} else if (fn) {
 			cursor = CURSOR_POINTER;
-		} else if (/^span$/i.test(type)) {
+		} else {
 			cursor = CURSOR_DEFAULT;
 		}
 		res.style = Object.assign({ cursor }, res.style);
@@ -46,13 +46,13 @@ const LinkItem =
 			};
 		}
 		const near = label ? { marginRight: gutter + "px" } : null;
-		const ico = icon ? <Icon type={icon} style={near} /> : "";
-		const txt = icon && label && typeof label === "string"
+		const _icon = icon ? <Icon type={icon} style={near} /> : "";
+		const _label = icon && label && typeof label === "string"
 			? <span>{label}</span> : label || "";
-		let node = /^link$/i.test(type) ? <Link {...res}>{ico}{txt}</Link>
-			: /^navlink$/i.test(type) ? <NavLink {...res}>{ico}{txt}</NavLink>
-				: /^a$/i.test(type) || fn ? <a {...res}>{ico}{txt}</a>
-					: <span {...res}>{ico}{txt}</span>;
+		let node = /^link$/i.test(type) ? <Link {...res}>{_icon}{_label}</Link>
+			: /^navlink$/i.test(type) ? <NavLink {...res}>{_icon}{_label}</NavLink>
+				: /^a$/i.test(type) || fn ? <a {...res}>{_icon}{_label}</a>
+					: <span {...res}>{_icon}{_label}</span>;
 		if (title) {
 			const tip = {
 				title,
@@ -61,7 +61,7 @@ const LinkItem =
 			};
 			node = <Tooltip {...tip}>{node}</Tooltip>;
 		}
-		if (confirm) {
+		if (confirm && !res.disabled) {
 			const pop = {
 				placement: "topRight",
 				title: confirm,
@@ -169,7 +169,7 @@ const getKeys = (pro, sta) => {
 			pathname === to) {
 			key = x;
 			break;
-		} else if (/^a$/i.test(type) && !idxPath(href)) {
+		} else if (/^a$/i.test(type) && matchPath(href)) {
 			key = x;
 			break;
 		} else {

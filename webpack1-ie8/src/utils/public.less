@@ -16,9 +16,6 @@
 @-ms-viewport {
 	width: device-width;
 }
-html {
-	font-size: 10vw;
-}
 body {
 	/* 苹方 冬青黑体 微软雅黑 文泉驿微米黑(Ubuntu) 兰亭黑 微软黑体 无衬线字体 */
 	font-family: "Monospaced Number", "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", "Lantinghei SC", "Microsoft Sans Serif", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -26,36 +23,24 @@ body {
 	padding: 0;
 	color: #666;
 	font-size: 12px;
-	line-height: 1.25;
+	line-height: 1.5;
 	-ms-overflow-style: scrollbar;
 	-webkit-overflow-scrolling: touch;
 	text-rendering: optimizeLegibility;
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-font-smoothing: antialiased;
-	/* 能够单独提升层的 css 属性有>根元素
-	* position: absolute/relative, +z-index(不为auto)
-	* display: flex|inline-flex +z-index(不为auto)
-	* position: fixed
-	* transform不为"none"
-	* -webkit-overflow-scrolling: touch
-	* opacity属性值小于 1 的元素
-	* mix-blend-mode属性值不为"normal"的元素
-	* filter值不为"none"的元素
-	* perspective值不为"none"的元素
-	* isolation属性被设置为"isolate"的元素
-	* will-change
-	* transform会导致position样式失效,比如fixed
-	*/
+}
+// 使用 rem 单位来实现弹性布局(全相对于html样式),数值一般小于1
+html {
+	font-size: 10vw;
+}
+// 使用 em 单位来实现弹性布局(一般相对于.flexible样式)
+.flexible * {
+	font-size: inherit;
 }
 .code {
 	/* 等宽字体 常用字体颜色 #444 #666 #999 #bbb #ddd #eee #fff */
 	font-family: Menlo, Monaco, Verdana, Consolas, monospace;
-}
-.__ {
-	-webkit-appearance: none;
-	-webkit-touch-callout: none;
-	-webkit-transform: translateZ(0);
-	-webkit-tap-highlight-color: transparent;
 }
 .icon {
 	speak: none;
@@ -71,6 +56,38 @@ body {
 	text-rendering: optimizeLegibility;
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-font-smoothing: antialiased;
+}
+.__ {
+	/* 相对长度 区别于绝对长度,主要是以px为单位
+	vw(视窗宽/100) vh(视窗高/100) vmin vmax
+	rem(相对于html标签的字体大小) em(相对于父标签的字体大小)
+	ex(相对于字母x的高度,约0.5em) ch(相对于数字0的宽度)
+	%(百分比)[容器是borderBox还是contentBox对百分比参考无影响]
+	left,right/top,bottom相对容器borderBox宽高的百分比,
+	width/height相对容器contentBox宽高的百分比,
+	margin/padding相对容器contentBox宽度的百分比,
+	text-indent相对容器contentBox宽度的百分比,
+	line-height相对容器lineHeight的百分比,
+	font-size相对容器fontSize的百分比,
+	*/
+	-webkit-appearance: none;
+	-webkit-touch-callout: none;
+	-webkit-transform: translateZ(0);
+	-webkit-tap-highlight-color: transparent;
+	/* 能够单独提升层的 css 属性有>根元素
+	* position: absolute/relative, +z-index(不为auto)
+	* display: flex|inline-flex +z-index(不为auto)
+	* position: fixed
+	* transform不为"none"
+	* -webkit-overflow-scrolling: touch
+	* opacity属性值小于 1 的元素
+	* mix-blend-mode属性值不为"normal"的元素
+	* filter值不为"none"的元素
+	* perspective值不为"none"的元素
+	* isolation属性被设置为"isolate"的元素
+	* will-change
+	* transform会导致position样式失效,比如fixed
+	*/
 }
 // ***
 @c-linkx: #409eff; // 链接文字颜色
@@ -91,7 +108,7 @@ body {
 // ***
 @c-numup: #059baa; // 数值增长颜色
 @c-numdn: #e74948; // 数值减少预警色
-@c-txtbg: #39c6cd; // header文字颜色, 选中背景色
+@c-actbg: #39c6cd; // header文字颜色, 选中背景色
 @c-altbg: #76bad5; // 醒目提示文字色, 个别板块背景色
 // ***
 @c-dashb: #10b2e0; // dashboard基本色 蓝色 blue

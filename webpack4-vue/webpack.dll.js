@@ -1,17 +1,17 @@
 const fs = require("fs");
 const webpack = require("webpack");
-const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const iniConfig = require("./webpack.ini");
 const { dir, isProd, buildFolder } = iniConfig;
 const buildPath = dir(buildFolder);
 
 // fs.existsSync(buildPath) && fs.rmdirSync(buildPath);
 const fm = (list, file) => {
-	const txt = list.map(
+	const str = list.map(
 		v => fs.readFileSync(dir(v), "utf-8")
 	).join("\n") || "";
 	fs.existsSync(buildPath) || fs.mkdirSync(buildPath);
-	fs.writeFileSync(dir(buildFolder, file), txt, "utf-8");
+	fs.writeFileSync(dir(buildFolder, file), str, "utf-8");
 };
 Object.keys(iniConfig.lib || {}).forEach(js => {
 	const libs = [];
@@ -73,12 +73,15 @@ const dllConfig = {
 	mode: isProd ? "production" : "development",
 };
 isProd && dllConfig.plugins.push(
-	new UglifyJSPlugin({
+	new UglifyJsPlugin({
 		cache: true,
 		parallel: true,
 		sourceMap: false,
 		uglifyOptions: {
+			ie8: false,
+			safari10: false,
 			warnings: false,
+			output: { comments: false },
 			compress: { drop_console: true },
 		},
 	})

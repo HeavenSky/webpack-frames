@@ -79,20 +79,20 @@ const URL_REG = new RegExp(URL_EXP, "i");
 export const urlCheck = v => URL_REG.test(v);
 // http://www.miit.gov.cn/n1146285/n1146352/n3054355/n3057709/n3057714/c5622616/content.html 工信部电信网编号
 export const mobileCheck = v => /^1([3589]\d|4[5-9]|6[124-7]|7[0-8])\d{8}$/.test(v);
-export const getTxtLen = v => {
-	let txt = v;
+export const calcText = v => {
+	let text = v;
 	const type = typeof v;
 	if (type === "number" || type === "boolean") {
-		txt = String(v);
+		text = String(v);
 	} else if (type !== "string") {
 		return 0;
 	}
 	// ascii字符 算半个字符
 	// eslint-disable-next-line no-control-regex
-	const ascii = txt.match(/[\x00-\xff]/g) || [];
+	const ascii = text.match(/[\x00-\xff]/g) || [];
 	// surrogate pair 代理字符对 两个字符算一个字符
-	const pair = txt.match(/[\ud800-\udbff][\udc00-\udfff]/g) || [];
-	return txt.length - ascii.length / 2 - pair.length;
+	const pair = text.match(/[\ud800-\udbff][\udc00-\udfff]/g) || [];
+	return text.length - ascii.length / 2 - pair.length;
 };
 export const validator = (rule, value, callback) => {
 	let err;
@@ -117,9 +117,9 @@ export const validator = (rule, value, callback) => {
 		} else if (_max != null && value >= _max) {
 			err = `${label}必须小于${_max}!`;
 		}
-	} else if (min != null && getTxtLen(value) < min) {
+	} else if (min != null && calcText(value) < min) {
 		err = `${label}长度最少为${min}个汉字或${min * 2}个字母!`;
-	} else if (max != null && getTxtLen(value) > max) {
+	} else if (max != null && calcText(value) > max) {
 		err = `${label}长度最大为${max}个汉字或${max * 2}个字母!`;
 	}
 	callback(err);

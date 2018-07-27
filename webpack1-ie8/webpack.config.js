@@ -15,11 +15,11 @@ const buildPath = dir(buildFolder);
 
 // fs.existsSync(buildPath) && fs.rmdirSync(buildPath);
 const fm = (list, file) => {
-	const txt = list.map(
+	const str = list.map(
 		v => fs.readFileSync(dir(v), "utf-8")
 	).join("\n") || "";
 	fs.existsSync(buildPath) || fs.mkdirSync(buildPath);
-	fs.writeFileSync(dir(buildFolder, file), txt, "utf-8");
+	fs.writeFileSync(dir(buildFolder, file), str, "utf-8");
 };
 Object.keys(iniConfig.lib || {}).forEach(js => {
 	const libs = [];

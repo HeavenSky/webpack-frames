@@ -139,7 +139,6 @@ const entry = {
 		css: [
 			`${bootcdn}antd/3.5.4/antd.min.css`,
 			`${bootcdn}normalize/7.0.0/normalize.min.css`,
-			`${bootcdn}wangEditor/3.1.1/wangEditor.min.css`,
 			`${bootcdn}font-awesome/4.7.0/css/font-awesome.min.css`,
 			// highlight.js
 			`${bootcdn}highlight.js/9.12.0/styles/atom-one-light.min.css` > 0,
@@ -152,7 +151,6 @@ const entry = {
 			`editor/wangeditor.min.js` > 0,
 			// antd
 			`antd/antd-3.x.min.css` > 0,
-			`antd/antd-1.x.min.css` > 0,
 		],
 		proxy: {
 			"/abc": {
@@ -193,7 +191,7 @@ module.exports = entry;
 const css = [];
 if (css.length) {
 	const map = {};
-	css.forEach(v => v && (map[v] = "@/styles/" + v));
+	css.forEach(v => v && (map[v] = "@/static/" + v));
 	entry.ipt = map;
 	delete entry.dll;
 	delete entry.page;

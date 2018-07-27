@@ -18,23 +18,25 @@ export const delCookie = (...args) => Cookies.remove(...args);
 export const AUTH_TOKEN_KEY = "x-auth-token";
 export const XSRF_TOKEN_KEY = "x-xsrf-token";
 export const AUTH_KEY = "Authorization";
-export const TYPE_KEY = "Content-Type";
 export const CONTENT_TYPE = {
-	URL: "application/x-www-form-urlencoded; charset=utf-8",
-	FORM: "multipart/form-data; charset=utf-8",
-	JSON: "application/json; charset=utf-8",
-	HTML: "text/html; charset=utf-8",
-	TXT: "text/plain; charset=utf-8",
+	KEY: "Content-Type",
 	XML: "text/xml; charset=utf-8",
+	HTML: "text/html; charset=utf-8",
+	TEXT: "text/plain; charset=utf-8",
+	JSON: "application/json; charset=utf-8",
+	FORM: "multipart/form-data; charset=utf-8",
+	URLS: "application/x-www-form-urlencoded; charset=utf-8",
 };
-export const URL_METHOD = "get,delete,head,options".split(",");
-export const ALL_METHOD = "get,delete,head,options,post,put,patch".split(",");
+export const ACCEPT_ENCODING = {
+	KEY: "Accept-Encoding",
+	VAL: "br, gzip, deflate, compress, identity, *",
+	// https://qgy18.com/request-compress 压缩POST请求数据
+};
 export const ERR_HANDLE = (data, status, statusText) => {
 	const isOk = /^(2\d+|301)$/.test(status);
 	if (isOk) {
 		const { error } = data || {};
-		const { message } = error || {};
-		return message || "";
+		return error ? error.message || "error" : "";
 	} else {
 		return `${status} ${statusText}`;
 	}
@@ -46,7 +48,7 @@ export const $get =
 	(url, data, type = "GET", dataType = "JSON") =>
 		$.ajax({
 			url, data, type, dataType,
-			contentType: CONTENT_TYPE.URL,
+			contentType: CONTENT_TYPE.URLS,
 		});
 export const $post =
 	// data 为json对象
@@ -64,21 +66,26 @@ export const $form =
 			processData: false,
 			contentType: false,
 		});
-export const $promise =
+export const $promise = (jq, check) => {
 	// jq 为jquery的Deferred对象
-	jq => new Promise( // eslint-disable-line
-		(resolve, reject) => jq.done(
-			data => {
-				const { error } = data || {};
-				const { message } = error || {};
-				message ? reject(message) : resolve(data);
-			}
-		).fail(
-			({ status, statusText }) =>
-				reject(`${status} ${statusText}`) // eslint-disable-line
-		)
-	);
-
+	typeof check === "function" || (check = ERR_HANDLE);
+	const fn = (xhr, resolve) => {
+		const { responseText, status, statusText,
+			responseJSON = responseText } = xhr;
+		const data = responseJSON;
+		const message = check(data, status, statusText);
+		if (message) {
+			// eslint-disable-next-line
+			throw { message, xhr };
+		}
+		resolve(data);
+	};
+	return new Promise(resolve => jq.done(
+		(data, status, xhr) => fn(xhr, resolve)
+	).fail(
+		(xhr, status, error) => fn(xhr, resolve)
+	));
+};
 // 创建axios请求实例
 export const service = axios.create({
 	validateStatus: status => true,
@@ -86,21 +93,21 @@ export const service = axios.create({
 	timeout: 0,
 });
 /*
-service.defaults.headers.get[TYPE_KEY] = CONTENT_TYPE.URL;
-service.defaults.headers.put[TYPE_KEY] = CONTENT_TYPE.JSON;
-service.defaults.headers.post[TYPE_KEY] = CONTENT_TYPE.JSON;
-service.defaults.headers.delete[TYPE_KEY] = CONTENT_TYPE.JSON;
+service.defaults.headers.get[CONTENT_TYPE.KEY] = CONTENT_TYPE.URLS;
+service.defaults.headers.put[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
+service.defaults.headers.post[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
+service.defaults.headers.delete[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
 service.defaults.headers.common[AUTH_TOKEN_KEY] = AUTH_KEY;
 */
 // request拦截器
 service.interceptors.request.use(
 	config => {
 		// 在发送请求时执行函数,headers携带token,请根据实际情况自行修改
-		config.headers[AUTH_TOKEN_KEY] = getStore(AUTH_TOKEN_KEY);
+		config.headers[AUTH_TOKEN_KEY] = AUTH_KEY;
 		return config;
 	},
 	error => {
-		log.error("service.interceptors.request.error", error);
+		log("service.interceptors.request.error", error);
 		// 在Promise中 throw error 相当于 Promise.reject(error)
 		throw error;
 	}
@@ -109,7 +116,6 @@ service.interceptors.request.use(
 service.interceptors.response.use(
 	response => {
 		// validateStatus函数判true时响应处理函数,返回值相当于Promise.resolve处理的结果
-		log("service.interceptors.response", response);
 		/* response = {
 			data: {} || "", // `data` 给服务器发送请求的响应数据信息
 			status: 200, // `status` 给服务器发送请求的响应 HTTP 状态码
@@ -125,7 +131,7 @@ service.interceptors.response.use(
 	},
 	error => {
 		// validateStatus函数判false时响应处理函数,返回值相当于Promise.reject处理的结果
-		log.error("service.interceptors.response.error", error);
+		log("service.interceptors.response.error", error);
 		/* error = {
 			message: "", // `message` 给服务器发送请求的响应错误标题
 			response: {}, // `headers` 给服务器发送请求的响应信息
@@ -135,57 +141,39 @@ service.interceptors.response.use(
 		throw error;
 	}
 );
-// axios常用请求封装 https://github.com/axios/axios#request-method-aliases
-// service.get/delete/head/options(url, { params, headers });
-// service.post/put/patch(url, data, { params, headers });
-export const request = (key, check) => {
-	ALL_METHOD.includes(key) || (key = "get");
-	if (typeof check !== "function") {
-		check = ERR_HANDLE;
-	}
-	return (url, data, config) => {
-		const cfg = { url, method: key };
-		if (URL_METHOD.includes(key)) {
-			cfg.params = data;
-		} else if (data) {
-			cfg.data = data;
+/* axios常用请求封装 https://github.com/axios/axios#request-method-aliases
+service.get/delete/head/options(url, { params, headers });
+service.post/put/patch(url, data, { params, headers });
+下载二进制文件增加参数 {responseType:"blob"} jquery不支持此方法
+*/
+export const request = (key, check) => (...args) => {
+	typeof service[key] === "function" || (key = "get");
+	typeof check === "function" || (check = ERR_HANDLE);
+	return service[key](...args).then(response => {
+		const { data, status, statusText } = response || {};
+		const message = check(data, status, statusText);
+		if (message) {
+			// eslint-disable-next-line
+			throw { message, response };
+		} else {
+			return data;
 		}
-		Object.assign(cfg, config);
-		return service.request(cfg).then(response => {
-			const { data, status, statusText } = response || {};
-			const message = check(data, status, statusText);
-			if (message) {
-				throw { message, response }; // eslint-disable-line
-			} else {
-				return data;
-			}
-		});
-	};
+	});
 };
-export const save = (data, filename) => {
-	const blob = new Blob([data]);
-	if (navigator.msSaveBlob) {
-		// IE10+下载
-		navigator.msSaveBlob(blob, filename);
+export const save = (blob, name) => {
+	if (navigator.msSaveBlob) { // IE10+下载
+		navigator.msSaveBlob(blob, name);
 	} else {
 		const a = document.createElement("a");
 		a.style.display = "none";
-		a.download = filename;
+		a.download = name;
 		const url = URL.createObjectURL(blob);
 		a.href = url;
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
-		// 释放URL对象
 		URL.revokeObjectURL(url);
 	}
-	return data;
-};
-export const download = (filename, key, url, data, config) => {
-	const cfg = { url, responseType: "blob" };
-	Object.assign(cfg, config);
-	return request(key)(0, data, cfg)
-		.then(db => save(db, filename));
 };
 
 // ReactRouter权限检查 route=>Component||Promise.resolve(Component)

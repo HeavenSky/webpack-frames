@@ -5,7 +5,7 @@ const iniConfig = require("./webpack.ini");
 const { dir, staticFolder } = iniConfig;
 
 const developmentConfig = {
-	// devtool: "cheap-eval-source-map",
+	// devtool: "eval-source-map",
 	devtool: "cheap-module-eval-source-map",
 	plugins: [
 		new FriendlyErrorsPlugin(),

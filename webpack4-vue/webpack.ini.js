@@ -131,9 +131,7 @@ const entry = {
 			`${bootcdn}pace/1.0.2/pace.min.js` > 0,
 		],
 		css: [
-			`${bootcdn}antd/3.5.4/antd.min.css`,
 			`${bootcdn}normalize/7.0.0/normalize.min.css`,
-			`${bootcdn}wangEditor/3.1.1/wangEditor.min.css`,
 			`${bootcdn}element-ui/2.4.0/theme-chalk/index.css`,
 			`${bootcdn}font-awesome/4.7.0/css/font-awesome.min.css`,
 			// highlight.js
@@ -145,9 +143,6 @@ const entry = {
 			// wangeditor
 			`editor/wangeditor.min.css` > 0,
 			`editor/wangeditor.min.js` > 0,
-			// antd
-			`antd/antd-3.x.min.css` > 0,
-			`antd/antd-1.x.min.css` > 0,
 		],
 		proxy: {
 			"/abc": {
@@ -188,7 +183,7 @@ module.exports = entry;
 const css = [];
 if (css.length) {
 	const map = {};
-	css.forEach(v => v && (map[v] = "@/styles/" + v));
+	css.forEach(v => v && (map[v] = "@/static/" + v));
 	entry.ipt = map;
 	delete entry.dll;
 	delete entry.page;

@@ -18,12 +18,12 @@ const initor = (type, fn) => {
 	re.type = type;
 	return re;
 };
-const creator = (type, fn, meta) => {
+const creator = (type, fn, mo) => {
 	typeof fn === "function" || (fn = x => x);
-	typeof meta === "function" || (meta = x => x);
-	const re = (argsFn, argsMeta) =>
+	typeof mo === "function" || (mo = x => x);
+	const re = (argsFn, argsMo) =>
 		Object.assign(
-			meta.apply(null, argsMeta) || {},
+			mo.apply(null, argsMo) || {},
 			{ payload: fn.apply(null, argsFn), type }
 		);
 	re.type = type;

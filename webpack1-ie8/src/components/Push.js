@@ -7,7 +7,7 @@ import { Icon } from "./Menu";
 fileList.forEach(
 	v => Object.assign(v, {
 		url: "/upload/file/" + v.uid,
-		linkProps: { download: "附件.txt" },
+		linkProps: { download: "附件.xlsx" },
 	})
 );
 2. 不自动做上传操作

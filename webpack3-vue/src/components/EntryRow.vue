@@ -19,7 +19,7 @@
 						v-if="read"
 						key="entry-switch"
 						v-bind="attrCfg">
-						{{ txt }}
+						{{ text }}
 					</span>
 					<el-radio-group
 						v-else-if="isRadio"
@@ -113,7 +113,7 @@ export default {
 		return res;
 	},
 	computed: {
-		txt() {
+		text() {
 			const { ipt, opts } = this;
 			const opt = (opts || []).find(v => v.label === ipt);
 			return opt ? opt.label : ipt;
