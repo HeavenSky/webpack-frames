@@ -5,16 +5,16 @@ import { TOGGLE_TODO } from "./actions";
 class TodoList extends Component {
 	render() {
 		const { list, click } = this.props;
-		return <div>
+		return <ul>
 			{list.map(v => {
 				const { id, text, done } = v;
 				const color = done ? "#67c23a" : "#409eff";
-				// eslint-disable-next-line
-				return <div key={id} onClick={click(id)} style={{ color }}>
-					{`#${id} ${text} ${done ? "完成" : "计划中"}`}
-				</div>;
+				return <li key={id}>
+					{/* eslint-disable-next-line */}
+					<span onClick={click(id)} style={{ color }}>{`#${id} ${text} [${done ? "完成" : "计划中"}]`}</span>
+				</li>;
 			})}
-		</div>;
+		</ul>;
 	}
 }
 

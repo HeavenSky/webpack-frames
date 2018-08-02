@@ -10,16 +10,17 @@ const thunk = store => next => action => {
 		? action(store)
 		: next(action);
 };
+const store = createStore(reducer, applyMiddleware(thunk));
 
-const store = createStore(
-	reducer,
-	applyMiddleware(thunk)
-);
 const opts = ["ActionScript", "C", "Clojure", "CoffeeScript", "CSS", "Go", "Haskell", "HTML", "Java", "JavaScript", "Lua", "Matlab", "Objective-C", "Perl", "PHP", "Python", "R", "Ruby", "Scala", "Shell", "Swift", "TeX", "TypeScript", "Vim script"];
-store.dispatch(SELECT_REDDIT(opts[0]));
-store.dispatch(FETCH_REDDIT(opts[0]));
+const init = () => {
+	const { getState, dispatch } = store;
+	const { selected } = getState();
+	selected || [SELECT_REDDIT, FETCH_REDDIT]
+		.forEach(f => dispatch(f(opts[9])));
+};
 const App = () => (
-	<Provider store={store}>
+	<Provider key={init()} store={store}>
 		<Async opts={opts} />
 	</Provider>
 );

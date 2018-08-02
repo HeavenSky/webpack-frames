@@ -138,9 +138,9 @@ const entry = {
 			`${bootcdn}highlight.js/9.12.0/styles/atom-one-light.min.css` > 0,
 			`${bootcdn}highlight.js/9.12.0/highlight.min.js` > 0,
 			// vant
-			`${elecdn}vant@1.1.12/lib/vant-css/index.css` > 0,
-			`${elecdn}vant@1.1.12/lib/vant.min.js` > 0,
-			// wangeditor
+			`${elecdn}vant@1.1.14/lib/vant-css/index.css` > 0,
+			`${elecdn}vant@1.1.14/lib/vant.min.js` > 0,
+			// wangeditor 2.x
 			`editor/wangeditor.min.css` > 0,
 			`editor/wangeditor.min.js` > 0,
 		],

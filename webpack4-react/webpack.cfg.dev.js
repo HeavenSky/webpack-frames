@@ -18,8 +18,9 @@ const developmentConfig = {
 		watchContentBase: true,
 		compress: true,
 		hotOnly: true,
-		inline: false, // ie11以下不支持inline
 		noInfo: true,
+		inline: true,
+		// ie11以下不支持inline,热重载inline必须为true
 		https: false,
 		quiet: false,
 		open: false,

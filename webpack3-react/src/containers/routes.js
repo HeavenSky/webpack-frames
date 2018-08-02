@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Alert } from "antd";
+import Async from "../async";
+import Todo from "../todo";
 
 class NoAu extends Component {
 	state = {
@@ -23,6 +25,8 @@ class NoAu extends Component {
 	render() {
 		const { arr } = this.state;
 		return <div className="sort-test">
+			<Todo />
+			<Async />
 			<div key="other" className="it-margin">
 				<Alert message="法海不懂爱,页面出不来..." />
 			</div>

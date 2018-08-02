@@ -1,6 +1,7 @@
 import React from "react";
 import { Router } from "react-router-dom";
 import { Layout } from "antd";
+import {hot} from "react-hot-loader";
 
 import { NAV_MENUS, NAV_MAPS } from "../constants/columns";
 import { RouteList } from "../components/Route";
@@ -35,4 +36,4 @@ const App = props =>
 			</Layout>
 		</Layout>
 	</Router>;
-export default App;
+export default hot(module)(App);

@@ -34,8 +34,8 @@ export const FETCH_REDDIT = reddit => store => {
 };
 const checkReddit = (reddit, history) => {
 	if (reddit && history) {
-		const { infetch = true, invalid = true } = history[reddit] || {};
-		return infetch ? false : invalid;
+		const { infetch, invalid } = history[reddit] || {};
+		return (infetch == null) || (!infetch && invalid);
 	}
 };
 export const NEED_REDDIT = reddit => store => {
