@@ -37,8 +37,8 @@ export const loadJs = src => loadDom("script",
 
 // 获取dom的计算后样式属性
 export const domStyle = target => {
-	const { getComputedStyle: gc } = window;
-	return gc ? gc(target, null) : target.currentStyle;
+	const { getComputedStyle: gcs } = window;
+	return gcs ? gcs(target, null) : target.currentStyle;
 };
 // 单行文字自适应大小
 export const fitText = (target, text, rate = 2) => {
@@ -64,14 +64,16 @@ export const fitText = (target, text, rate = 2) => {
 	}
 };
 // 布局自适应填满
-export const fitView = (_w = 10, _h) => {
-	// 计算方法 _w/_h = 节点的 scrollHeight/scrollWidth
-	// 临界高度 h = w*_w/_h = w*scrollHeight/scrollWidth
-	// 临界高度必须稍大或精准,否则会有滚动条,则_h取值应近似取小
-	const root = document.documentElement;
-	const { clientWidth: w, clientHeight: h } = root;
-	root.style.fontSize = _w * w > _h * h
-		? `${_h}vh` : `${_w}vw`;
+export const fitView = target => {
+	// 元素宽高 clientWidth/clientHeight
+	// 元素内容宽高 scrollWidth/scrollHeight
+	const sh = target.scrollHeight;
+	const vh = document.documentElement.clientHeight;
+	if (sh > vh) {
+		target.style.overflow = "hidden";
+		document.documentElement.style.fontSize =
+			Math.floor(10000 * vh / sh) / 1000 + "vw";
+	}
 };
 
 // 用来手动加载导出excel的js依赖

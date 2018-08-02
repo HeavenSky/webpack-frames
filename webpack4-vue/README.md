@@ -42,6 +42,11 @@
 * 在当前目录执行 `npm update -D -S`
 * 还可以安装`npm i -g npm-check-updates`, 然后在当前目录执行 `ncu` 或 `ncu -a`
 
+## 重要说明
+> 有的人不看根目录的readme所以在这里再说明一下
+
+目前没有`src`文件夹, 因为和`../webpack3-react/src`重复, 就没有复制一份代码到此目录, 因此需要手动拷贝一份`../webpack3-react/src`文件夹到此目录
+
 ## 开发坏境启动
 1. `npm i` 和 `npm ddp` 若在前面运行过此命令, 可跳过
 2. `npm run dll` 若在前面运行过此命令, 可跳过

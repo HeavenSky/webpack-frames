@@ -9,7 +9,7 @@ class NoAu extends Component {
 		const wrap = $(".sort-test");
 		wrap.sortable({
 			axis: "y",
-			items: "> .item",
+			items: ">.item",
 			stop: (event, ui) => {
 				// http://api.jqueryui.com/sortable/#method-toArray
 				const arr = wrap.sortable("toArray", { attribute: "data-idx" });
