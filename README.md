@@ -1,7 +1,16 @@
 ## 重要说明
 1. `webpack4-*/src` 文件夹缺失请手动从对应 `webpack3-*/src` 拷贝一份
-2. 除去 `webpack1-ie8` 其余框架开发环境已经做了热重载, 热重载不兼容 ie11 以下环境, 所以开发环境不兼容 ie11 以下了, 生产环境还是兼容的
-3. `webpack1-ie8` 环境的 `react-hot-loader` 存在 bug, 已找到原因, 后修复了再更新到开发环境热重载
+2. 开发环境已经做了热重载, 热重载不兼容 ie11 以下环境, 所以开发环境就不做兼容 ie11 以下了, 生产环境还是兼容的
+3. 若想开发环境兼容ie11以下, 请做实现热重载的逆向操作
+	* `.babel` plugins 中移除 react-hot-loader/babel
+	* `package.json` devDependencies 中移除 react-hot-loader
+	* `webpack.cfg.dev.js` devServer.inline 一定要为 false (Vue框架仅需改此一条)
+	* 根组件移除 export 时修饰
+```js
+import { hot } from 'react-hot-loader'; // 移除删掉
+...
+export default hot(module)(App); // 改成 export default App;
+```
 
 ### 更新说明
 1. 配置变化比较大, 几乎将可配置的内容全部提取到 `webpack.ini.js` 内, 基本统一了 `webpack1 webpack3 webpack4 react vue` 各种框架的配置
@@ -9,7 +18,8 @@
 3. 将不再更新 `README.md` (变化太多,改起来有点烦), 具体关键点在 `webapck.*.js` 中有注释和相对应官方文档地址参考
 
 ### react-hot-loader 4.x
-> https://github.com/gaearon/react-hot-loader#getting-started
+> https://github.com/gaearon/react-hot-loader#getting-started `使用方法`
+> https://segmentfault.com/a/1190000012814005 `排错教程`
 
 1. `package.json` devDependencies 中加入 react-hot-loader
 2. `webpack.cfg.dev.js` devServer.inline 一定要为 true

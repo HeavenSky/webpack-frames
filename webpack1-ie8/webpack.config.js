@@ -13,6 +13,13 @@ const {
 } = iniConfig;
 const buildPath = dir(buildFolder);
 
+// react-hot-loader 不兼容 react@0 临时解决方案如下
+const F = "node_modules/react-hot-loader/dist/react-hot-loader.development.js";
+if (fs.existsSync(dir(F))) {
+	let str = fs.readFileSync(dir(F), "utf-8");
+	str = str.replace(/stack.children.push/g, "(stack.children||[]).push");
+	fs.writeFileSync(dir(F), str, "utf-8");
+}
 // fs.existsSync(buildPath) && fs.rmdirSync(buildPath);
 const fm = (list, file) => {
 	const str = list.map(

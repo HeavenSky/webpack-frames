@@ -1,4 +1,5 @@
 import React from "react";
+import { hot } from "react-hot-loader";
 import { Router } from "react-router-dom";
 
 import { NAV_MENUS, NAV_MAPS } from "../constants/columns";
@@ -23,4 +24,4 @@ const App = props =>
 		</div>
 	</Router>;
 
-export default App;
+export default hot(module)(App);

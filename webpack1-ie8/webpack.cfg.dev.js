@@ -66,7 +66,7 @@ const developmentConfig = {
 		compress: true,
 		hotOnly: true,
 		noInfo: true,
-		inline: false,
+		inline: true,
 		// ie11以下不支持inline,热重载inline必须为true
 		https: false,
 		quiet: false,
