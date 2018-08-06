@@ -62,7 +62,7 @@
 		"webpack-merge": "^4.1.4"
 	},
 	"dependencies": {
-		"antd": "^3.7.3",
+		"antd": "^3.8.0",
 		"axios": "^0.18.0",
 		"babel-polyfill": "^6.26.0",
 		"history": "^4.7.2",
