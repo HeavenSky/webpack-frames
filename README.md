@@ -33,12 +33,14 @@ export default hot(module)(App);
 ```
 
 ### 热重载(hot reload)
-1. inline 必须为 true, 然而 ie11 以下不支持 inline
+1. `WebpackDevServer` 的 inline 配置必须为 true, 然而 ie11 以下不支持 inline
 2. react 使用 react-hot-loader, vue 本身支持热重载
 
 ### webpack3 支持 ie8 研究
-1. DllPlugin 打包后的代码未经过转换, 极大可能存在不兼容问题, 因此打包速度无法提升
+1. DllPlugin 打包后的代码未经过转换, 极大可能存在不兼容问题, 因此打包速度无法较大提升
 2. hot reload 原理是 Object.defineProperty, ie8 不支持
-3. 无法使用最新 react/vue, react 0.x 才支持 ie8
-4. 至此 webpack3 的一些优势近乎均不支持, 所以暂不考虑 webpack3
-5. google 到部分代码参考 https://github.com/ediblecode/webpack3-ie8
+3. 无法使用最新 react/antd, react@0.x/antd@1.x 才支持 ie8; vue直接就不支持ie8
+4. 至此 webpack3 的一些优势近乎都不支持, 暂不考虑 webpack3, 而且网上版本的兼容性都不是很好
+5. 如果实在想用webpack3兼容ie8, 未做全面测试, 以下仅供参考
+	* https://github.com/ediblecode/webpack3-ie8
+	* https://github.com/natural-fe/natural-cli/blob/master/ie8-mvvm.md

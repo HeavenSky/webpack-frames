@@ -6,7 +6,7 @@
 
 ## 技术栈介绍
 * 初期搭建的时候, 完全参考 [砖家](https://github.com/brickspert)的[react-family-ie8](https://github.com/brickspert/react-family-ie8)项目配置
-* 后期配置上改动也很大, 引入了 `antd` `cross-env` `less` `happypack` `autoprefixer`, 以及配置上的加入多个单页应用的处理
+* 后期配置上改动也很大, 引入了 `antd` `cross-env` `less` `autoprefixer`, 以及配置上的加入多个单页应用的处理
 * 关于 `redux` 的是否使用, 个人感觉, 一上来就用 `redux`, 组件耦合高, 逻辑结构复杂, 不利于提取组件和组件迁移复用等; 使用 `redux` 真的是属于吃力不讨好的事情; `如果你不清楚要不要用 redux, 那么就不用`; `redux` 写的项目代码耦合太高, 改动和变更起来十分费劲
 * 关于组件之间通信, 一般有如下做法
 	* 通过父组件的箭头函数进行子组件之间的通信
@@ -25,7 +25,7 @@
 * 配置新增 `copy-webpack-plugin` 支持
 * 配置新增 `friendly-errors-webpack-plugin` 支持
 * 配置优化 `output` 绝对路径改相对路径
-* 配置优化 `bundle-loader` 的组件创造函数, 具体见 `src/utils/bundle.js`
+* 配置优化 `bundle-loader` 的组件创造函数, 具体见 `src/component/Bundle.js`
 * 新增兼容 `antd表格表头和列固定的时候` 报错 `IE8 不支持 onScroll 事件`, 具体见 `src/utils/antd.js`
 * 新增兼容 `es5-shim`, 支持到 IE8 所必须
 * 常用 `cdn` 源推荐

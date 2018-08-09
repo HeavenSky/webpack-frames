@@ -33,8 +33,6 @@ const LinkItem =
 				? CURSOR_DEFAULT : CURSOR_POINTER;
 		} else if (fn) {
 			cursor = CURSOR_POINTER;
-		} else {
-			cursor = CURSOR_DEFAULT;
 		}
 		res.style = Object.assign({ cursor }, res.style);
 		if (confirm) {
@@ -103,7 +101,6 @@ const renderGroupItem = (menu, cfg) => {
 			key={key}
 			link={item}
 			pathname={pathname}
-			cursor={CURSOR_DEFAULT}
 		/>}
 		{...res}
 	>

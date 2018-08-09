@@ -126,23 +126,22 @@ const entry = {
 		js: [
 			`${bootcdn}jquery/1.12.4/jquery.min.js`,
 			`${bootcdn}jqueryui/1.12.1/jquery-ui.min.js`,
-			`${bootcdn}wangEditor/3.1.1/wangEditor.min.js`,
-			`${bootcdn}fastclick/1.0.6/fastclick.min.js` > 0,
-			`${bootcdn}pace/1.0.2/pace.min.js` > 0,
+			`editor/wangeditor.min.js`,
+			!`${bootcdn}wangEditor/3.1.1/wangEditor.min.js`,
+			!`${bootcdn}fastclick/1.0.6/fastclick.min.js`,
+			!`${bootcdn}pace/1.0.2/pace.min.js`,
 		],
 		css: [
 			`${bootcdn}normalize/7.0.0/normalize.min.css`,
 			`${bootcdn}element-ui/2.4.0/theme-chalk/index.css`,
 			`${bootcdn}font-awesome/4.7.0/css/font-awesome.min.css`,
+			`editor/wangeditor.min.css`,
 			// highlight.js
-			`${bootcdn}highlight.js/9.12.0/styles/atom-one-light.min.css` > 0,
-			`${bootcdn}highlight.js/9.12.0/highlight.min.js` > 0,
+			!`${bootcdn}highlight.js/9.12.0/styles/atom-one-light.min.css`,
+			!`${bootcdn}highlight.js/9.12.0/highlight.min.js`,
 			// vant
-			`${elecdn}vant@1.1.14/lib/vant-css/index.css` > 0,
-			`${elecdn}vant@1.1.14/lib/vant.min.js` > 0,
-			// wangeditor 2.x
-			`editor/wangeditor.min.css` > 0,
-			`editor/wangeditor.min.js` > 0,
+			!`${elecdn}vant@1.1.15/lib/vant-css/index.css`,
+			!`${elecdn}vant@1.1.15/lib/vant.min.js`,
 		],
 		proxy: {
 			"/abc": {
