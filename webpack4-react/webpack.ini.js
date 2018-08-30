@@ -165,16 +165,16 @@ const entry = {
 			!`antd/antd-1.x.min.css`,
 		],
 		proxy: {
-			"/abc": {
-				target: "http://abc.com",
-				secure: false,
+			"/proxy": {
+				target: "https://proxy.io",
 				changeOrigin: true,
+				secure: true,
 			},
 			"/xyz": {
-				target: "https://xyz.com",
-				secure: true,
-				changeOrigin: true,
+				target: "http://xyz.io",
 				pathRewrite: { "^/xyz": "/abc" },
+				changeOrigin: true,
+				secure: false,
 				bypass: (req, res, next) => {
 					if (req.method === "GET") {
 						const url = req.url.slice(4);
