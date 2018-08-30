@@ -5,12 +5,14 @@
 		"stage-0"
 	],
 	"plugins": [
+		"transform-decorators-legacy",
 		"react-hot-loader/babel",
 		"transform-runtime",
 		[
 			"import",
 			{
-				"libraryName": "antd"
+				"libraryName": "antd",
+				"style": false
 			}
 		]
 	]

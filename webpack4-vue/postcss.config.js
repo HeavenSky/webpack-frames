@@ -27,5 +27,7 @@ delete plugins["postcss-px-to-viewport"];
 // npm ddp 扁平化
 const minimize = isProd;
 const sourceMap = !isProd;
+isProd || (delete plugins.cssnano);
 // https://github.com/postcss/postcss-loader#options
+// postcss.config.js 配置生效需 postcss-loader 不携带 options
 module.exports = { plugins, minimize, sourceMap };

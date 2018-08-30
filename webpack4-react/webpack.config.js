@@ -9,7 +9,7 @@ const {
 	buildFolder, outputFolder,
 	staticFolder, templateFolder,
 	cssStyleLoader, cssModuleLoader,
-	postStyleLoader, lessStyleLoader,
+	scssStyleLoader, lessStyleLoader,
 	isProd, dir, ver, ts, styleLoader,
 } = iniConfig;
 
@@ -24,8 +24,8 @@ const currentConfig = require(
 );
 // 用import()按需加载 https://doc.webpack-china.org/api/module-methods/#import-
 const commonConfig = {
-	entry: iniConfig.ipt,
-	externals: iniConfig.cdn,
+	entry: iniConfig.ipt || {},
+	externals: iniConfig.cdn || {},
 	output: {
 		publicPath,
 		path: dir(outputFolder),
@@ -85,13 +85,13 @@ const commonConfig = {
 					use: [
 						isProd ? MiniCssExtractPlugin.loader : styleLoader,
 						cssModuleLoader,
-						postStyleLoader,
+						"postcss-loader",
 					],
 				}, {
 					use: [
 						isProd ? MiniCssExtractPlugin.loader : styleLoader,
 						cssStyleLoader,
-						postStyleLoader,
+						"postcss-loader",
 					],
 				}],
 			},
@@ -102,15 +102,34 @@ const commonConfig = {
 					use: [
 						isProd ? MiniCssExtractPlugin.loader : styleLoader,
 						cssModuleLoader,
-						postStyleLoader,
+						"postcss-loader",
 						lessStyleLoader,
 					],
 				}, {
 					use: [
 						isProd ? MiniCssExtractPlugin.loader : styleLoader,
 						cssStyleLoader,
-						postStyleLoader,
+						"postcss-loader",
 						lessStyleLoader,
+					],
+				}],
+			},
+			{
+				test: /\.scss(\?.*)?$/i,
+				oneOf: [{
+					resourceQuery: /\bmodule\b/i,
+					use: [
+						isProd ? MiniCssExtractPlugin.loader : styleLoader,
+						cssModuleLoader,
+						"postcss-loader",
+						scssStyleLoader,
+					],
+				}, {
+					use: [
+						isProd ? MiniCssExtractPlugin.loader : styleLoader,
+						cssStyleLoader,
+						"postcss-loader",
+						scssStyleLoader,
 					],
 				}],
 			},

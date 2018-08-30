@@ -19,59 +19,56 @@ const matchPath = href => {
 	const { pathname = "", search = "", hash = "" } = window.location;
 	return (pathname + search + hash).indexOf(href) === 0;
 };
-const LinkItem =
-	({ link, pathname, cursor, gutter = 10 }) => {
-		const { type, icon, label, title, confirm, children, ...res } = link || {};
-		const fn = res.onClick;
-		if (res.disabled) {
-			cursor = CURSOR_NOTALOW;
-		} else if (/^a$/i.test(type)) {
-			cursor = matchPath(res.href)
-				? CURSOR_DEFAULT : CURSOR_POINTER;
-		} else if (/^(link|navlink)$/i.test(type)) {
-			cursor = pathname === res.to
-				? CURSOR_DEFAULT : CURSOR_POINTER;
-		} else if (fn) {
-			cursor = CURSOR_POINTER;
-		}
-		res.style = Object.assign({ cursor }, res.style);
-		if (confirm) {
-			res.onClick = e => e.preventDefault();
-		} else if (cursor !== CURSOR_POINTER) {
-			res.onClick = e => {
-				fn && fn();
-				e.preventDefault();
-			};
-		}
-		const near = label ? { marginRight: gutter + "px" } : null;
-		const _icon = icon ? <Icon type={icon} style={near} /> : "";
-		const _label = icon && label && typeof label === "string"
-			? <span>{label}</span> : label || "";
-		let node = /^link$/i.test(type) ? <Link {...res}>{_icon}{_label}</Link>
-			: /^navlink$/i.test(type) ? <NavLink {...res}>{_icon}{_label}</NavLink>
-				: /^a$/i.test(type) || fn ? <a {...res}>{_icon}{_label}</a>
-					: <span {...res}>{_icon}{_label}</span>;
-		if (title) {
-			const tip = {
-				title,
-				placement: "top",
-				arrowPointAtCenter: true,
-			};
-			node = <Tooltip {...tip}>{node}</Tooltip>;
-		}
-		if (confirm && !res.disabled) {
-			const pop = {
-				placement: "topRight",
-				title: confirm,
-				arrowPointAtCenter: true,
-				cancelText: "取消",
-				okText: "确定",
-				onConfirm: fn,
-			};
-			node = <Popconfirm {...pop}>{node}</Popconfirm>;
-		}
-		return node;
-	};
+const LinkItem = ({ link, pathname, cursor, gutter = 10 }) => {
+	const { type, icon, label, title, confirm, children, ...res } = link || {};
+	const fn = res.onClick;
+	if (res.disabled) {
+		cursor = CURSOR_NOTALOW;
+	} else if (/^a$/i.test(type)) {
+		cursor = matchPath(res.href)
+			? CURSOR_DEFAULT : CURSOR_POINTER;
+	} else if (/^(link|navlink)$/i.test(type)) {
+		cursor = pathname === res.to
+			? CURSOR_DEFAULT : CURSOR_POINTER;
+	} else if (fn) {
+		cursor = CURSOR_POINTER;
+	}
+	res.style = Object.assign({ cursor }, res.style);
+	if (confirm || res.disabled) {
+		res.onClick = e => e.preventDefault();
+	} else if (cursor === CURSOR_DEFAULT) {
+		res.onClick = e => [fn && fn(e)] && e.preventDefault();
+	}
+	const near = label ? { marginRight: gutter + "px" } : null;
+	const _icon = icon ? <Icon type={icon} style={near} /> : "";
+	const _label = icon && label && typeof label === "string"
+		? <span>{label}</span> : label || "";
+	let node = /^link$/i.test(type) ? <Link {...res}>{_icon}{_label}</Link>
+		: /^navlink$/i.test(type) ? <NavLink {...res}>{_icon}{_label}</NavLink>
+			: /^a$/i.test(type) || fn ? <a {...res}>{_icon}{_label}</a>
+				: <span {...res}>{_icon}{_label}</span>;
+	if (res.disabled) {
+		// NO TODO
+	} else if (title) {
+		const tip = {
+			title,
+			placement: "top",
+			arrowPointAtCenter: true,
+		};
+		node = <Tooltip {...tip}>{node}</Tooltip>;
+	} else if (confirm) {
+		const pop = {
+			title: confirm,
+			onConfirm: fn,
+			okText: "确定",
+			cancelText: "取消",
+			placement: "topRight",
+			arrowPointAtCenter: true,
+		};
+		node = <Popconfirm {...pop}>{node}</Popconfirm>;
+	}
+	return node;
+};
 const renderMenuItem = (menu, cfg) => {
 	const { key, children, hidden, ...res } = menu || {};
 	const [maps = MENU_MAP, pathname = ""] = cfg || [];
@@ -104,9 +101,7 @@ const renderGroupItem = (menu, cfg) => {
 		/>}
 		{...res}
 	>
-		{children.map(
-			v => renderMenuItem(v, cfg)
-		)}
+		{children.map(v => renderMenuItem(v, cfg))}
 	</Menu.ItemGroup>;
 };
 const renderSubMenu = (menu, cfg) => {
@@ -125,9 +120,7 @@ const renderSubMenu = (menu, cfg) => {
 		/>}
 		{...res}
 	>
-		{children.map(
-			v => renderMenuList(v, cfg)
-		)}
+		{children.map(v => renderMenuList(v, cfg))}
 	</Menu.SubMenu>;
 };
 const renderGroupMenu = (menu, cfg) => {
@@ -145,11 +138,12 @@ const renderMenuList = (menu, cfg) => {
 		: renderGroupMenu(menu, cfg);
 };
 const getList = arr => {
+	if (!arr) {
+		return [];
+	}
 	const res = [];
-	if (arr) {
-		for (let i = 1; i <= arr.length; i++) {
-			res.push(arr.slice(0, i).join(""));
-		}
+	for (let i = 1; i <= arr.length; i++) {
+		res.push(arr.slice(0, i).join(""));
 	}
 	return res;
 };
@@ -223,7 +217,7 @@ class WrapMenu extends Component {
 			{...res}
 		>
 			{menus.map(
-				v => renderMenuList(v, [maps, pathname, staticContext])
+				v => renderMenuList(v, [maps, pathname])
 			)}
 		</Menu>;
 	};

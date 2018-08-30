@@ -16,6 +16,7 @@ const developmentConfig = {
 		contentBase: dir(staticFolder),
 		historyApiFallback: true,
 		watchContentBase: true,
+		disableHostCheck: true,
 		compress: true,
 		hotOnly: true,
 		noInfo: true,

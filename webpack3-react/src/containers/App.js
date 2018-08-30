@@ -1,7 +1,7 @@
 import React from "react";
-import { Router } from "react-router-dom";
 import { Layout } from "antd";
-import {hot} from "react-hot-loader";
+import { hot } from "react-hot-loader";
+import { Router } from "react-router-dom";
 
 import { NAV_MENUS, NAV_MAPS } from "../constants/columns";
 import { RouteList } from "../components/Route";

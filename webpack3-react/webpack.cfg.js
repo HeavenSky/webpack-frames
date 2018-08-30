@@ -5,7 +5,7 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const {
 	ver, outputFolder, styleLoader,
 	cssStyleLoader, cssModuleLoader,
-	postStyleLoader, lessStyleLoader,
+	scssStyleLoader, lessStyleLoader,
 } = require("./webpack.ini");
 
 const productionConfig = {
@@ -21,7 +21,7 @@ const productionConfig = {
 						fallback: styleLoader,
 						use: [
 							cssModuleLoader,
-							postStyleLoader,
+							"postcss-loader",
 						],
 					}),
 				}, {
@@ -29,7 +29,7 @@ const productionConfig = {
 						fallback: styleLoader,
 						use: [
 							cssStyleLoader,
-							postStyleLoader,
+							"postcss-loader",
 						],
 					}),
 				}],
@@ -42,7 +42,7 @@ const productionConfig = {
 						fallback: styleLoader,
 						use: [
 							cssModuleLoader,
-							postStyleLoader,
+							"postcss-loader",
 							lessStyleLoader,
 						],
 					}),
@@ -51,8 +51,31 @@ const productionConfig = {
 						fallback: styleLoader,
 						use: [
 							cssStyleLoader,
-							postStyleLoader,
+							"postcss-loader",
 							lessStyleLoader,
+						],
+					}),
+				}],
+			},
+			{
+				test: /\.scss(\?.*)?$/i,
+				oneOf: [{
+					resourceQuery: /\bmodule\b/i,
+					use: ExtractTextPlugin.extract({
+						fallback: styleLoader,
+						use: [
+							cssModuleLoader,
+							"postcss-loader",
+							scssStyleLoader,
+						],
+					}),
+				}, {
+					use: ExtractTextPlugin.extract({
+						fallback: styleLoader,
+						use: [
+							cssStyleLoader,
+							"postcss-loader",
+							scssStyleLoader,
 						],
 					}),
 				}],

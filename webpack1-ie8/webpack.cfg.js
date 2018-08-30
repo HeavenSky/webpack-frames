@@ -5,7 +5,7 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const {
 	outputFolder, ver,
 	cssStyleLoader, cssModuleLoader,
-	postStyleLoader, lessStyleLoader,
+	scssStyleLoader, lessStyleLoader,
 } = require("./webpack.ini");
 
 const extractLoader = new ExtractTextPlugin(
@@ -24,23 +24,23 @@ const productionConfig = {
 				test: /_\.css(\?.*)?$/i,
 				loader: extractLoader.extract(
 					cssModuleLoader,
-					postStyleLoader
+					"postcss-loader"
 				),
 			},
 			{
 				test: /[^_]\.css(\?.*)?$/i,
 				loader: extractLoader.extract(
 					cssStyleLoader,
-					postStyleLoader
+					"postcss-loader"
 				),
 			},
-			// 这里不需要 style-loader, 加了反而报错
-			// less在生产环境的编译配置很特殊 https://github.com/webpack-contrib/extract-text-webpack-plugin/blob/webpack-1/README.md
+			// webpack1 比较特殊, 不需要 style-loader, 加了反而报错, less scss 在生产环境的编译配置很特殊
+			// https://github.com/webpack-contrib/extract-text-webpack-plugin/blob/webpack-1/README.md
 			{
 				test: /_\.less(\?.*)?$/i,
 				loader: extractLoader.extract([
 					cssModuleLoader,
-					postStyleLoader,
+					"postcss-loader",
 					lessStyleLoader,
 				]),
 			},
@@ -48,8 +48,24 @@ const productionConfig = {
 				test: /[^_]\.less(\?.*)?$/i,
 				loader: extractLoader.extract([
 					cssStyleLoader,
-					postStyleLoader,
+					"postcss-loader",
 					lessStyleLoader,
+				]),
+			},
+			{
+				test: /_\.scss(\?.*)?$/i,
+				loader: extractLoader.extract([
+					cssModuleLoader,
+					"postcss-loader",
+					scssStyleLoader,
+				]),
+			},
+			{
+				test: /[^_]\.scss(\?.*)?$/i,
+				loader: extractLoader.extract([
+					cssStyleLoader,
+					"postcss-loader",
+					scssStyleLoader,
 				]),
 			},
 		],

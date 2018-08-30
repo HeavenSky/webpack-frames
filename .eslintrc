@@ -23,9 +23,9 @@
 	"extends": [
 		"plugin:jsx-a11y/recommended",
 		"plugin:promise/recommended",
-		"plugin:import/warnings",
 		"plugin:react/recommended",
 		"plugin:vue/recommended",
+		"plugin:import/warnings",
 		"eslint:recommended"
 	],
 	"globals": {

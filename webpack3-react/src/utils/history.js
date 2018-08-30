@@ -10,6 +10,8 @@ history.listen(
 		})
 );
 export default history;
+
+// https://cn.redux.js.org
 const action = ({ type, payload, meta, error, async }) => 0;
 const initor = (type, fn) => {
 	typeof fn === "function" || (fn = x => x);
@@ -29,4 +31,27 @@ const creator = (type, fn, mo) => {
 	re.type = type;
 	return re;
 };
-export { action, initor, creator };
+const thunk = store => next => action =>
+	typeof action === "function"
+		? action(store) : next(action);
+const print = store => next => action => {
+	const { console } = window;
+	console.group(action.type);
+	console.log("\tDispatch:\n", action);
+	const result = next(action);
+	console.log("\tNewState:\n", store.getState());
+	console.groupEnd(action.type);
+	return result;
+};
+export { action, initor, creator, thunk, print };
+/* https://vuex.vuejs.org/zh/api
+const module = {
+	state: Object || Function,
+	getters: { getter(state, getters, rootS, rootG) { } },
+	mutations: { mutation(state, payload) { } },
+	actions: { action(context, payload) { } },
+};
+const store = new Vuex.Store({
+	modules: { module },
+	getters: { getter(state, getters) { } },
+}); */

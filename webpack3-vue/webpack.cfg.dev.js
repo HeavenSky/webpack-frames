@@ -5,7 +5,7 @@ const iniConfig = require("./webpack.ini");
 const {
 	dir, staticFolder, styleLoader,
 	cssStyleLoader, cssModuleLoader,
-	postStyleLoader, lessStyleLoader,
+	scssStyleLoader, lessStyleLoader,
 } = iniConfig;
 
 const developmentConfig = {
@@ -20,13 +20,13 @@ const developmentConfig = {
 					use: [
 						styleLoader,
 						cssModuleLoader,
-						postStyleLoader,
+						"postcss-loader",
 					],
 				}, {
 					use: [
 						styleLoader,
 						cssStyleLoader,
-						postStyleLoader,
+						"postcss-loader",
 					],
 				}],
 			},
@@ -37,15 +37,34 @@ const developmentConfig = {
 					use: [
 						styleLoader,
 						cssModuleLoader,
-						postStyleLoader,
+						"postcss-loader",
 						lessStyleLoader,
 					],
 				}, {
 					use: [
 						styleLoader,
 						cssStyleLoader,
-						postStyleLoader,
+						"postcss-loader",
 						lessStyleLoader,
+					],
+				}],
+			},
+			{
+				test: /\.scss(\?.*)?$/i,
+				oneOf: [{
+					resourceQuery: /\bmodule\b/i,
+					use: [
+						styleLoader,
+						cssModuleLoader,
+						"postcss-loader",
+						scssStyleLoader,
+					],
+				}, {
+					use: [
+						styleLoader,
+						cssStyleLoader,
+						"postcss-loader",
+						scssStyleLoader,
 					],
 				}],
 			},
@@ -65,6 +84,7 @@ const developmentConfig = {
 		contentBase: dir(staticFolder),
 		historyApiFallback: true,
 		watchContentBase: true,
+		disableHostCheck: true,
 		compress: true,
 		hotOnly: true,
 		noInfo: true,

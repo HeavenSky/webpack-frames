@@ -28,7 +28,7 @@ Object.keys(iniConfig.lib || {}).forEach(js => {
 });
 
 const dllConfig = {
-	entry: iniConfig.dll,
+	entry: iniConfig.dll || {},
 	output: {
 		path: buildPath,
 		filename: "[name].dll.js",

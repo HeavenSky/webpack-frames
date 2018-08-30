@@ -45,9 +45,16 @@ const cssModuleLoader = {
 		localIdentName: "[name]_[local]_[hash:base64:5]",
 	},
 };
-// https://github.com/postcss/postcss-loader#options
-const postStyleLoader = "postcss-loader";
-// 若使用 postcss.config.js 则 postcss-loader 不能携带 options
+// https://github.com/webpack-contrib/sass-loader
+const scssStyleLoader = {
+	loader: "sass-loader",
+	options: {
+		minimize: isProd,
+		sourceMap: !isProd,
+	},
+};
+// npm i -D node-sass sass-loader 易出错可配镜像后卸载再试
+// loader 在调用的时候才会去执行,因此不安装不调用是不会出错的
 // https://github.com/webpack-contrib/less-loader
 const lessStyleLoader = {
 	loader: "less-loader",
@@ -57,8 +64,12 @@ const lessStyleLoader = {
 		relativeUrls: false,
 		javascriptEnabled: true,
 		modifyVars: {
-			"@primary-color": "#409eff",
 			"@icon-url": JSON.stringify("../antd/antd"),
+			"@primary-color": "#409eff",
+			"@menu-dark-bg": "#404040",
+			"@menu-highlight-color": "#39c6cd",
+			"@menu-dark-item-active-bg": "#39c6cd",
+			"@menu-dark-item-selected-bg": "#39c6cd",
 		},
 	},
 };
@@ -82,7 +93,7 @@ const entry = {
 	buildFolder, outputFolder,
 	staticFolder, templateFolder,
 	cssStyleLoader, cssModuleLoader,
-	postStyleLoader, lessStyleLoader,
+	scssStyleLoader, lessStyleLoader,
 	isProd, ver, min, ts, styleLoader,
 	dll: {
 		shim: [
@@ -104,17 +115,18 @@ const entry = {
 			"vue-router",
 		],
 	},
-	lib: {
-		/* jquery: [
-			`jquery/dist/jquery${min}`,
-			`jquery-ui-dist/jquery-ui${min}`,
-		],*/
-	},
+	/* lib: {
+		jquery: ["jquery", "jquery-ui"]
+			.map(v => `./js/${v}.min`),
+		ie8: ["es5-shim", "es5-sham", "html5shiv",
+			"selectivizr", "nwmatcher", "respond"]
+			.map(v => `./ie8/${v}.min`),
+	}, */
 	ipt: {
 		public: [
-			"babel-polyfill",
+			"babel-polyfill", // ie8 必须提前引入 es5-shim
 			dir("src/utils/public.js"),
-		],
+		].slice(isProd - 1), // 加快开发环境编译速度
 	},
 	cdn: {
 		jquery: "$",
@@ -124,20 +136,21 @@ const entry = {
 		title: "",
 		ico: `favicon.ico`,
 		js: [
-			`${bootcdn}jquery/1.12.4/jquery.min.js`,
-			`${bootcdn}jqueryui/1.12.1/jquery-ui.min.js`,
+			`js/jquery.min.js`,
+			`js/jquery-ui.min.js`,
 			`editor/wangeditor.min.js`,
-			!`${bootcdn}wangEditor/3.1.1/wangEditor.min.js`,
-			!`${bootcdn}fastclick/1.0.6/fastclick.min.js`,
-			!`${bootcdn}pace/1.0.2/pace.min.js`,
+			!`js/pace.min.js`,
+			!`js/fastclick.min.js`,
+			!`js/wangeditor.min.js`,
 		],
 		css: [
-			`${bootcdn}normalize/7.0.0/normalize.min.css`,
-			`${bootcdn}element-ui/2.4.0/theme-chalk/index.css`,
-			`${bootcdn}font-awesome/4.7.0/css/font-awesome.min.css`,
+			`css/normalize-ie8.min.css`,
 			`editor/wangeditor.min.css`,
+			`css/fa-4.x.min.css`,
+			`${bootcdn}element-ui/2.4.0/theme-chalk/index.css`,
 			// highlight.js
 			!`${bootcdn}highlight.js/9.12.0/styles/atom-one-light.min.css`,
+			!`${bootcdn}highlight.js/9.12.0/styles/atom-one-dark.min.css`,
 			!`${bootcdn}highlight.js/9.12.0/highlight.min.js`,
 			// vant
 			!`${elecdn}vant@1.1.15/lib/vant-css/index.css`,
@@ -176,14 +189,23 @@ const entry = {
 		},
 	},
 };
-entry.html.chunks = Object.keys(entry.ipt);
-module.exports = entry;
 
-const css = [];
-if (css.length) {
-	const map = {};
-	css.forEach(v => v && (map[v] = "@/static/" + v));
-	entry.ipt = map;
-	delete entry.dll;
-	delete entry.page;
+if (isProd) {
+	const style = []; // 需要编译的样式 css less
+	if (style.length) {
+		const map = {};
+		style.forEach(v => v && (map[v] = "@/static/" + v));
+		entry.ipt = map;
+		delete entry.dll;
+		delete entry.page;
+	}
+} else {
+	const serve = 0; // 是否做纯静态服务器
+	if (serve) {
+		delete entry.ipt;
+		delete entry.dll;
+		delete entry.page;
+	}
 }
+entry.html.chunks = Object.keys(entry.ipt || {});
+module.exports = entry;

@@ -6,13 +6,13 @@ import { URL_SELECT, formatUrl } from "../utils/fns";
 const { HTTP, HTTPS, OPTS } = URL_SELECT;
 // value 和 onChange 必须相结合使用, 否则组件的值永远为空
 const Http = props => {
-	const { addon, value, onChange, disabled, ...res } = props;
-	let { httpDefault, ...more } = addon || {};
-	delete res.addonBefore;
+	const { addonBefore, onChange, disabled, value, ...res } = props;
+	let { httpDefault, ...more } = addonBefore || {};
 	delete more.onChange;
 	delete more.value;
-	httpDefault === HTTPS || (httpDefault = HTTP);
+	delete more.opts;
 	let { http, link } = formatUrl(value, -1);
+	httpDefault === HTTPS || (httpDefault = HTTP);
 	[HTTP, HTTPS].includes(http) || (http = httpDefault);
 	const updateSelect = (v = httpDefault) => onChange(v + link);
 	const updateInput = e => {

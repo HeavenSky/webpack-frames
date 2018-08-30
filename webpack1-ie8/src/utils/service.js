@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { log } from "./fns";
 
 // 各浏览器支持的 localStorage 和 sessionStorage 容量上限不同
-const keep = window.localStorage || window.sessionStorage;
+const keep = window.localStorage && window.sessionStorage;
 export const clsStore = (...args) => keep && keep.clear(...args);
 export const getStore = (...args) => keep && keep.getItem(...args);
 export const setStore = (...args) => keep && keep.setItem(...args);
@@ -176,17 +176,13 @@ export const save = (blob, name) => {
 	}
 };
 
-// ReactRouter权限检查 route=>Component||Promise.resolve(Component)
+// ReactRouter权限检查 route=>Component
 const permission = route => {
+	// 权限检查通过 显示对应组件
 	const auth = true;
-	if (auth) {
-		// 权限检查通过 显示对应组件
-		return route.component;
-	} else {
-		// 无权限访问 显示403页面
-		const Page403 = props => 403;
-		return Page403;
-	}
+	// 无权限访问 显示403页面
+	const Page403 = props => 403;
+	return auth ? route.component : Page403;
 };
 
 // VueRouter路由控制
@@ -198,17 +194,13 @@ const nprogress = {
 	start() { },
 	done() { },
 };
-router.beforeEach(
-	(to, from, next) => {
-		nprogress.start();
-		if (permission) {
-			next();
-		} else {
-			next("/");
-			nprogress.done();
-		}
+router.beforeEach((to, from, next) => {
+	nprogress.start();
+	if (permission) {
+		next();
+	} else {
+		next("/");
+		nprogress.done();
 	}
-);
-router.afterEach(
-	(to, from) => nprogress.done()
-);
+});
+router.afterEach((to, from) => nprogress.done());

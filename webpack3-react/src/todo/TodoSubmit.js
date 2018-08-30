@@ -25,7 +25,7 @@ class TodoSubmit extends Component {
 
 const mapStateToProps = undefined;
 const mapDispatchToProps = (dispatch, props) => ({
-	click: (id, text) => dispatch(ADD_TODO(id, text)),
+	click: (id, text) => dispatch(ADD_TODO({ id, text })),
 });
 export default connect(
 	mapStateToProps,

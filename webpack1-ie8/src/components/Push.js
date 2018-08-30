@@ -22,12 +22,12 @@ beforeUpload(file) {
 }
 3. 上传成功后操作
 onChange(info) {
-	const { file, fileList, event } = info || {};
-	const { status } = file || {};
+	const { file, fileList, event } = info;
+	const { status, name, response } = file;
 	if (status === "uploading") {
 		// 正在上传
 	} else if (status === "done") {
-		// 上传成功
+		// 上传结束
 	} else if (status === "error") {
 		// 上传失败
 	} else if (status === "removed") {
@@ -83,27 +83,39 @@ const Push = props => {
 			return false;
 		},
 		onChange(info) {
-			const { file, fileList, event } = info || {};
-			const { status } = file || {} || event;
+			const { file, fileList, event } = info;
+			const { status, name, response } = file;
 			if (status === "uploading") {
 				// 正在上传
+				message.warn(`文件 ${name} 正在上传. ` +
+					JSON.stringify(event));
 			} else if (status === "done") {
-				// 上传成功
+				// 上传结束
+				const { error } = response || {};
+				message.success(`文件 ${name} 上传结束. ` +
+					JSON.stringify(error));
 			} else if (status === "error") {
 				// 上传失败
+				message.error(`文件 ${name} 上传失败.`);
 			} else if (status === "removed") {
-				// 上传失败
+				// 移除文件
 			} else {
 				// 其他情况
 			}
+			// 非受控组件可以直接对 fileList 处理,减少数组元素
 			list = fileList.slice(-1);
 			onChange({ list, err });
 		},
 	};
 	return <Upload.Dragger {...param} {...res}>
-		<p className="ant-upload-drag-icon"><Icon type="inbox" /></p>
-		<p className="ant-upload-text">{list.length ? "重新上传" : "点击或将文件拖拽到这里上传"}</p>
-		<p className="ant-upload-hint">文件上传要求信息提示</p>
+		<p className="ant-upload-drag-icon">
+			<Icon type="inbox" />
+		</p>
+		<p className="ant-upload-text">
+			{list.length ? "重新上传"
+				: "点击或将文件拖拽到这里上传"}
+		</p>
+		<p className="ant-upload-hint">文件上传要求提示</p>
 	</Upload.Dragger>;
 };
 export default Push;

@@ -21,8 +21,8 @@ const currentConfig = require(
 );
 // 用import()按需加载 https://doc.webpack-china.org/api/module-methods/#import-
 const commonConfig = {
-	entry: iniConfig.ipt,
-	externals: iniConfig.cdn,
+	entry: iniConfig.ipt || {},
+	externals: iniConfig.cdn || {},
 	output: {
 		publicPath,
 		path: dir(outputFolder),

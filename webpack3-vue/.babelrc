@@ -7,9 +7,10 @@
 	"plugins": [
 		"transform-runtime",
 		[
-			"import",
+			"component",
 			{
-				"libraryName": "element-ui"
+				"libraryName": "element-ui",
+				"style": false
 			}
 		]
 	]

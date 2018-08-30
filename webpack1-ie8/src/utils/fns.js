@@ -295,12 +295,12 @@ const filters = { status: [1, 0].map(v => ({ text: v, value: v })) };
 const sorters = { status: (a, b) => a - b };
 const onChange = (pagination, filters, sorter) => 0;
 */
-const onFilter = key => (value, record) => record[key] === value;
-const onSorter = key => (a, b) => a[key] > b[key] ? 1 : a[key] < b[key] ? -1 : 0;
+const onFilter = k => (value, record) => record[k] === value;
+const onSorter = k => (a, b) => a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0;
 export const formatCols = (columns, filters, sorters) =>
 	(columns || []).filter(col => {
 		const { dataIndex, filterKey, sorterKey, _filter, _sorter } = col || {};
-		// columns 需要清理无效的列,有效列必含dataIndex属性
+		// columns 有效列必含dataIndex, 服务端模式_filter和_sorter小于0
 		if (!dataIndex) {
 			return false;
 		}
@@ -308,15 +308,18 @@ export const formatCols = (columns, filters, sorters) =>
 		const filter = (filters || {})[fKey];
 		if (filter) {
 			col.filters = filter;
-			// onFilter 本地模式是一个函数, 服务端模式是false/null/undefined
+		}
+		// onFilter 本地模式是一个函数, 服务端模式是false/null/undefined
+		if (_filter) {
 			col.onFilter = _filter < 0 ? false : onFilter(fKey);
 		}
 		const sKey = sorterKey || dataIndex;
 		const sorter = (sorters || {})[sKey];
 		if (sorter) {
 			col.sorter = sorter;
-		} else if (_sorter) {
-			// sorter 本地模式是一个函数, 服务端模式是true
+		}
+		// sorter 本地模式是一个函数, 服务端模式是true
+		if (_sorter) {
 			col.sorter = _sorter < 0 ? true : onSorter(sKey);
 		}
 		return true;

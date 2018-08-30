@@ -11,7 +11,7 @@ class Editor extends Component {
 		}, config);
 		opts.previewRender = (text, preview) => {
 			const { className, style } = preview;
-			/\smarkdown-body\s/.test(className + " ") ||
+			/\smarkdown-body\s/.test(` ${className} `) ||
 				(preview.className += " markdown-body");
 			style.backgroundColor = "#fff";
 			return SimpleMDE.prototype.markdown(text);
