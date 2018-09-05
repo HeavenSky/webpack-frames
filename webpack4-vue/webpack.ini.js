@@ -10,8 +10,9 @@ const dir = path.join.bind(path, __dirname);
 const dst = v => v ? [...new Set(v)] : [];
 const fmt = (f, app) => "" + f === f ? f : f(app);
 
-const bootcdn = "https://cdn.bootcss.com/";
-const elecdn = "https://npm.elemecdn.com/";
+const bootcdn = "https://cdn.bootcss.com/"; // 资源旧下载快
+const delivr = "https://cdn.jsdelivr.net/"; // 不能下载字体
+const elecdn = "https://npm.elemecdn.com/"; // 资源路径模糊
 // 路径常量请尽可能以`/`结尾 webpackConfig.output.publicPath
 const publicPath = undefined;
 const prefixAjax = undefined;
@@ -146,15 +147,15 @@ const entry = {
 		css: [
 			`css/normalize-ie8.min.css`,
 			`editor/wangeditor.min.css`,
-			`css/fa-4.x.min.css`,
-			`${bootcdn}element-ui/2.4.0/theme-chalk/index.css`,
+			`fa/fa-4.x.min.css`,
+			`${delivr}npm/element-ui@2.4.6/lib/theme-chalk/index.css`,
 			// highlight.js
 			!`${bootcdn}highlight.js/9.12.0/styles/atom-one-light.min.css`,
 			!`${bootcdn}highlight.js/9.12.0/styles/atom-one-dark.min.css`,
 			!`${bootcdn}highlight.js/9.12.0/highlight.min.js`,
 			// vant
-			!`${elecdn}vant@1.1.15/lib/vant-css/index.css`,
-			!`${elecdn}vant@1.1.15/lib/vant.min.js`,
+			!`${elecdn}vant@1.3.0/lib/vant-css/index.css`,
+			!`${delivr}npm/vant@1.3.0/lib/vant.min.js`,
 		],
 		proxy: {
 			"/proxy": {

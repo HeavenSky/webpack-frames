@@ -40,28 +40,14 @@ export const log = (msg, err) => logger("log", msg, err);
 	log[key] = (msg, err) => logger(key, msg, err);
 });
 export const regCheck = (v, ok, no) => {
-	let check = false;
-	ok = isArray(ok) ? ok : [ok];
-	for (let r of ok) {
-		if (isRegExp(r)) {
-			if (r.test(v)) {
-				check = true;
-			} else {
-				return false;
-			}
-		}
+	let fail, check;
+	isArray(ok) || (ok = [ok]);
+	fail = ok.find(x => isRegExp(x) && !(check = x.test(v)));
+	if (!fail) {
+		isArray(no) || (no = [no]);
+		fail = no.find(x => isRegExp(x) && !(check = !x.test(v)));
 	}
-	no = isArray(no) ? no : [no];
-	for (let r of no) {
-		if (isRegExp(r)) {
-			if (r.test(v)) {
-				return false;
-			} else {
-				check = true;
-			}
-		}
-	}
-	return check;
+	return !fail && !!check;
 };
 // 邮箱 name@domain name规则:最多64个字符 domain规则:必须为顶级域名,域名后缀2-6个字符
 // http://faqs.org/rfcs/rfc1035.html 域名限制
@@ -160,46 +146,46 @@ export const verClient = () => {
 		compatible: /\bcompatible\b/i.test(ua),
 	};
 	let match;
-	match = ua.match(/msie[/\s]*([.\d]+)/i) ||
-		ua.match(/rv:([.\d]+)[)\s]+like gecko/i);
+	match = ua.match(/\bmsie\W*([.\d]+)/i) ||
+		ua.match(/\brv:([.\d]+)\W*like gecko\b/i);
 	if (match) {
 		return Object.assign(res, {
 			type: "ie",
 			version: match[1],
 		});
 	}
-	match = ua.match(/ucweb[/\s]*([.\d]+)/i) ||
-		ua.match(/ucbrowser[/\s]*([.\d]+)/i);
+	match = ua.match(/\bucweb\W*([.\d]+)/i) ||
+		ua.match(/\bucbrowser\W*([.\d]+)/i);
 	if (match) {
 		return Object.assign(res, {
 			type: "uc",
 			version: match[1],
 		});
 	}
-	match = ua.match(/opr[/\s]*([.\d]+)/i) ||
-		ua.match(/opera.*version[/\s]*([.\d]+)/i) ||
-		ua.match(/opera[/\s]*([.\d]+)/i);
+	match = ua.match(/\bopr\W*([.\d]+)/i) ||
+		ua.match(/\bopera\b.*\bversion\W*([.\d]+)/i) ||
+		ua.match(/\bopera\W*([.\d]+)/i);
 	if (match) {
 		return Object.assign(res, {
 			type: "opera",
 			version: match[1],
 		});
 	}
-	match = ua.match(/firefox[/\s]*([.\d]+)/i);
+	match = ua.match(/\bfirefox\W*([.\d]+)/i);
 	if (match) {
 		return Object.assign(res, {
 			type: "firefox",
 			version: match[1],
 		});
 	}
-	match = ua.match(/version[/\s]*([.\d]+)\s.*safari[/\s]*/i);
+	match = ua.match(/\bversion\W*([.\d]+)\s.*\bsafari\b/i);
 	if (match) {
 		return Object.assign(res, {
 			type: "safari",
 			version: match[1],
 		});
 	}
-	match = ua.match(/chrome[/\s]*([.\d]+)/i);
+	match = ua.match(/\bchrome\W*([.\d]+)/i);
 	if (match) {
 		return Object.assign(res, {
 			type: "chrome",
@@ -291,12 +277,12 @@ export const formatUrl = (url, pos) => {
 	return { http, link: bef };
 };
 /*
-const filters = { status: [1, 0].map(v => ({ text: v, value: v })) };
-const sorters = { status: (a, b) => a - b };
+const filters = { status: [{ text, value }] };
+const sorters = { status: (a, b) => a > b || -(a < b) };
 const onChange = (pagination, filters, sorter) => 0;
 */
 const onFilter = k => (value, record) => record[k] === value;
-const onSorter = k => (a, b) => a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0;
+const onSorter = k => (a, b) => a[k] > b[k] || -(a[k] < b[k]);
 export const formatCols = (columns, filters, sorters) =>
 	(columns || []).filter(col => {
 		const { dataIndex, filterKey, sorterKey, _filter, _sorter } = col || {};

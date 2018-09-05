@@ -24,7 +24,7 @@
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-font-smoothing: antialiased;
 }
-/* [v1.11.6 -> v3.8.1]
+/* [v1.11.6 -> v3.8.4] (v3.9.0以后图标改用svg形式,支持多色彩,且不再向下兼容)
 "\E611"  --(1.x)->(3.x)>>  "\E606"  anticon-caret-down:before
 "\E603"  --(1.x)->(3.x)>>  "\E61D"  anticon-down:before
 "\E602"  --(1.x)->(3.x)>>  "\E61E"  anticon-up:before

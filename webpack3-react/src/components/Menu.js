@@ -1,6 +1,6 @@
 import React, { Component, version } from "react";
 import { Link, NavLink, withRouter } from "react-router-dom";
-import { Menu, Popconfirm, Tooltip, Breadcrumb } from "antd";
+import { Menu, Icon, Popconfirm, Tooltip, Breadcrumb } from "antd";
 import "./Menu.less";
 
 const oldReact = parseFloat(version) < 16.3;
@@ -9,12 +9,6 @@ const MENU_SET = []; // { key, type, hidden, children: [{ key, type, children, h
 const CURSOR_DEFAULT = "default";
 const CURSOR_POINTER = "pointer";
 const CURSOR_NOTALOW = "not-allowed";
-const Icon = ({ type, className, ...res }) => {
-	let cls = className || "";
-	cls += /^\s+/.test(type) ? type
-		: " anticon anticon-" + type;
-	return <i className={cls} {...res} />;
-};
 const matchPath = href => {
 	const { pathname = "", search = "", hash = "" } = window.location;
 	return (pathname + search + hash).indexOf(href) === 0;
@@ -268,4 +262,4 @@ const TitleBar =
 				})}
 			</div>
 		</div>;
-export { Icon, LinkItem, WrapMenu, RouteMenu, WrapBread, TitleBar };
+export { LinkItem, WrapMenu, RouteMenu, WrapBread, TitleBar };

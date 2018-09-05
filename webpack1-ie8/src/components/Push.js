@@ -1,6 +1,5 @@
 import React from "react";
-import { Upload, message } from "antd";
-import { Icon } from "./Menu";
+import { Upload, Icon, message } from "antd";
 /*
 文件上传组件
 1. 格式化文件下载地址和下载文件名
