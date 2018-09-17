@@ -1,7 +1,7 @@
 ## 重要说明
 1. `webpack4-*/src` 文件夹缺失请手动从对应 `webpack3-*/src` 拷贝一份
 2. 开发环境已经做了热重载, 热重载不兼容 ie11 以下环境, 所以开发环境就不做兼容 ie11 以下了, 生产环境还是兼容的
-3. 若想开发环境兼容ie11以下, 请做实现热重载的逆向操作
+3. 若还是想开发环境兼容ie11以下, 请做实现热重载的逆向操作
 	* `.babel` plugins 中移除 react-hot-loader/babel
 	* `package.json` devDependencies 中移除 react-hot-loader
 	* `webpack.cfg.dev.js` devServer.inline 一定要为 false (Vue框架仅需改此一条)
@@ -11,6 +11,7 @@ import { hot } from 'react-hot-loader'; // 移除删掉
 ...
 export default hot(module)(App); // 改成 export default App;
 ```
+4. 开发环境已经支持前端 mock api, 会自动读取 `src/mock` 文件夹下的文件, 并进行热更新, 逻辑代码在对应项目下的`browser.js`, 示例参考 `webpack3-react/src/mock/api.js`, 若想关掉 mock api, 只需一个文件内配置 `NO_MOCK:true`
 
 ### 更新说明
 1. 配置变化比较大, 几乎将可配置的内容全部提取到 `webpack.ini.js` 内, 基本统一了 `webpack1 webpack3 webpack4 react vue` 各种框架的配置

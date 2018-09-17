@@ -1,3 +1,6 @@
+# 说明
+文档内存在部分说明错误,请结合上一级目录的readme一起查看
+
 # webpack4-react
 采用 `React` 和 `Ant Design` 兼容到浏览器 `IE9` 的 `demo` 例子.
 * 所有 `dependency` 和 `dev dependency` 均采用最新版本, 具体请见 `package.json`

@@ -1,3 +1,6 @@
+# 说明
+文档内存在部分说明错误,请结合上一级目录的readme一起查看
+
 # webpack1-ie8
 采用 `React` 和 `Ant Design` 兼容到浏览器 `IE8` 的 `demo` 例子.
 * 采用低版本兼容的 `dependency` 有 `react@0.x` `antd@1.x` `jquery@1.x`
