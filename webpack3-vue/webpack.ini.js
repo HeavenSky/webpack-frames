@@ -1,14 +1,14 @@
-const { NODE_ENV } = process.env;
+const { NODE_ENV, PKG_CSS, DIR_SVC, IE_SHIM } = process.env;
+const path = require("path");
 const pkg = require("./package.json");
 const isProd = NODE_ENV === "production";
 const ver = isProd ? ".[hash:5]" : "-" + pkg.version;
 const min = isProd ? ".min" : "";
-const ts = new Date().getTime();
-const path = require("path");
+const ts = Date.now();
 const rel = path.relative.bind(path);
 const dir = path.join.bind(path, __dirname);
-const dst = v => v ? [...new Set(v)] : [];
-const fmt = (f, app) => "" + f === f ? f : f(app);
+const dst = array => array ? [...new Set(array)] : [];
+const fmt = (f, app) => f instanceof Function ? f(app) : f;
 
 const bootcdn = "https://cdn.bootcss.com/"; // 资源旧下载快
 const delivr = "https://cdn.jsdelivr.net/"; // 不能下载字体
@@ -79,17 +79,17 @@ const dps = Object.assign(
 	{}, pkg.dependencies,
 	pkg.devDependencies
 );
-const verDps = key => parseFloat(
-	String(dps[key]).replace(/[^.\d]+/g, "")
-);
-if (verDps("vue-loader")) {
+if ("vue-loader" in dps) {
 	// https://github.com/vuejs/vue-style-loader
 	styleLoader.loader = "vue-style-loader";
 }
+const c = key => parseFloat(
+	String(dps[key]).replace(/[^.\d]+/g, "")
+);
 
 const entry = {
 	page: [""],
-	rel, dir, dst, fmt,
+	rel, dir, dst, fmt, c,
 	publicPath, prefixAjax,
 	buildFolder, outputFolder,
 	staticFolder, templateFolder,
@@ -97,9 +97,7 @@ const entry = {
 	scssStyleLoader, lessStyleLoader,
 	isProd, ver, min, ts, styleLoader,
 	dll: {
-		shim: [
-			"babel-polyfill",
-		],
+		shim: ["babel-polyfill"],
 		common: [
 			"axios",
 			"moment",
@@ -127,7 +125,7 @@ const entry = {
 		public: [
 			"babel-polyfill", // ie8 必须提前引入 es5-shim
 			dir("src/utils/public.js"),
-		].slice(isProd - 1), // 加快开发环境编译速度
+		].slice(isProd || IE_SHIM ? 0 : -1),
 	},
 	cdn: {
 		jquery: "$",
@@ -157,34 +155,24 @@ const entry = {
 			!`${elecdn}vant@1.3.0/lib/vant-css/index.css`,
 			!`${delivr}npm/vant@1.3.0/lib/vant.min.js`,
 		],
+		// https://webpack.docschina.org/configuration/dev-server
+		// https://github.com/chimurai/http-proxy-middleware#options
 		proxy: {
 			"/proxy": {
 				target: "https://proxy.io",
 				changeOrigin: true,
 				secure: true,
-			},
-			"/xyz": {
-				target: "http://xyz.io",
-				pathRewrite: { "^/xyz": "/abc" },
-				changeOrigin: true,
-				secure: false,
-				bypass: (req, res, next) => {
-					if (req.method === "GET") {
-						const url = req.url.slice(4);
-						const isHTML = /^(\/[^/]+)?\/[^/]+\.html/i.test(url);
-						const isFILE = /^\/(static|data|css|img|js)\//.test(url);
-						if (isHTML || isFILE) {
-							return req.originalUrl;
-						}
+				pathRewrite: { "^/proxy": "" },
+				bypass: (req, res, proxyOptions) => {
+					if (/\.html/.test(req.url)) {
+						return req.originalUrl;
 					}
 				},
+				onProxyReq: (proxyReq, req, res) => {
+					proxyReq.setHeader("x-auth-token", "forever");
+				},
 				onProxyRes: (proxyRes, req, res) => {
-					const url = req.url.slice(4);
-					if (/logout/i.test(url) && req.method === "GET") {
-						proxyRes.headers.location = "/xyz/login.html";
-					} else if (/login/i.test(url) && req.method === "POST") {
-						proxyRes.headers.location = "/xyz/index.html";
-					}
+					proxyRes.setHeader("location", "/login.html");
 				},
 			},
 		},
@@ -192,21 +180,19 @@ const entry = {
 };
 
 if (isProd) {
-	const style = []; // 需要编译的样式 css less
-	if (style.length) {
-		const map = {};
-		style.forEach(v => v && (map[v] = "@/static/" + v));
-		entry.ipt = map;
-		delete entry.dll;
+	if (PKG_CSS/* 纯打包编译样式文件 */) {
+		entry.ipt = { style: "@/" + PKG_CSS };
 		delete entry.page;
-	}
-} else {
-	const serve = 0; // 是否做纯静态服务器
-	if (serve) {
-		delete entry.ipt;
 		delete entry.dll;
-		delete entry.page;
 	}
+} else if (DIR_SVC/* 使用静态文件服务器 */) {
+	// 生产包做静态服务器
+	entry.staticFolder = outputFolder;
+	entry.ipt = { u: "@/utils/fns" };
+	delete entry.page;
+	delete entry.dll;
+} else if (IE_SHIM/* 兼容 IE 浏览器 */) {
+	entry.ie = true;
 }
 entry.html.chunks = Object.keys(entry.ipt || {});
 module.exports = entry;

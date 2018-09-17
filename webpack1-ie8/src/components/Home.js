@@ -169,6 +169,8 @@ class Hello extends Component {
 	};
 };
 const Home = props => <div>
+	<Test />
+	<Hello />
 	<DatePicker.RangePicker showTime format="yyyy-MM-dd HH:mm:ss" />
 	<div />
 	<DatePicker.RangePicker />
@@ -184,7 +186,5 @@ const Home = props => <div>
 		>技术测试异常 2015-09-01</Timeline.Item>
 		<Timeline.Item>网络异常正在修复 2015-09-01</Timeline.Item>
 	</Timeline>
-	<Hello />
-	<Test />
 </div>;
 export default Home;

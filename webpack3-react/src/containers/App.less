@@ -20,22 +20,26 @@
 		font-weight: bold;
 	}
 }
-.logo {
-	height: 32px;
-	margin: 16px;
-}
-.c-sider {
-	height: 100vh;
-	overflow: auto;
-}
-.c-layout {
-	height: 100vh;
-	.ant-layout-content {
+.c-whole {
+	.c-sider {
+		float: left;
+	}
+	.logo {
+		height: 32px;
+		margin: 16px;
+	}
+	.c-content {
+		height: calc( 100vh - 112px);
+	}
+	.c-sider, .c-content {
 		overflow: auto;
 	}
-}
-.c-header, .c-footer, .logo {
-	background-color: @header;
+	.c-sider, .c-layout {
+		height: 100vh;
+	}
+	.c-header, .c-footer, .logo {
+		background-color: @header;
+	}
 }
 .it-margin {
 	margin: 10px 0;

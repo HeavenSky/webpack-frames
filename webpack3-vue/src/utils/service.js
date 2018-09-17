@@ -160,7 +160,7 @@ export const request = (key, check) => (...args) => {
 		}
 	});
 };
-export const save = (blob, name) => {
+export const download = (blob, name) => {
 	if (navigator.msSaveBlob) { // IE10+下载
 		navigator.msSaveBlob(blob, name);
 	} else {
@@ -175,32 +175,3 @@ export const save = (blob, name) => {
 		URL.revokeObjectURL(url);
 	}
 };
-
-// ReactRouter权限检查 route=>Component
-const permission = route => {
-	// 权限检查通过 显示对应组件
-	const auth = true;
-	// 无权限访问 显示403页面
-	const Page403 = props => 403;
-	return auth ? route.component : Page403;
-};
-
-// VueRouter路由控制
-const router = {
-	beforeEach() { },
-	afterEach() { },
-};
-const nprogress = {
-	start() { },
-	done() { },
-};
-router.beforeEach((to, from, next) => {
-	nprogress.start();
-	if (permission) {
-		next();
-	} else {
-		next("/");
-		nprogress.done();
-	}
-});
-router.afterEach((to, from) => nprogress.done());

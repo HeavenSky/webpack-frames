@@ -1,16 +1,13 @@
 import React from "react";
-import { Input } from "antd";
-import Select from "./Select";
+import { Input, Select } from "antd";
 import { URL_SELECT, formatUrl } from "../utils/fns";
 
-const { HTTP, HTTPS, OPTS } = URL_SELECT;
-// value 和 onChange 必须相结合使用, 否则组件的值永远为空
+const { Option } = Select;
+const { HTTP, HTTPS } = URL_SELECT;
+// 受控组件, value 和 onChange 必须结合使用, 否则组件永远为空
 const Http = props => {
-	const { addonBefore, onChange, disabled, value, ...res } = props;
-	let { httpDefault, ...more } = addonBefore || {};
-	delete more.onChange;
-	delete more.value;
-	delete more.opts;
+	const { addonProps, onChange, disabled, value, ...res } = props;
+	let { httpDefault, ...more } = addonProps || {};
 	let { http, link } = formatUrl(value, -1);
 	httpDefault === HTTPS || (httpDefault = HTTP);
 	[HTTP, HTTPS].includes(http) || (http = httpDefault);
@@ -21,21 +18,12 @@ const Http = props => {
 		format.http && ({ http } = format);
 		onChange(http + format.link);
 	};
-	const selector = (
-		<Select
-			onChange={updateSelect}
-			disabled={disabled}
-			value={http}
-			opts={OPTS}
-			{...more}
-		/>
-	);
-	return <Input
-		addonBefore={selector}
-		onChange={updateInput}
-		disabled={disabled}
-		value={link}
-		{...res}
-	/>;
+	const selector = <Select {...more} value={http}
+		disabled={disabled} onChange={updateSelect}>
+		<Option value={HTTP}>{HTTP}</Option>
+		<Option value={HTTPS}>{HTTPS}</Option>
+	</Select>;
+	return <Input {...res} disabled={disabled} value={link}
+		addonBefore={selector} onChange={updateInput} />;
 };
 export default Http;

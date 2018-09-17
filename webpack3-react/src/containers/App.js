@@ -13,7 +13,7 @@ import "./App.less";
 const { Header, Footer, Sider, Content } = Layout;
 const App = props =>
 	<Router history={history}>
-		<Layout>
+		<Layout className="c-whole">
 			<Sider
 				className="c-sider"
 				breakpoint="md"
@@ -29,7 +29,7 @@ const App = props =>
 			</Sider>
 			<Layout className="c-layout">
 				<Header className="c-header" />
-				<Content>
+				<Content className="c-content">
 					<RouteList routes={routes} />
 				</Content>
 				<Footer className="c-footer" />

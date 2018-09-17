@@ -244,13 +244,7 @@ export const urlArgs = (v, b) => {
 };
 const HTTP = "http://";
 const HTTPS = "https://";
-export const URL_SELECT = {
-	HTTP, HTTPS,
-	OPTS: [
-		{ id: HTTP, label: HTTP },
-		{ id: HTTPS, label: HTTPS },
-	],
-};
+export const URL_SELECT = { HTTP, HTTPS };
 export const formatUrl = (url, pos) => {
 	if (pos == null) {
 		let http = "";

@@ -44,14 +44,3 @@ const print = store => next => action => {
 	return result;
 };
 export { action, initor, creator, thunk, print };
-/* https://vuex.vuejs.org/zh/api
-const module = {
-	state: Object || Function,
-	getters: { getter(state, getters, rootS, rootG) { } },
-	mutations: { mutation(state, payload) { } },
-	actions: { action(context, payload) { } },
-};
-const store = new Vuex.Store({
-	modules: { module },
-	getters: { getter(state, getters) { } },
-}); */

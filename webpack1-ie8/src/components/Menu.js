@@ -15,7 +15,7 @@ const matchPath = href => {
 };
 const LinkItem = ({ link, pathname, cursor, gutter = 10 }) => {
 	const { type, icon, label, title, confirm, children, ...res } = link || {};
-	const fn = res.onClick;
+	let fn = () => false;
 	if (res.disabled) {
 		cursor = CURSOR_NOTALOW;
 	} else if (/^a$/i.test(type)) {
@@ -24,33 +24,35 @@ const LinkItem = ({ link, pathname, cursor, gutter = 10 }) => {
 	} else if (/^(link|navlink)$/i.test(type)) {
 		cursor = pathname === res.to
 			? CURSOR_DEFAULT : CURSOR_POINTER;
-	} else if (fn) {
+	} else if (typeof res.onClick === "function") {
+		fn = res.onClick;
 		cursor = CURSOR_POINTER;
 	}
 	res.style = Object.assign({ cursor }, res.style);
 	if (confirm || res.disabled) {
 		res.onClick = e => e.preventDefault();
 	} else if (cursor === CURSOR_DEFAULT) {
-		res.onClick = e => [fn && fn(e)] && e.preventDefault();
+		res.onClick = e => ![fn(e), e.preventDefault()];
 	}
-	const near = label ? { marginRight: gutter + "px" } : null;
-	const _icon = icon ? <Icon type={icon} style={near} /> : "";
-	const _label = icon && label && typeof label === "string"
+	const gap = label ? { marginRight: gutter } : null;
+	const _icon = icon && typeof icon === "string"
+		? <Icon type={icon} style={gap} /> : icon || "";
+	const _label = icon && typeof label === "string"
 		? <span>{label}</span> : label || "";
-	let node = /^link$/i.test(type) ? <Link {...res}>{_icon}{_label}</Link>
-		: /^navlink$/i.test(type) ? <NavLink {...res}>{_icon}{_label}</NavLink>
-			: /^a$/i.test(type) || fn ? <a {...res}>{_icon}{_label}</a>
-				: <span {...res}>{_icon}{_label}</span>;
-	if (res.disabled) {
-		// NO TODO
-	} else if (title) {
+	const Tag = typeof type === "string"
+		? /^navlink$/i.test(type) ? NavLink
+			: /^link$/i.test(type) ? Link
+				: /^a$/i.test(type) ? "a"
+					: "span" : type || "span";
+	let node = <Tag {...res}>{_icon}{_label}</Tag>;
+	if (title) {
 		const tip = {
 			title,
 			placement: "top",
 			arrowPointAtCenter: true,
 		};
 		node = <Tooltip {...tip}>{node}</Tooltip>;
-	} else if (confirm) {
+	} else if (confirm && !res.disabled) {
 		const pop = {
 			title: confirm,
 			onConfirm: fn,

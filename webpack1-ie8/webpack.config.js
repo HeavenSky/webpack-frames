@@ -13,13 +13,6 @@ const {
 } = iniConfig;
 const buildPath = dir(buildFolder);
 
-// react-hot-loader 不兼容 react@0 临时解决方案如下
-const F = "node_modules/react-hot-loader/dist/react-hot-loader.development.js";
-if (fs.existsSync(dir(F))) {
-	let str = fs.readFileSync(dir(F), "utf-8");
-	str = str.replace(/stack.children.push/g, "(stack.children||[]).push");
-	fs.writeFileSync(dir(F), str, "utf-8");
-}
 // fs.existsSync(buildPath) && fs.rmdirSync(buildPath);
 const fm = (list, file) => {
 	const str = list.map(
@@ -119,18 +112,23 @@ const commonConfig = {
 	],
 	resolve: {
 		alias: {
-			/* api: dir("src/api"),
+			/* apis: dir("src/apis"),
 			components: dir("src/components"),
 			containers: dir("src/containers"),
 			constants: dir("src/constants"),
 			reducers: dir("src/reducers"),
+			services: dir("src/services"),
 			actions: dir("src/actions"),
+			layouts: dir("src/layouts"),
+			assets: dir("src/assets"),
+			models: dir("src/models"),
 			routes: dir("src/routes"),
 			styles: dir("src/styles"),
-			views: dir("src/views"),
-			utils: dir("src/utils"), */
+			themes: dir("src/themes"),
+			pages: dir("src/pages"),
+			utils: dir("src/utils"),
+			views: dir("src/views"), */
 			"@": dir("src"),
-			vue$: "vue/dist/vue.esm",
 		},
 		extensions: ["", ".js", ".jsx", ".vue", ".json"],
 	},
@@ -186,8 +184,21 @@ const addEntryPage = name => {
 		})
 	);
 };
+
+const m = "react-hot-loader";
+// react-hot-loader 不兼容 react@0 临时解决方案如下
+const e = `node_modules/${m}/dist/${m}.development.js`;
+if (fs.existsSync(dir(e))) {
+	let str = fs.readFileSync(dir(e), "utf-8");
+	str = str.replace(/stack.children.push/g,
+		"(stack.children||[]).push");
+	fs.writeFileSync(dir(e), str, "utf-8");
+}
 const { length } = iniConfig.page || [];
 if (length) {
+	// 兼容 ie 直接使用生产包
+	iniConfig.ie && iniConfig.c(m) && (commonConfig.resolve
+		.alias[`${m}$`] = `${m}/dist/${m}.production.min`);
 	iniConfig.page.forEach(addEntryPage); // 多页面打包
 } else {
 	copyList.length = 0;

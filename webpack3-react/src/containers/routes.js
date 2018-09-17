@@ -4,9 +4,7 @@ import Async from "../async";
 import Todo from "../todo";
 
 class NoAu extends Component {
-	state = {
-		arr: [1, 2, 3, 4, 5, 6, 7, 8],
-	};
+	state = { arr: Array(30).fill().map((v, i) => i + 1) };
 	componentDidMount() {
 		const wrap = $(".sort-test");
 		wrap.sortable({

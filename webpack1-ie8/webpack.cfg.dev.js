@@ -1,6 +1,6 @@
-
 const webpack = require("webpack");
-const FriendlyErrorsPlugin = require("friendly-errors-webpack-plugin");
+const ErrFmt = require("friendly-errors-webpack-plugin");
+const { webpackMock } = require("./browser");
 const iniConfig = require("./webpack.ini");
 const {
 	dir, staticFolder, styleLoader,
@@ -73,29 +73,32 @@ const developmentConfig = {
 				"NODE_ENV": JSON.stringify("development"),
 			},
 		}),
-		new FriendlyErrorsPlugin(),
+		new ErrFmt(),
 		new webpack.NamedModulesPlugin(),
 		new webpack.HotModuleReplacementPlugin(),
 	],
 	devServer: {
-		contentBase: dir(staticFolder),
 		historyApiFallback: true,
 		watchContentBase: true,
 		disableHostCheck: true,
 		compress: true,
 		hotOnly: true,
 		noInfo: true,
-		inline: true,
+		inline: !iniConfig.ie,
 		// ie11以下不支持inline,热重载inline必须为true
 		https: false,
 		quiet: false,
 		open: false,
 		hot: true,
-		clientLogLevel: "error",
-		publicPath: "/",
-		host: "0.0.0.0",
 		port: 8888,
+		host: "0.0.0.0",
+		publicPath: "/",
+		clientLogLevel: "error",
 		proxy: iniConfig.html.proxy,
+		contentBase: dir(staticFolder),
+		// webpack1使用setup webpack3使用before
+		[iniConfig.c("webpack") < 3 ? "setup" : "before"]:
+			app => webpackMock(app, "src/mock"),
 	},
 };
 

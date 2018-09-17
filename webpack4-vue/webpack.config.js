@@ -183,18 +183,23 @@ const commonConfig = {
 	],
 	resolve: {
 		alias: {
-			/* api: dir("src/api"),
+			/* apis: dir("src/apis"),
 			components: dir("src/components"),
 			containers: dir("src/containers"),
 			constants: dir("src/constants"),
 			reducers: dir("src/reducers"),
+			services: dir("src/services"),
 			actions: dir("src/actions"),
+			layouts: dir("src/layouts"),
+			assets: dir("src/assets"),
+			models: dir("src/models"),
 			routes: dir("src/routes"),
 			styles: dir("src/styles"),
-			views: dir("src/views"),
-			utils: dir("src/utils"), */
+			themes: dir("src/themes"),
+			pages: dir("src/pages"),
+			utils: dir("src/utils"),
+			views: dir("src/views"), */
 			"@": dir("src"),
-			vue$: "vue/dist/vue.esm",
 		},
 		extensions: [".js", ".jsx", ".vue", ".json"],
 	},
@@ -278,8 +283,13 @@ const addEntryPage = name => {
 		})
 	);
 };
+
+const m = "react-hot-loader";
 const { length } = iniConfig.page || [];
 if (length) {
+	// 兼容 ie 直接使用生产包
+	iniConfig.ie && iniConfig.c(m) && (commonConfig.resolve
+		.alias[`${m}$`] = `${m}/dist/${m}.production.min`);
 	iniConfig.page.forEach(addEntryPage); // 多页面打包
 } else {
 	copyList.length = 0;
