@@ -10,7 +10,7 @@ export const getStore = (...args) => keep && keep.getItem(...args);
 export const setStore = (...args) => keep && keep.setItem(...args);
 export const delStore = (...args) => keep && keep.removeItem(...args);
 
-// 单个cookie保存的数据不能超过4kb
+// 单个 cookie 保存的数据不能超过 4KB
 export const getCookie = (...args) => Cookies.get(...args);
 export const setCookie = (...args) => Cookies.set(...args);
 export const delCookie = (...args) => Cookies.remove(...args);
@@ -30,7 +30,7 @@ export const CONTENT_TYPE = {
 export const ACCEPT_ENCODING = {
 	KEY: "Accept-Encoding",
 	VAL: "br, gzip, deflate, compress, identity, *",
-	// https://qgy18.com/request-compress 压缩POST请求数据
+	// https://qgy18.com/request-compress 压缩 POST 请求数据
 };
 export const ERR_HANDLE = (data, status, statusText) => {
 	const isOk = /^(2\d+|301)$/.test(status);
@@ -42,7 +42,7 @@ export const ERR_HANDLE = (data, status, statusText) => {
 	}
 };
 
-// jquery常用请求封装
+// jquery 常用请求封装
 export const $get =
 	// data 为请求参数
 	(url, data, type = "GET", dataType = "JSON") =>
@@ -51,7 +51,7 @@ export const $get =
 			contentType: CONTENT_TYPE.URLS,
 		});
 export const $post =
-	// data 为json对象
+	// data 为 json 对象
 	(url, data, type = "POST", dataType = "JSON") =>
 		$.ajax({
 			url, type, dataType,
@@ -59,7 +59,7 @@ export const $post =
 			contentType: CONTENT_TYPE.JSON,
 		});
 export const $form =
-	// data 为FormData对象
+	// data 为 FormData 对象
 	(url, data, type = "POST", dataType = "JSON") =>
 		$.ajax({
 			url, data, type, dataType,
@@ -67,7 +67,7 @@ export const $form =
 			contentType: false,
 		});
 export const $promise = (jq, check) => {
-	// jq 为jquery的Deferred对象
+	// jq 为 jquery 的 Deferred 对象
 	typeof check === "function" || (check = ERR_HANDLE);
 	const fn = (xhr, resolve) => {
 		const { responseText, status, statusText,
@@ -86,7 +86,7 @@ export const $promise = (jq, check) => {
 		(xhr, status, error) => fn(xhr, resolve)
 	));
 };
-// 创建axios请求实例
+// 创建 axios 请求实例
 export const service = axios.create({
 	validateStatus: status => true,
 	baseURL: "/mock",
@@ -99,23 +99,23 @@ service.defaults.headers.post[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
 service.defaults.headers.delete[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
 service.defaults.headers.common[AUTH_TOKEN_KEY] = AUTH_KEY;
 */
-// request拦截器
+// request 拦截器
 service.interceptors.request.use(
 	config => {
-		// 在发送请求时执行函数,headers携带token,请根据实际情况自行修改
+		// 在发送请求时执行函数, headers 携带 token, 请根据实际情况自行修改
 		config.headers[AUTH_TOKEN_KEY] = AUTH_KEY;
 		return config;
 	},
 	error => {
 		log("service.interceptors.request.error", error);
-		// 在Promise中 throw error 相当于 Promise.reject(error)
+		// 在 Promise 中 throw error 相当于 Promise.reject(error)
 		throw error;
 	}
 );
-// respone拦截器
+// respone 拦截器
 service.interceptors.response.use(
 	response => {
-		// validateStatus函数判true时响应处理函数,返回值相当于Promise.resolve处理的结果
+		// validateStatus 函数判 true 时响应处理函数, 返回值相当于 Promise.resolve 处理的结果
 		/* response = {
 			data: {} || "", // `data` 给服务器发送请求的响应数据信息
 			status: 200, // `status` 给服务器发送请求的响应 HTTP 状态码
@@ -130,7 +130,7 @@ service.interceptors.response.use(
 		return response;
 	},
 	error => {
-		// validateStatus函数判false时响应处理函数,返回值相当于Promise.reject处理的结果
+		// validateStatus 函数判 false 时响应处理函数, 返回值相当于 Promise.reject 处理的结果
 		log("service.interceptors.response.error", error);
 		/* error = {
 			message: "", // `message` 给服务器发送请求的响应错误标题
@@ -141,10 +141,11 @@ service.interceptors.response.use(
 		throw error;
 	}
 );
-/* axios常用请求封装 https://github.com/axios/axios#request-method-aliases
+/* axios 常用请求封装
+https://github.com/axios/axios#request-method-aliases
 service.get/delete/head/options(url, { params, headers });
 service.post/put/patch(url, data, { params, headers });
-下载二进制文件增加参数 {responseType:"blob"} jquery不支持此方法
+下载二进制文件增加参数 {responseType:"blob"} jquery 不支持此方法
 */
 export const request = (key, check) => (...args) => {
 	typeof service[key] === "function" || (key = "get");
@@ -161,7 +162,7 @@ export const request = (key, check) => (...args) => {
 	});
 };
 export const download = (blob, name) => {
-	if (navigator.msSaveBlob) { // IE10+下载
+	if (navigator.msSaveBlob) { // IE10+ 下载
 		navigator.msSaveBlob(blob, name);
 	} else {
 		const a = document.createElement("a");

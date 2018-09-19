@@ -73,10 +73,10 @@ const dir = path.join.bind(path, __dirname);
 /**
  * routeMatch
  * 路由路径 和 pathname 进行匹配
- * @param {String} route 路由路径 如/user/:id
- * @param {String} pathname 浏览器 pathname 如/user/12
+ * @param {String} route 路由路径 如 /user/:id
+ * @param {String} pathname 浏览器 pathname 如 /user/12
  * @param {Object,other} config 可选 路径匹配规则配置
- * @returns {Object,false} 不匹配时返回false
+ * @returns {Object,false} 不匹配时返回 false
  */
 const routeMatch = (route, pathname, config) => {
 	config = Object.assign({
@@ -109,13 +109,15 @@ const clearRequireEsModule = mo => {
 	try {
 		file = require.resolve(mo);
 	} catch (e) {
-		console.log(e); // eslint-disable-line
+		// eslint-disable-next-line
+		console.log("Error(require resolve)", e);
 	}
 	clearRequireCache(file || mo);
 	try {
 		data = file && requireEsModule(file);
 	} catch (e) {
-		console.log(e); // eslint-disable-line
+		// eslint-disable-next-line
+		console.log("Error(require module)", e);
 	}
 	return data;
 };
@@ -148,7 +150,7 @@ const moduleToRoute = () => {
 };
 
 const webpackMock = (app, folder = "mock") => {
-	// app.use(require("multer")().none()); // 支持FormData
+	// app.use(require("multer")().none()); // 支持 FormData
 	app.use(bodyParser.json());
 	app.use(bodyParser.text({ type: "text/xml" }));
 	app.use(bodyParser.text({ type: "text/html" }));
@@ -193,7 +195,7 @@ const webpackMock = (app, folder = "mock") => {
 			case "error": break;
 			default: break;
 		}
-		// 防抖 频繁触发只有500ms内无触发才会执行
+		// 防抖 频繁触发只有 500ms 内无触发才会执行
 		timer && clearTimeout(timer);
 		timer = setTimeout(calc, 500);
 	});

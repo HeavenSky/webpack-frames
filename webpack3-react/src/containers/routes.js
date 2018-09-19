@@ -26,7 +26,7 @@ class NoAu extends Component {
 			<Todo />
 			<Async />
 			<div key="other" className="it-margin">
-				<Alert message="法海不懂爱,页面出不来..." />
+				<Alert message="页面出错了, 请确认后刷新重试..." />
 			</div>
 			{arr.map(
 				v => <div key={v} className="it-margin item" data-idx={v}>

@@ -87,6 +87,10 @@ const c = key => parseFloat(
 	String(dps[key]).replace(/[^.\d]+/g, "")
 );
 
+/* Prod Asset     Size  Chunks        Chunk Names
+common.dll.js  96.4 kB       0  [emitted]  common
+public.dll.js  89.4 kB       2  [emitted]  public
+vendor.dll.js   175 kB       1  [emitted]  vendor */
 const entry = {
 	page: [""],
 	rel, dir, dst, fmt, c,
@@ -97,12 +101,12 @@ const entry = {
 	scssStyleLoader, lessStyleLoader,
 	isProd, ver, min, ts, styleLoader,
 	dll: {
-		shim: [
+		common: [
 			"babel-polyfill",
 			"raf/polyfill",
 			"media-match",
 		],
-		common: [
+		public: [
 			"axios",
 			"moment",
 			"numeral",
