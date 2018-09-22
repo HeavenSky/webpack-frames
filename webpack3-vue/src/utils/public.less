@@ -1,6 +1,6 @@
 @font-face {
 	font-family: "Coding Number";
-	src: local("Menlo"), local("Monaco"), local("Verdana"), local("Consolas");
+	src: local("Source Code Variable"), local("Monaco"), local("Menlo"), local("Verdana"), local("Consolas");
 	unicode-range: U+30-39;
 }
 @font-face {
@@ -30,17 +30,17 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-font-smoothing: antialiased;
 }
-// 使用 rem 单位来实现弹性布局(全相对于html样式),数值一般小于1
 html {
+	/* 基于 rem 单位来实现弹性布局 */
 	font-size: 10vw;
 }
-// 使用 em 单位来实现弹性布局(一般相对于.flexible样式)
 .flexible * {
+	/* 基于 em 单位来实现弹性布局 相对于 .flexible 容器 */
 	font-size: inherit;
 }
 .code {
 	/* 等宽字体 常用字体颜色 #444 #666 #999 #bbb #ddd #eee #fff */
-	font-family: Menlo, Monaco, Verdana, Consolas, monospace;
+	font-family: "Source Code Variable", Monaco, Menlo, Verdana, Consolas, monospace;
 }
 .icon {
 	speak: none;

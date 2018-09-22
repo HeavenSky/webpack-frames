@@ -86,11 +86,10 @@ if ("vue-loader" in dps) {
 const c = key => parseFloat(
 	String(dps[key]).replace(/[^.\d]+/g, "")
 );
-
 /* Prod Asset     Size  Chunks        Chunk Names
 common.dll.js  96.4 kB       0  [emitted]  common
 public.dll.js  89.4 kB       2  [emitted]  public
-vendor.dll.js   175 kB       1  [emitted]  vendor */
+vendor.dll.js   176 kB       1  [emitted]  vendor */
 const entry = {
 	page: [""],
 	rel, dir, dst, fmt, c,
@@ -117,10 +116,12 @@ const entry = {
 			"moment/locale/zh-cn",
 		],
 		vendor: [
-			"redux",
 			"react",
+			"redux",
+			"history",
 			"react-dom",
 			"react-redux",
+			"react-hot-loader",
 			"react-router-dom",
 		],
 	},
@@ -134,8 +135,8 @@ const entry = {
 	ipt: {
 		public: [
 			"babel-polyfill", // ie8 必须提前引入 es5-shim
-			"raf/polyfill", // 支持 react16 所必须
-			"media-match", // 支持 antd 所必须
+			"raf/polyfill", // ie9 支持 react16 所必须
+			"media-match", // ie9 支持 antd 所必须
 			dir("src/utils/public.js"),
 		].slice(isProd || IE_SHIM ? 0 : -1),
 	},

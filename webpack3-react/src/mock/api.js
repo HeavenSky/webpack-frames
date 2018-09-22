@@ -6,7 +6,11 @@ export default {
 	"ALL /user/:id": (req, res) => {
 		const { id } = req.params;
 		const { body, query } = req;
-		res.json({ id, body, query });
+		const name = Math.random().toString(36).slice(2);
+		res.json({
+			id, name, body, query,
+			email: `${name}@qq.com`,
+		});
 	},
 	NO_MOCK: false,
 	// ^^^ 关掉 mock api 设为 true

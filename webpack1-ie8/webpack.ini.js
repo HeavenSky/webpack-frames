@@ -94,7 +94,7 @@ const entry = {
 	ipt: {
 		public: [
 			"babel-polyfill", // ie8 必须提前引入 es5-shim
-			"media-match", // 支持 antd 所必须
+			"media-match", // ie9 支持 antd 所必须
 			dir("src/utils/public.js"),
 		].slice(isProd || IE_SHIM ? 0 : -1),
 	},

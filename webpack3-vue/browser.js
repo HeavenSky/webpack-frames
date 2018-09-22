@@ -65,6 +65,7 @@ const status = {
 };
 
 const path = require("path");
+const multer = require("multer");
 const chokidar = require("chokidar");
 const bodyParser = require("body-parser");
 const pathToRegExp = require("path-to-regexp");
@@ -128,63 +129,61 @@ const addModule = file => {
 	moduleMap[file] = (esm && esm.default) || esm || {};
 };
 const delModule = file => (delete moduleMap[file]);
-const moduleToRoute = () => {
-	const routeMap = {};
-	const routes = Object.assign({},
-		...Object.values(moduleMap));
-	Object.keys(routes).forEach(k => {
-		if (k === "NO_MOCK") {
-			return (routeMap[k] = routes[k]);
-		}
-		let [, method = "all", route = ""] =
-			k.match(/^(\S+)\s+(\W.*)$/) || [];
-		if (route) {
+
+const webpackMock = (app, folder = "mock") => {
+	let timer;
+	let routeMap = {};
+	const calc = () => {
+		const routes = Object.assign({},
+			...Object.values(moduleMap));
+		routeMap = { NO_MOCK: routes.NO_MOCK }; // 重算路由
+		Object.keys(routes).forEach(k => {
+			let [, method = "all", route = ""] =
+				k.match(/^(\S+)\s+(\W.*)$/) || [];
 			method = method.toLowerCase();
 			route = route.replace(/\s+/g, "");
 			method === "method" && (method = "all");
-			routeMap[route] = Object.assign({},
+			routeMap[route] = route && Object.assign({},
 				routeMap[route], { [method]: routes[k] });
-		}
-	});
-	return routeMap;
-};
+		});
+	};
 
-const webpackMock = (app, folder = "mock") => {
-	// app.use(require("multer")().none()); // 支持 FormData
-	app.use(bodyParser.json());
-	app.use(bodyParser.text({ type: "text/xml" }));
-	app.use(bodyParser.text({ type: "text/html" }));
-	app.use(bodyParser.raw({ type: "text/plain" }));
-	app.use(bodyParser.urlencoded({ extended: false }));
-
-	let timer;
-	let routeMap = {};
-	const calc = () => (routeMap = moduleToRoute());
-
-	app.all("*", (req, res, next) => {
+	const find = (req, res, next) => {
 		if (routeMap.NO_MOCK) {
-			return next();
+			return;
 		}
-		const method = req.method.toLowerCase();
-		const pathname = req.path;
 		let params;
+		const pathname = req.path;
 		const route = Object.keys(routeMap).find(k => {
 			params = routeMatch(k, pathname);
 			return Boolean(params);
 		});
 		const handler = routeMap[route] || {};
-		const callback = method in handler
+		const method = req.method.toLowerCase();
+		const data = method in handler
 			? handler[method] : handler.all;
-		if (callback) {
+		return data ? () => {
 			req.params = params || {};
-			typeof callback === "function"
-				? callback(req, res, next)
-				: res.json(callback);
-		} else {
-			// res.json 和 next 不能同时使用
-			next();
-		}
+			typeof data === "function"
+				? data(req, res, next) : res.json(data);
+		} : undefined;
+	};
+	const parser = [
+		multer().none(), // 支持 FormData 文本
+		bodyParser.json(),
+		bodyParser.text({ type: "text/xml" }),
+		bodyParser.text({ type: "text/html" }),
+		bodyParser.raw({ type: "text/plain" }),
+		bodyParser.urlencoded({ extended: false }),
+	];
+	app.all("*", (req, res, next) => {
+		const callback = find(req, res, next);
+		!callback ? next() // res.json 和 next 不能同时使用
+			: Promise.all(parser.map(f => new Promise(
+				resolve => f(req, res, resolve)
+			))).then(callback); // eslint-disable-line
 	});
+
 	const mock = dir(folder);
 	// https://www.npmjs.com/package/chokidar
 	chokidar.watch(mock).on("all", (event, info) => {
