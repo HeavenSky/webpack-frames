@@ -10,9 +10,9 @@ const dir = path.join.bind(path, __dirname);
 const dst = array => array ? [...new Set(array)] : [];
 const fmt = (f, app) => f instanceof Function ? f(app) : f;
 
-const bootcdn = "https://cdn.bootcss.com/"; // 资源旧下载快
-const delivr = "https://cdn.jsdelivr.net/"; // 不能下载字体
-const elecdn = "https://npm.elemecdn.com/"; // 资源路径模糊
+// 可用 https://jsdelivr.com 去搜索 npm 模块文件和路径
+const elecdn = "https://npm.elemecdn.com/";
+const cdnyun = "https://cdnjs.cloudflare.com/ajax/libs/";
 // 路径常量请尽可能以`/`结尾 webpackConfig.output.publicPath
 const publicPath = undefined;
 const prefixAjax = undefined;
@@ -87,10 +87,18 @@ const c = key => parseFloat(
 	String(dps[key]).replace(/[^.\d]+/g, "")
 );
 
-/* Prod Asset     Size  Chunks        Chunk Names
-common.dll.js  89.4 kB       1  [emitted]  common
-public.dll.js  90.3 kB       0  [emitted]  public
-vendor.dll.js   100 kB       2  [emitted]  vendor */
+/* Prod Asset      Size  Chunks        Chunk Names
+common.dll.js  77.4 KiB       0  [emitted]  common
+public.dll.js  87.3 KiB       1  [emitted]  public
+vendor.dll.js  97.2 KiB       2  [emitted]  vendor */
+const polyfill = ["babel-polyfill"];
+// ie8 在引入 babel-polyfill 前必须先引入 es5-shim
+c("babel-loader") >= 8 &&
+	polyfill.splice(0, 1, "@babel/polyfill");
+// ie9 支持 react16 必须引入 raf/polyfill
+c("react") >= 16 && polyfill.push("raf/polyfill");
+// ie9 支持 antd 必须引入 media-match
+("antd" in dps) && polyfill.push("media-match");
 const entry = {
 	page: [""],
 	rel, dir, dst, fmt, c,
@@ -101,7 +109,7 @@ const entry = {
 	scssStyleLoader, lessStyleLoader,
 	isProd, ver, min, ts, styleLoader,
 	dll: {
-		common: ["babel-polyfill"],
+		common: polyfill,
 		public: [
 			"axios",
 			"moment",
@@ -126,10 +134,8 @@ const entry = {
 			.map(v => `./ie8/${v}.min`),
 	}, */
 	ipt: {
-		public: [
-			"babel-polyfill", // ie8 必须提前引入 es5-shim
-			dir("src/utils/public.js"),
-		].slice(isProd || IE_SHIM ? 0 : -1),
+		public: [...polyfill, dir("src/utils/public.js")]
+			.slice(isProd || IE_SHIM ? 0 : -1),
 	},
 	cdn: {
 		jquery: "$",
@@ -150,14 +156,14 @@ const entry = {
 			`css/normalize-ie8.min.css`,
 			`editor/wangeditor.min.css`,
 			`fa/fa-4.x.min.css`,
-			`${delivr}npm/element-ui@2.4.6/lib/theme-chalk/index.css`,
+			`${elecdn}element-ui@2.4.8/lib/theme-chalk/index.css`,
 			// highlight.js
-			!`${bootcdn}highlight.js/9.12.0/styles/atom-one-light.min.css`,
-			!`${bootcdn}highlight.js/9.12.0/styles/atom-one-dark.min.css`,
-			!`${bootcdn}highlight.js/9.12.0/highlight.min.js`,
+			!`${cdnyun}highlight.js/9.12.0/styles/atom-one-light.min.css`,
+			!`${cdnyun}highlight.js/9.12.0/styles/atom-one-dark.min.css`,
+			!`${cdnyun}highlight.js/9.12.0/highlight.min.js`,
 			// vant
-			!`${elecdn}vant@1.3.0/lib/vant-css/index.css`,
-			!`${delivr}npm/vant@1.3.0/lib/vant.min.js`,
+			!`${elecdn}vant@1.3.4/lib/vant-css/index.css`,
+			!`${elecdn}vant@1.3.4/lib/vant.min.js`,
 		],
 		// https://webpack.docschina.org/configuration/dev-server
 		// https://github.com/chimurai/http-proxy-middleware#options

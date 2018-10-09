@@ -70,6 +70,7 @@ const chokidar = require("chokidar");
 const bodyParser = require("body-parser");
 const pathToRegExp = require("path-to-regexp");
 const requireEsModule = require("esm")(module);
+const proxy = require("http-proxy-middleware");
 const dir = path.join.bind(path, __dirname);
 /**
  * routeMatch
@@ -136,8 +137,9 @@ const webpackMock = (app, folder = "mock") => {
 	const calc = () => {
 		const routes = Object.assign({},
 			...Object.values(moduleMap));
-		routeMap = { NO_MOCK: routes.NO_MOCK }; // 重算路由
-		Object.keys(routes).forEach(k => {
+		const { NO_MOCK } = routes;
+		routeMap = { NO_MOCK }; // 重置路由
+		NO_MOCK || Object.keys(routes).forEach(k => {
 			let [, method = "all", route = ""] =
 				k.match(/^(\S+)\s+(\W.*)$/) || [];
 			method = method.toLowerCase();
@@ -162,10 +164,14 @@ const webpackMock = (app, folder = "mock") => {
 		const method = req.method.toLowerCase();
 		const data = method in handler
 			? handler[method] : handler.all;
-		return data ? () => {
+		const isStr = typeof data === "string";
+		const isFn = typeof data === "function";
+		const isProxy = isFn && data.length === 0;
+		// 不带参函数返回值 表示 代理配置
+		return isProxy ? proxy(data()) : data ? () => {
 			req.params = params || {};
-			typeof data === "function"
-				? data(req, res, next) : res.json(data);
+			isFn ? data(req, res, next)
+				: res[isStr ? "send" : "json"](data);
 		} : undefined;
 	};
 	const parser = [
@@ -178,7 +184,9 @@ const webpackMock = (app, folder = "mock") => {
 	];
 	app.all("*", (req, res, next) => {
 		const callback = find(req, res, next);
-		!callback ? next() // res.json 和 next 不能同时使用
+		// res.json res.send 和 next 不要同时使用
+		!callback ? next() : callback.length === 3
+			? callback(req, res, next) // 执行代理中间件
 			: Promise.all(parser.map(f => new Promise(
 				resolve => f(req, res, resolve)
 			))).then(callback); // eslint-disable-line
