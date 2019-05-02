@@ -4,50 +4,49 @@ export const getType = v => ({}).toString.call(v).slice(8, -1);
 export const isMap = v => getType(v) === "Map";
 export const isSet = v => getType(v) === "Set";
 export const isDate = v => getType(v) === "Date";
-export const isError = v => getType(v) === "Error";
 export const isArray = v => getType(v) === "Array";
+export const isError = v => getType(v) === "Error";
 export const isObject = v => getType(v) === "Object";
 export const isRegExp = v => getType(v) === "RegExp";
 export const isPromise = v => getType(v) === "Promise";
+export const isFunction = v => typeof v === "function";
 export const isBoolean = v => typeof v === "boolean";
 export const isNumber = v => typeof v === "number";
 export const isString = v => typeof v === "string";
 export const isSymbol = v => typeof v === "symbol";
-export const isFunction = v =>
-	typeof v === "function" ||
-	getType(v) === "Function" ||
-	getType(v) === "GeneratorFunction";
 export const isNum = v =>
 	["number", "string"].includes(typeof v) &&
 	/^\s*(?:\+|-)?\s*\d+(?:.\d*)?\s*$/.test(v);
 export const isInt = v =>
 	["number", "string"].includes(typeof v) &&
 	/^\s*(?:\+|-)?\s*\d+\s*$/.test(v);
-// 若存在类型转换一定要小心
-// isFinite会转换类型,Number.isFinite不会转换类型;
+// 若存在类型转换一定要小心: isFinite会,Number.isFinite不会
 // true+true=={toString:v=>2}=={valueOf:v=>2};
-export const logger = (key, msg, err) =>
+export const delay = ms =>
+	new Promise(resolve => setTimeout(resolve, ms));
+export const fmtde = v => Promise.resolve(v)
+	.then(d => [d, null]).catch(e => [null, e]);
+export const split = (v, slash) => String(v || "")
+	.split(slash || "/").filter(Boolean);
+export const merge = (...v) => Object.assign({}, ...v);
+export const logger = (key, msg, data) =>
 	// eslint-disable-next-line no-console
-	console[key](msg) || console.dir(err);
-export const log = (msg, err) => logger("log", msg, err);
+	console[key](msg) || console.dir(data);
+export const log = (msg, data) => logger("log", msg, data);
 [
 	"debug", "error", "info", "log", "warn", "dir",
 	"dirxml", "table", "trace", "group", "groupCollapsed",
 	"groupEnd", "clear", "count", "assert", "markTimeline",
 	"profile", "profileEnd", "timeline", "timelineEnd",
 	"time", "timeEnd", "timeStamp", "context",
-].forEach(key => {
-	log[key] = (msg, err) => logger(key, msg, err);
-});
+].forEach(k => (log[k] = (m, d) => logger(k, m, d)));
 export const regCheck = (v, ok, no) => {
-	let fail, check;
+	let check;
 	isArray(ok) || (ok = [ok]);
-	fail = ok.find(x => isRegExp(x) && !(check = x.test(v)));
-	if (!fail) {
-		isArray(no) || (no = [no]);
-		fail = no.find(x => isRegExp(x) && !(check = !x.test(v)));
-	}
-	return !fail && !!check;
+	isArray(no) || (no = [no]);
+	const fail = ok.find(x => isRegExp(x) && !(check = x.test(v))) ||
+		no.find(x => isRegExp(x) && !(check = !x.test(v)));
+	return check && !fail;
 };
 // 邮箱 name@domain name规则:最多64个字符 domain规则:必须为顶级域名,域名后缀2-6个字符
 // http://faqs.org/rfcs/rfc1035.html 域名限制
@@ -63,8 +62,13 @@ const URL_EXP =
 	"(?:/.*)?$"; // 支持url后含其他字符
 const URL_REG = new RegExp(URL_EXP, "i");
 export const urlCheck = v => URL_REG.test(v);
-// http://www.miit.gov.cn/n1146285/n1146352/n3054355/n3057709/n3057714/c5622616/content.html 工信部电信网编号
-export const mobileCheck = v => /^1([3589]\d|4[5-9]|6[124-7]|7[0-8])\d{8}$/.test(v);
+/* 号码校验规则:
+1. 手机和固话都支持前缀加 86,+86,86-,+86-
+2. 手机号支持,见工信部电信网编号
+http://miit.gov.cn/n1146285/n1146352/n3054355/n3057709/n3057714/c5622616/content.html
+3. 固话支持加区号和不加区号 021,021-,0712,0712-
+4. 固话第一个号码不是0和1 */
+export const phoneCheck = v => /^([+0]?[1-9]\d{1,2}-?)?(1([3589]\d|4[5-9]|6[124-7]|7[0-8])\d{8}|(0[1-9]\d{1,2}-?)?[2-9]\d{6,7}(-\d{3,})?)$/.test(v);
 export const calcText = v => {
 	let text = v;
 	const type = typeof v;
@@ -78,7 +82,7 @@ export const calcText = v => {
 	const ascii = text.match(/[\x00-\xff]/g) || [];
 	// surrogate pair 代理字符对 两个字符算一个字符
 	const pair = text.match(/[\ud800-\udbff][\udc00-\udfff]/g) || [];
-	return text.length - ascii.length / 2 - pair.length;
+	return text.length - (ascii.length / 2) - pair.length;
 };
 export const validator = (rule, value, callback) => {
 	let err;
@@ -110,34 +114,26 @@ export const validator = (rule, value, callback) => {
 	}
 	callback(err);
 };
-export const tryJSON = str => {
+export const tryEXEC = (f, ...args) => {
 	let res;
 	try {
-		res = JSON.parse(str);
+		res = isFunction(f) ? f(...args) : f;
 	} catch (e) {
-		log.error("Function tryJSON", e);
+		log.error("execution function error", [e, f, args]);
 	}
 	return res;
 };
-export const tryEVAL = str => {
-	let res;
-	try {
-		// eslint-disable-next-line no-eval
-		res = eval("(" + str + ")");
-	} catch (e) {
-		log.error("Function tryEVAL", e);
-	}
-	return res;
-};
+export const tryJSON = str => tryEXEC(JSON.parse, str);
+// eslint-disable-next-line no-eval
+export const tryEVAL = str => tryEXEC(eval, `(${str})`);
 export const verIE = () => {
-	// 返回值{ver:IE版本,mod:文档模式版本}, 只能获取11以下的版本信息
+	// 返回{ver:IE版本,mod:兼容版本}, 仅支持11以下模式版本
 	const isIE = tryEVAL("/*@cc_on !@*/false");
+	const ver = tryEVAL("/*@cc_on @_jscript_version@*/-0");
 	if (isIE) {
-		const ver = tryEVAL("/*@cc_on @_jscript_version@*/-0");
 		const mod = document.documentMode;
 		return { ver, mod };
 	}
-	return {};
 };
 export const verClient = () => {
 	const ua = window.navigator.userAgent;
@@ -200,7 +196,7 @@ export const urlArgs = (v, b) => {
 	if (b) {
 		const { main = "", args = {}, hash = "" } = v || {};
 		let str = "";
-		for (let x in args) {
+		for (const x in args) {
 			const key = encodeURIComponent(x || "");
 			const value = encodeURIComponent(args[key] || "");
 			if (key || value) {
@@ -218,14 +214,14 @@ export const urlArgs = (v, b) => {
 		const obj = { main: "", args: {}, hash: "" };
 		String(v || "").replace(
 			/^([^?#]*)(\?[^#]*)?(#.*)?$/,
-			(match, main, args, hash) => {
+			(_match, main, args, hash) => {
 				obj.main = decodeURIComponent(main || "");
 				obj.hash = decodeURIComponent(
 					String(hash || "").slice(1)
 				);
 				String(args || "").replace(
 					/(\?|&)([^&=]*)(=[^&]*)?/g,
-					(match, prefix, key, value) => {
+					(_match, _prefix, key, value) => {
 						key = decodeURIComponent(key || "");
 						value = decodeURIComponent(
 							String(value || "").slice(1)
@@ -305,14 +301,14 @@ export const formatCols = (columns, filters, sorters) =>
 		return true;
 	});
 export const getArea = division => {
-	// http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/ 现在已经无法直接抓取全部数据
+	// http://stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/ 现在已经无法直接抓取全部数据
 	const MAP = {};
 	const LIST = [];
 	const getPid = id => id % 100 ? String(id).slice(0, -2) + "00"
 		: id => id % 10000 ? String(id).slice(0, -4) + "0000" : null;
 	String(division || "").replace(
 		/(\d{6})\s+(\S+)/g,
-		(match, code, name) => {
+		(_match, code, name) => {
 			const item = {
 				id: code,
 				pid: getPid(code),

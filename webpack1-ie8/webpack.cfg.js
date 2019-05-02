@@ -3,9 +3,8 @@ const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const {
-	outputFolder, ver,
-	cssStyleLoader, cssModuleLoader,
-	scssStyleLoader, lessStyleLoader,
+	ver, scssStyleLoader, lessStyleLoader,
+	outputFolder, cssStyleLoader, cssModuleLoader,
 } = require("./webpack.ini");
 
 const extractLoader = new ExtractTextPlugin(
@@ -16,8 +15,7 @@ const extractLoader = new ExtractTextPlugin(
 	{ allChunks: true }
 );
 const productionConfig = {
-	// devtool: "source-map",
-	devtool: false,
+	devtool: false, // "source-map",
 	module: {
 		loaders: [
 			{
@@ -74,7 +72,7 @@ const productionConfig = {
 		new CleanWebpackPlugin([outputFolder]),
 		new webpack.DefinePlugin({
 			"process.env": {
-				"NODE_ENV": JSON.stringify("production"),
+				NODE_ENV: JSON.stringify("production"),
 			},
 		}),
 		// new webpack.optimize.ModuleConcatenationPlugin(),

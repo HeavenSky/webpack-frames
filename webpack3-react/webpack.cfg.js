@@ -3,14 +3,12 @@ const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const {
-	ver, outputFolder, styleLoader,
-	cssStyleLoader, cssModuleLoader,
-	scssStyleLoader, lessStyleLoader,
+	ver, scssStyleLoader, lessStyleLoader,
+	styleLoader, cssStyleLoader, cssModuleLoader,
 } = require("./webpack.ini");
 
 const productionConfig = {
-	// devtool: "source-map",
-	devtool: false,
+	devtool: false, // "source-map",
 	module: {
 		rules: [
 			{
@@ -83,10 +81,10 @@ const productionConfig = {
 		],
 	},
 	plugins: [
-		new CleanWebpackPlugin([outputFolder]),
+		new CleanWebpackPlugin(),
 		new webpack.DefinePlugin({
 			"process.env": {
-				"NODE_ENV": JSON.stringify("production"),
+				NODE_ENV: JSON.stringify("production"),
 			},
 		}),
 		new webpack.optimize.ModuleConcatenationPlugin(),

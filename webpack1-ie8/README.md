@@ -9,17 +9,26 @@
 
 ## 更新 `package.json` 方法
 * 在当前目录执行 `npm update -D -S`
-* 还可以安装`npm i -g npm-check-updates`, 然后在当前目录执行 `ncu` 或 `ncu -a`
+* 还可以安装`npm i -g npm-check-updates`, 然后在当前目录执行 `ncu` 或 `ncu -u`
+
+## 环境准备工作
+1. 设置淘宝镜像 `npm config set registry https://registry.npm.taobao.org`
+2. 管理员身份运行 `npm i -g npminstall`
+3. 命令行进入当前目录,运行 `npminstall -c`
+4. 若出现报错,常用解决办法如下:
+	- 管理员身份运行`npm cache clean -f`和`npm cache verify -f`
+	- 删除`node_modules`目录
+	- 重新运行`npminstall -c`
+	- 最后换一个好点的网络,升级`node`和`npm`
+> `npminstall -c`和`npm install`不兼容,前者比后者快很多,但是不能同时使用,`切换使用需要删除node_modules文件夹`,`node-v12.0.0`有问题请先别升级`node-v12`
 
 ## 开发坏境启动
-1. `npm i` 和 `npm ddp` 若在前面运行过此命令, 可跳过
-3. `npm start`
-4. 浏览器打开[http://localhost:8888](http://localhost:8888)
+1. `npm start`
+2. 浏览器打开 http://localhost:8888
 
 ## 生产坏境部署
-1. `npm i` 和 `npm ddp` 若在前面运行过此命令, 可跳过
-2. `npm run app`
-3. 拷贝dist文件夹内容至服务器即可
+1. `npm run app`
+2. 拷贝dist文件夹内容至服务器即可
 
 ## 技术栈介绍
 * 初期搭建的时候, 完全参考 [砖家](https://github.com/brickspert)的[react-family-ie8](https://github.com/brickspert/react-family-ie8)项目配置

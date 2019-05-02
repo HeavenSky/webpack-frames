@@ -1,46 +1,25 @@
+/* loadable 使用范例
+import Loadable from "react-loadable";
+import pmHome from "promise-loader?global,home!./Home";
+import cbHome from "bundle-loader?lazy&name=home/fn!./Home";
+const fnHome = () => import(|* webpackChunkName: "home" *| "./Home");
+const LoadableHome = Loadable({
+	delay: 200,
+	timeout: 3000,
+	loader: fnHome || pmHome || (() => new Promise(cbHome)),
+	render(loaded, props) { return <loaded.default {...props} />; },
+	loading({ pastDelay, timedOut, error, retry }) { return <Spin />; },
+});
+LoadableHome.preload();
+Loadable.preloadReady();
+*/
 import createHistory from "history/createHashHistory";
-
+// https://npmjs.com/package/history history官方api文档
 const history = createHistory();
-history.listen(
-	(location, action) => 0 &&
-		history.push({
-			pathname: "/home",
-			search: "?id=1",
-			state: { id: "1" },
-		})
-);
 export default history;
-
-// https://cn.redux.js.org
-const action = ({ type, payload, meta, error, async }) => 0;
-const initor = (type, fn) => {
-	typeof fn === "function" || (fn = x => x);
-	const re = (...args) =>
-		({ payload: fn(...args), type });
-	re.type = type;
-	return re;
-};
-const creator = (type, fn, mo) => {
-	typeof fn === "function" || (fn = x => x);
-	typeof mo === "function" || (mo = x => x);
-	const re = (argsFn, argsMo) =>
-		Object.assign(
-			mo.apply(null, argsMo) || {},
-			{ payload: fn.apply(null, argsFn), type }
-		);
-	re.type = type;
-	return re;
-};
-const thunk = store => next => action =>
-	typeof action === "function"
-		? action(store) : next(action);
-const print = store => next => action => {
-	const { console } = window;
-	console.group(action.type);
-	console.log("\tDispatch:\n", action);
-	const result = next(action);
-	console.log("\tNewState:\n", store.getState());
-	console.groupEnd(action.type);
-	return result;
-};
-export { action, initor, creator, thunk, print };
+/*
+TODO LIST
+了解ReactRouterDomSwitch的组件工作原理
+实现类似beforeEach和afterEach的功能
+实现无权限跳转至403,有权限刷新跳转至对应页面
+*/

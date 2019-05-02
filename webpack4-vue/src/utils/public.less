@@ -1,46 +1,61 @@
 @font-face {
 	font-family: "Coding Number";
-	src: local("Source Code Variable"), local("Monaco"), local("Menlo"), local("Verdana"), local("Consolas");
-	unicode-range: U+30-39;
-}
-@font-face {
-	font-family: "Monospaced Number";
-	src: local("Tahoma");
+	src: local("DejaVu Sans Mono"), local("Source Code Variable"), local("Monaco"), local("Menlo"), local("Consolas");
 	unicode-range: U+30-39;
 }
 @font-face {
 	font-family: "Chinese Quote";
-	src: local("PingFang SC"), local("SimSun");
+	src: local("PingFang SC"), local("Microsoft YaHei");
 	unicode-range: U+2018, U+2019, U+201c, U+201d;
 }
-@-ms-viewport {
+@viewport {
 	width: device-width;
 }
 body {
 	/* 苹方 冬青黑体 微软雅黑 文泉驿微米黑(Ubuntu) 兰亭黑 微软黑体 无衬线字体 */
-	font-family: "Monospaced Number", "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", "Lantinghei SC", "Microsoft Sans Serif", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	margin: 0;
-	padding: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", "Lantinghei SC", "Microsoft Sans Serif", "Helvetica Neue", Helvetica, Tahoma, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	color: #666;
 	font-size: 12px;
 	line-height: 1.5;
+	touch-action: manipulation;
 	-ms-overflow-style: scrollbar;
 	-webkit-overflow-scrolling: touch;
 	text-rendering: optimizeLegibility;
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-font-smoothing: antialiased;
 }
-html {
-	/* 基于 rem 单位来实现弹性布局 */
-	font-size: 10vw;
+html, body {
+	margin: 0;
+	padding: 0;
+}
+.fixed-scroll-lock {
+	position: fixed;
+	width: 100%;
+	height: 100%;
 }
 .flexible * {
-	/* 基于 em 单位来实现弹性布局 相对于 .flexible 容器 */
+	/* 基于 rem 来实现弹性布局 html{font-size:13.333vw;} */
+	/* 基于 em 来实现弹性布局 相对于 .flexible 容器 */
 	font-size: inherit;
 }
-.code {
-	/* 等宽字体 常用字体颜色 #444 #666 #999 #bbb #ddd #eee #fff */
-	font-family: "Source Code Variable", Monaco, Menlo, Verdana, Consolas, monospace;
+.monospace {
+	/* 等宽字体 常用字体颜色 #333 #666 #999 #ccc #fff */
+	font-family: "DejaVu Sans Mono", "Source Code Variable", Monaco, Menlo, Consolas, monospace;
+}
+.aline {
+	text-indent: -2em;
+	padding-left: 2em;
+}
+.ellipsis {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+.mutiline {
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
 }
 .icon {
 	speak: none;
@@ -62,32 +77,20 @@ html {
 	vw(视窗宽/100) vh(视窗高/100) vmin vmax
 	rem(相对于html标签的字体大小) em(相对于父标签的字体大小)
 	ex(相对于字母x的高度,约0.5em) ch(相对于数字0的宽度)
-	%(百分比)[容器是borderBox还是contentBox对百分比参考无影响]
+	%(百分比)[容器boxSizing是borderBox还是contentBox对百分比参考无影响]
 	left,right/top,bottom相对容器borderBox宽高的百分比,
 	width/height相对容器contentBox宽高的百分比,
 	margin/padding相对容器contentBox宽度的百分比,
 	text-indent相对容器contentBox宽度的百分比,
-	line-height相对容器lineHeight的百分比,
+	line-height相对自身fontSize的百分比,
 	font-size相对容器fontSize的百分比,
+	定位:transform会导致position样式失效,比如fixed
+	层叠顺序 https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Understanding_z_index
 	*/
 	-webkit-appearance: none;
 	-webkit-touch-callout: none;
 	-webkit-transform: translateZ(0);
 	-webkit-tap-highlight-color: transparent;
-	/* 能够单独提升层的 css 属性有>根元素
-	* position: absolute/relative, +z-index(不为auto)
-	* display: flex|inline-flex +z-index(不为auto)
-	* position: fixed
-	* transform不为"none"
-	* -webkit-overflow-scrolling: touch
-	* opacity属性值小于 1 的元素
-	* mix-blend-mode属性值不为"normal"的元素
-	* filter值不为"none"的元素
-	* perspective值不为"none"的元素
-	* isolation属性被设置为"isolate"的元素
-	* will-change
-	* transform会导致position样式失效,比如fixed
-	*/
 }
 // ***
 @c-linkx: #409eff; // 链接文字颜色
@@ -158,8 +161,8 @@ a, .anchor {
 }
 .scrollbar {
 	::-webkit-scrollbar {
-		width: 5px;
-		height: 5px;
+		width: 6px;
+		height: 6px;
 	}
 	::-webkit-scrollbar-thumb {
 		outline: none;

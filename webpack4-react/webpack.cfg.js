@@ -1,13 +1,11 @@
 const webpack = require("webpack");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
-const { outputFolder } = require("./webpack.ini");
 
 const productionConfig = {
-	// devtool: "source-map",
-	devtool: false,
+	devtool: false, // "source-map",
 	plugins: [
-		new CleanWebpackPlugin([outputFolder]),
+		new CleanWebpackPlugin(),
 		// new webpack.optimize.ModuleConcatenationPlugin(),
 		// new webpack.optimize.OccurrenceOrderPlugin(),
 		new webpack.HashedModuleIdsPlugin(),

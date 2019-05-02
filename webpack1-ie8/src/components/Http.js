@@ -7,16 +7,17 @@ const { HTTP, HTTPS } = URL_SELECT;
 // 受控组件, value 和 onChange 必须结合使用, 否则组件永远为空
 const Http = props => {
 	const { addonProps, onChange, disabled, value, ...res } = props;
-	let { httpDefault, ...more } = addonProps || {};
+	const { httpDefault, ...more } = addonProps || {};
+	const prefix = httpDefault === HTTPS ? HTTPS : HTTP;
 	let { http, link } = formatUrl(value, -1);
-	httpDefault === HTTPS || (httpDefault = HTTP);
-	[HTTP, HTTPS].includes(http) || (http = httpDefault);
-	const updateSelect = (v = httpDefault) => onChange(v + link);
+	[HTTP, HTTPS].includes(http) || (http = prefix);
+	const updateSelect = (v = prefix) => onChange(v + link);
 	const updateInput = e => {
 		const url = e.target.value;
 		const format = formatUrl(url, -1);
-		format.http && ({ http } = format);
-		onChange(http + format.link);
+		format.http && (http = format.http);
+		link = format.link;
+		onChange(http + link);
 	};
 	const selector = <Select {...more} value={http}
 		disabled={disabled} onChange={updateSelect}>

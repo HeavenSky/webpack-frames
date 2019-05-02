@@ -57,7 +57,7 @@ const file = {
 */
 const Push = props => {
 	const { value, onChange, ...res } = props;
-	let { list = [], err = "" } = value || {};
+	const { list = [], err = "" } = value || {};
 	list.forEach(
 		v => Object.assign(v, {
 			url: "/upload/file/" + v.uid,
@@ -73,8 +73,8 @@ const Push = props => {
 		fileList: list,
 		beforeUpload(file) {
 			if (file.size < 1024 * 1024 * 2) {
+				list.length = 0;
 				list.push(file);
-				list = list.slice(-1);
 				onChange({ list, err });
 			} else {
 				message.error("请上传低于 2MB 大小的文件");
@@ -102,7 +102,8 @@ const Push = props => {
 				// 其他情况
 			}
 			// 非受控组件可以直接对 fileList 处理,减少数组元素
-			list = fileList.slice(-1);
+			list.length = 0;
+			list.push(fileList.slice(-1)[0]);
 			onChange({ list, err });
 		},
 	};

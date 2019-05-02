@@ -1,12 +1,11 @@
 const webpack = require("webpack");
 const ErrFmt = require("friendly-errors-webpack-plugin");
-const { webpackMock } = require("./browser");
+const { httpMock } = require("./browser");
 const iniConfig = require("./webpack.ini");
 const { dir, staticFolder } = iniConfig;
 
 const developmentConfig = {
-	// devtool: "eval-source-map",
-	devtool: "cheap-module-eval-source-map",
+	devtool: "eval-source-map",
 	plugins: [
 		new ErrFmt(),
 		// new webpack.NamedModulesPlugin(),
@@ -31,9 +30,8 @@ const developmentConfig = {
 		clientLogLevel: "error",
 		proxy: iniConfig.html.proxy,
 		contentBase: dir(staticFolder),
-		// webpack1使用setup webpack3使用before
-		[iniConfig.c("webpack") < 3 ? "setup" : "before"]:
-			app => webpackMock(app, "src/mock"),
+		// webpack1使用setup,webpack3使用before
+		before: app => httpMock(app, "src/mock"),
 	},
 };
 

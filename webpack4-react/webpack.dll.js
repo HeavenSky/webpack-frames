@@ -39,7 +39,7 @@ const dllConfig = {
 		/* new webpack.ContextReplacementPlugin(
 			/moment[\\/]locale$/i,
 			/^\.\/zh-cn$/i
-		),*/
+		), */
 		new webpack.IgnorePlugin(
 			/^\.\/locale$/i,
 			/moment$/i

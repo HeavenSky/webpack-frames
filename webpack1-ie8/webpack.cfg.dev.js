@@ -1,6 +1,6 @@
 const webpack = require("webpack");
 const ErrFmt = require("friendly-errors-webpack-plugin");
-const { webpackMock } = require("./browser");
+const { httpMock } = require("./browser");
 const iniConfig = require("./webpack.ini");
 const {
 	dir, staticFolder, styleLoader,
@@ -9,8 +9,7 @@ const {
 } = iniConfig;
 
 const developmentConfig = {
-	// devtool: "eval-source-map",
-	devtool: "cheap-module-eval-source-map",
+	devtool: "eval-source-map",
 	module: {
 		loaders: [
 			{
@@ -70,7 +69,7 @@ const developmentConfig = {
 	plugins: [
 		new webpack.DefinePlugin({
 			"process.env": {
-				"NODE_ENV": JSON.stringify("development"),
+				NODE_ENV: JSON.stringify("development"),
 			},
 		}),
 		new ErrFmt(),
@@ -96,9 +95,8 @@ const developmentConfig = {
 		clientLogLevel: "error",
 		proxy: iniConfig.html.proxy,
 		contentBase: dir(staticFolder),
-		// webpack1使用setup webpack3使用before
-		[iniConfig.c("webpack") < 3 ? "setup" : "before"]:
-			app => webpackMock(app, "src/mock"),
+		// webpack1使用setup,webpack3使用before
+		setup: app => httpMock(app, "src/mock"),
 	},
 };
 

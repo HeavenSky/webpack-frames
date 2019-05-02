@@ -38,7 +38,7 @@ const dllConfig = {
 	plugins: [
 		new webpack.DefinePlugin({
 			"process.env": {
-				"NODE_ENV": JSON.stringify(
+				NODE_ENV: JSON.stringify(
 					isProd ? "production" : "development"
 				),
 			},
@@ -46,7 +46,7 @@ const dllConfig = {
 		/* new webpack.ContextReplacementPlugin(
 			/moment[\\/]locale$/i,
 			/^\.\/zh-cn$/i
-		),*/
+		), */
 		new webpack.IgnorePlugin(
 			/^\.\/locale$/i,
 			/moment$/i

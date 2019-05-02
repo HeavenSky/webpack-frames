@@ -147,11 +147,11 @@ const getKeys = (pro, sta) => {
 	const { maps = MENU_MAP, fold, location } = pro || {};
 	const { pathname } = location || {};
 	if (sta && sta.pathname === pathname) {
-		return {};
+		return sta || {};
 	}
 	let key;
-	for (let x in maps) {
-		const { type, to = x, href } = maps[x];
+	for (const x in maps) {
+		const { type, to = x, href } = maps[x] || {};
 		if (/^(link|navlink)$/i.test(type) &&
 			pathname === to) {
 			key = x;
@@ -165,7 +165,7 @@ const getKeys = (pro, sta) => {
 		}
 	}
 	if (!key) {
-		return {};
+		return sta || {};
 	}
 	const res = key.match(/\/[^/]+/g) || [];
 	return {
@@ -184,7 +184,7 @@ class WrapMenu extends Component {
 		}
 	};
 	keySwitch = newKeys => {
-		const { openKeys } = this.state;
+		const { openKeys = [] } = this.state;
 		const newKey = newKeys.find(
 			v => !openKeys.includes(v)
 		);

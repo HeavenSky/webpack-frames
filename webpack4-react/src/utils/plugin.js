@@ -1,99 +1,37 @@
-const DATA_MAP = {};
-const DATA_AJAX = {};
-export const clearData = key => {
-	delete DATA_MAP[key];
-	delete DATA_AJAX[key];
-};
-export const cacheData = (key, fn) => {
-	if (key in DATA_MAP) {
-		return Promise.resolve(DATA_MAP[key]);
-	} else {
-		(key in DATA_AJAX) || (DATA_AJAX[key] = fn());
-		const ajax = Promise.resolve(DATA_AJAX[key]);
-		const f = v => delete DATA_AJAX[key];
-		ajax.then(f, f); // eslint-disable-line
-		return ajax.then(v => (DATA_MAP[key] = v));
-	}
-};
+import { gcs, create, loadJs } from "./dom";
+import { getCache } from "./service";
 
-export const loadDom = (tag, attr, target) =>
-	new Promise((resolve, reject) => {
-		const dom = document.createElement(tag);
-		dom.onload = resolve;
-		dom.onerror = reject;
-		dom.style.display = "none";
-		Object.assign(dom, attr);
-		(target || document.body).appendChild(dom);
-		const { src, href } = attr || {};
-		const isSrc = src && "onload" in dom;
-		const isCss = href && /^link$/i.test(tag);
-		(isSrc || isCss) || resolve({ target: dom });
-	});
-export const loadImg = src => loadDom("img", { src });
-export const loadCss = href => loadDom("link",
-	{ rel: "stylesheet", href });
-export const loadJs = src => loadDom("script",
-	{ type: "text/javascript", src });
-
-// 获取dom的计算后样式属性
-export const domStyle = target => {
-	const { getComputedStyle: gcs } = window;
-	return gcs ? gcs(target, null) : target.currentStyle;
-};
 // 单行文字自适应大小
-export const fitText = (target, text, rate = 2) => {
-	const span = document.createElement("span");
+export const fitText = (target, text, rdx = 3) => {
+	const span = create("span", text, { parent: target });
 	span.style.cssText = "border:0;margin:0;padding:0;width:auto;min-width:auto;max-width:none;overflow:visible;position:absolute;visibility:hidden;white-space:nowrap;font:inherit;columns:inherit;transform:inherit;text-indent:inherit;word-spacing:inherit;letter-spacing:inherit;text-transform:inherit;";
-	span.innerText = text;
-	target.appendChild(span);
-	let limit = domStyle(target).width;
-	limit = parseFloat(limit) || 0;
-	if (limit === 0) {
-		return;
-	}
-	let { fontSize, width } = domStyle(span);
-	fontSize = parseFloat(fontSize) || 0;
-	width = parseFloat(width) || 0;
+	const limit = parseFloat(gcs(target).width) || 0;
+	const width = parseFloat(gcs(span).width) || 0;
+	const sfs = parseFloat(gcs(span).fontSize) || 0;
 	target.innerText = text;
-	if (width && fontSize) {
-		rate = rate >> 0;
-		const p = Math.pow(10, rate);
-		let fs = fontSize * limit / width;
-		fs = (Math.floor(fs * p) / p).toFixed(p);
-		target.style.fontSize = fs + "px";
-	}
-};
-// 布局自适应填满
-export const fitView = target => {
-	// 元素宽高 clientWidth/clientHeight
-	// 元素内容宽高 scrollWidth/scrollHeight
-	const sh = target.scrollHeight;
-	const vh = document.documentElement.clientHeight;
-	if (sh > vh) {
-		target.style.overflow = "hidden";
-		document.documentElement.style.fontSize =
-			Math.floor(10000 * vh / sh) / 1000 + "vw";
+	if (limit && width && sfs) {
+		rdx = rdx > 0 && rdx < 9 ? rdx >> 0 : 0;
+		const tfs = (sfs * limit / width).toFixed(rdx);
+		target.style.fontSize = tfs + "px";
 	}
 };
 
-// 用来手动加载导出excel的js依赖
-export const xlsxOk = v => cacheData("XLSX", x =>
-	Promise.all([
-		"https://cdn.bootcss.com/FileSaver.js/2014-11-29/FileSaver.min.js",
-		"https://cdn.bootcss.com/xlsx/0.12.13/xlsx.full.min.js",
-	].map(loadJs))
-);
-
+// 用来手动加载excel导出依赖的js
+export const xlsxOk = _ => getCache("xlsxOk", _ =>
+	Promise.all([ // npmh highlight.js;npmh file-saver;
+		"https://cdn.bootcss.com/xlsx/0.14.2/xlsx.full.min.js",
+		"https://cdn.bootcss.com/FileSaver.js/1.3.8/FileSaver.min.js",
+	].map(loadJs)));
 export const rows2list = (rows, keys) => {
-	// rows 数据库返回列表数组 keys 列顺序数组
+	// rows:列表数组 keys:列名数组
 	keys || (keys = Object.keys(rows[0]));
 	return rows.map(v => keys.map(k => v[k]));
 };
 export const list2html = (list, id, editable) => {
-	// list 二维数组 [[1,2],[2,4]] 返回 html table 字符串
-	const u = window.XLSX.utils;
-	const sheet = u.aoa_to_sheet(list);
-	return u.sheet_to_html(sheet, { id, editable });
+	// list:二维数组[[1,2],[2,4]] 返回table的html字符串
+	const { utils } = window.XLSX;
+	const sheet = utils.aoa_to_sheet(list);
+	return utils.sheet_to_html(sheet, { id, editable });
 };
 export const html2file = (html, opts) => {
 	// bookType 和 name 后缀对应关系
@@ -105,17 +43,15 @@ export const html2file = (html, opts) => {
 		ods: ".ods",
 		csv: ".csv",
 	};
-	const u = window.XLSX.utils;
-	const { writeFile, write } = window.XLSX;
+	const { writeFile, write, utils } = window.XLSX;
 	const { onlydata, sheet = "sheet", bookType = "xlsx",
 		name = sheet + type2name[bookType] } = opts || {};
-	const book = u.table_to_book(html, { sheet });
-	return onlydata ? write(book, {
-		bookType, bookSST: true, type: "base64",
-	}) : writeFile(book, name);
+	const book = utils.table_to_book(html, { sheet });
+	return !onlydata ? writeFile(book, name) : write(
+		book, { bookType, bookSST: true, type: "base64" });
 };
-export const download = (html, opts, btn) => {
-	// 监测当前低版本浏览器, 做一些UI的变化
+export const downBySwf = (html, opts, btn) => {
+	// TODO SOME UI, 监测当前低版本浏览器
 	opts = Object.assign(opts, { onlydata: true });
 	window.Downloadify.create(btn, {
 		width: 80,
@@ -126,9 +62,9 @@ export const download = (html, opts, btn) => {
 		filename: opts.name,
 		swf: "downloadify.swf",
 		downloadImage: "download.png",
-		data: v => html2file(html, opts),
-		onComplete: e => "文件保存成功!",
-		onCancel: e => "文件保存取消!",
-		onError: e => "文件保存错误!",
+		data: _ => html2file(html, opts),
+		onComplete: _ => "文件保存成功!",
+		onCancel: _ => "文件保存取消!",
+		onError: _ => "文件保存错误!",
 	});
 };

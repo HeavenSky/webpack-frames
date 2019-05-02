@@ -66,7 +66,7 @@ const commonConfig = {
 				use: [{
 					loader: "url-loader",
 					options: {
-						limit: 9999,
+						limit: 5000,
 						name: `img/[name]${ver.replace(
 							/(chunk|content|module)?hash/gi,
 							"hash"
@@ -79,7 +79,7 @@ const commonConfig = {
 				use: [{
 					loader: "url-loader",
 					options: {
-						limit: 9999,
+						limit: 5000,
 						name: `font/[name]${ver.replace(
 							/(chunk|content|module)?hash/gi,
 							"hash"
@@ -94,7 +94,7 @@ const commonConfig = {
 		new VueLoaderPlugin(),
 		new webpack.optimize.CommonsChunkPlugin({
 			name: "runtime",
-			minChunks: (module, count) => {
+			minChunks(module, _count) {
 				const { resource } = module || {};
 				return /[\\/]node_modules[\\/].*\.(json|vue|jsx?)(\?.*)?$/i.test(resource);
 			},
@@ -106,7 +106,7 @@ const commonConfig = {
 		/* new webpack.ContextReplacementPlugin(
 			/moment[\\/]locale$/i,
 			/^\.\/zh-cn$/i
-		),*/
+		), */
 		new webpack.IgnorePlugin(
 			/^\.\/locale$/i,
 			/moment$/i
@@ -159,7 +159,7 @@ const addEntryPage = name => {
 	) || `Home Page for ${app}`;
 	const ico = iniConfig.fmt(
 		iniConfig.html.ico, app
-	) || `favicon.ico`;
+	) || "favicon.ico";
 	const css = (iniConfig.html.css || []).map(
 		v => v && iniConfig.fmt(v, app)
 	).filter(v => v);
@@ -187,7 +187,7 @@ const addEntryPage = name => {
 	commonConfig.plugins.push(
 		new HtmlWebpackPlugin({
 			filename: app + ".html",
-			template: dir(templateFolder, "index.html"),
+			template: dir("src/index.html"),
 			prefix, pubrel, chunks, title, ico, css, js,
 			chunksSortMode: "manual",
 			showErrors: true,
@@ -200,13 +200,18 @@ const addEntryPage = name => {
 	);
 };
 
-const m = "react-hot-loader";
-const { length } = iniConfig.page || [];
-if (length) {
-	// 兼容 ie 直接使用生产包
-	iniConfig.ie && iniConfig.c(m) && (commonConfig.resolve
-		.alias[`${m}$`] = `${m}/dist/${m}.production.min`);
-	iniConfig.page.forEach(addEntryPage); // 多页面打包
+const mod = "react-hot-loader";
+const { ie, calc, page } = iniConfig;
+if (page && page.length) {
+	page.forEach(addEntryPage); // 多页面打包
+	const { resolve, module: { rules } } = commonConfig;
+	ie && calc(mod) && (resolve.alias[`${mod}$`] =
+		`${mod}/dist/${mod}.production.min`); // 兼容IE
+	calc(mod) > 4.5 && rules.push({
+		test: /\.jsx?(\?.*)?$/i,
+		use: ["react-hot-loader/webpack"],
+		include: dir("node_modules"),
+	});
 } else {
 	copyList.length = 0;
 }

@@ -1,6 +1,19 @@
 {
 	"presets": [
-		"env",
+		["env", {
+			"loose": false,
+			"useBuiltIns": false,
+			"modules": "commonjs",
+			"targets": {
+				"node": true,
+				"browsers": [
+					"android >= 4",
+					"ios >= 7",
+					"ie >= 8",
+					">= 0.2%"
+				]
+			}
+		}],
 		"react",
 		"stage-0"
 	],
@@ -8,12 +21,6 @@
 		"transform-decorators-legacy",
 		"react-hot-loader/babel",
 		"transform-runtime",
-		[
-			"import",
-			{
-				"libraryName": "antd",
-				"style": false
-			}
-		]
+		["import", { "libraryName": "antd", "style": false }]
 	]
 }
