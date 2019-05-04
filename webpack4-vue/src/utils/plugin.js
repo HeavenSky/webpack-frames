@@ -1,5 +1,5 @@
 import { gcs, create, loadJs } from "./dom";
-import { getCache } from "./service";
+import { getCache } from "./fns";
 
 // 单行文字自适应大小
 export const fitText = (target, text, rdx = 3) => {
@@ -18,10 +18,10 @@ export const fitText = (target, text, rdx = 3) => {
 
 // 用来手动加载excel导出依赖的js
 export const xlsxOk = _ => getCache("xlsxOk", _ =>
-	Promise.all([ // npmh highlight.js;npmh file-saver;
-		"https://cdn.bootcss.com/xlsx/0.14.2/xlsx.full.min.js",
-		"https://cdn.bootcss.com/FileSaver.js/1.3.8/FileSaver.min.js",
-	].map(loadJs)));
+	Promise.all([ // npmh xlsx;npmh file-saver;
+		"npm/xlsx@0.14.3/dist/xlsx.full.min.js",
+		"npm/file-saver@2.0.1/dist/FileSaver.min.js",
+	].map(v => loadJs("https://cdn.jsdelivr.net/" + v))));
 export const rows2list = (rows, keys) => {
 	// rows:列表数组 keys:列名数组
 	keys || (keys = Object.keys(rows[0]));

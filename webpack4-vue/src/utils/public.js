@@ -25,7 +25,7 @@ const log = window.console || { memory: {} };
 	"groupEnd", "clear", "count", "assert", "markTimeline",
 	"profile", "profileEnd", "timeline", "timelineEnd",
 	"time", "timeEnd", "timeStamp", "context",
-].forEach(v => log[v] || (log[v] = _ => 0));
+].forEach(v => log[v] || (log[v] = _ => null));
 // compatible mobile retina hd and click event
 ready.then(() => {
 	const { html, head, body, dpr, fc, ua } = clientInfo;

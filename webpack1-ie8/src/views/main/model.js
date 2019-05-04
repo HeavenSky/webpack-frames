@@ -1,4 +1,5 @@
-import { meet, async } from "../../utils/store";
+import { meet } from "../../utils/fns";
+import { async } from "../../utils/store";
 import { jqCheck } from "../../utils/service";
 
 const reddits = ["ActionScript", "C", "Clojure", "CoffeeScript", "CSS", "Go", "Haskell", "HTML", "Java", "JavaScript", "Lua", "Matlab", "Objective-C", "Perl", "PHP", "Python", "R", "Ruby", "Scala", "Shell", "Swift", "TeX", "TypeScript", "Vim script"];
@@ -84,6 +85,13 @@ export default {
 			const [patent, division] = result.map(
 				({ payload }) => payload[0] || []);
 			UPDATE(dispatch, { loading: false, patent, division });
+		},
+		async DEL_PAT({ payload }, { getState, dispatch }) {
+			const { patent = [] } = getState()[name];
+			const idx = patent.indexOf(payload);
+			const list = patent.slice();
+			list.splice(idx, 1);
+			UPDATE(dispatch, { patent: list });
 		},
 	},
 	after: ({ dispatch }) => [

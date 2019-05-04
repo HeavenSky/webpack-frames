@@ -6,40 +6,98 @@ export const isSet = v => getType(v) === "Set";
 export const isDate = v => getType(v) === "Date";
 export const isArray = v => getType(v) === "Array";
 export const isError = v => getType(v) === "Error";
-export const isObject = v => getType(v) === "Object";
 export const isRegExp = v => getType(v) === "RegExp";
 export const isPromise = v => getType(v) === "Promise";
+export const isObject = v => v && typeof v === "object";
 export const isFunction = v => typeof v === "function";
 export const isBoolean = v => typeof v === "boolean";
 export const isNumber = v => typeof v === "number";
 export const isString = v => typeof v === "string";
 export const isSymbol = v => typeof v === "symbol";
-export const isNum = v =>
-	["number", "string"].includes(typeof v) &&
+export const isNum = v => (isNumber(v) || isString(v)) &&
 	/^\s*(?:\+|-)?\s*\d+(?:.\d*)?\s*$/.test(v);
-export const isInt = v =>
-	["number", "string"].includes(typeof v) &&
+export const isInt = v => (isNumber(v) || isString(v)) &&
 	/^\s*(?:\+|-)?\s*\d+\s*$/.test(v);
 // 若存在类型转换一定要小心: isFinite会,Number.isFinite不会
 // true+true=={toString:v=>2}=={valueOf:v=>2};
 export const delay = ms =>
 	new Promise(resolve => setTimeout(resolve, ms));
-export const fmtde = v => Promise.resolve(v)
-	.then(d => [d, null]).catch(e => [null, e]);
+export const fmtde = v => Promise.resolve(isFunction(v)
+	? v() : v).then(d => [d, null]).catch(e => [null, e]);
 export const split = (v, slash) => String(v || "")
 	.split(slash || "/").filter(Boolean);
 export const merge = (...v) => Object.assign({}, ...v);
+// Browser console logger tools
 export const logger = (key, msg, data) =>
 	// eslint-disable-next-line no-console
-	console[key](msg) || console.dir(data);
-export const log = (msg, data) => logger("log", msg, data);
+	[console[key](msg), console.dir(data)];
+export const log = (m, ...d) => logger("log", m, d);
 [
 	"debug", "error", "info", "log", "warn", "dir",
 	"dirxml", "table", "trace", "group", "groupCollapsed",
 	"groupEnd", "clear", "count", "assert", "markTimeline",
 	"profile", "profileEnd", "timeline", "timelineEnd",
 	"time", "timeEnd", "timeStamp", "context",
-].forEach(k => (log[k] = (m, d) => logger(k, m, d)));
+].forEach(k => (log[k] = (m, ...d) => logger(k, m, d)));
+// async lock method
+const ASYNC_LOCKS = {};
+export const dolock = key => {
+	if (key != null && String(key)) {
+		if (ASYNC_LOCKS[key]) { return true; }
+		ASYNC_LOCKS[key] = true;
+	}
+};
+export const unlock = key => {
+	if (key != null && String(key)) {
+		ASYNC_LOCKS[key] = false;
+	}
+};
+// async meet method
+const ASYNC_MEETS = { promises: {}, resolves: {} };
+export const meet = key => {
+	const { promises, resolves } = ASYNC_MEETS;
+	if (!promises[key] || !resolves[key]) {
+		promises[key] = new Promise(
+			resolve => (resolves[key] = resolve)
+		);
+	}
+	return promises[key];
+};
+export const happen = (key, result) => {
+	if (!key || !result) { return; }
+	const { promises, resolves } = ASYNC_MEETS;
+	const ps = promises[key];
+	const rs = resolves[key];
+	// 清除旧的meet等待async的resolve方法
+	delete resolves[key];
+	ps && isFunction(rs) && rs(result);
+};
+// async cache method
+const ASYNC_CACHE = { async: {}, cache: {} };
+export const getCache = (key, fn) => {
+	const { async, cache } = ASYNC_CACHE;
+	if (key in cache) {
+		return Promise.resolve(cache[key]);
+	} else if (!async[key]) {
+		async[key] = Promise.resolve(
+			isFunction(fn) ? fn() : fn);
+	}
+	async[key].then(v => (cache[key] = v))
+		.then(_ => delete async[key])
+		.catch(_ => delete async[key]);
+	return async[key];
+};
+export const delCache = key => {
+	const { async, cache } = ASYNC_CACHE;
+	if (key) {
+		delete async[key];
+		delete cache[key];
+	} else {
+		ASYNC_CACHE.async = {};
+		ASYNC_CACHE.cache = {};
+	}
+};
+// string verify tools by RegExp
 export const regCheck = (v, ok, no) => {
 	let check;
 	isArray(ok) || (ok = [ok]);
@@ -114,26 +172,23 @@ export const validator = (rule, value, callback) => {
 	}
 	callback(err);
 };
-export const tryEXEC = (f, ...args) => {
+export const tryEXEC = (func, ...args) => {
 	let res;
 	try {
-		res = isFunction(f) ? f(...args) : f;
-	} catch (e) {
-		log.error("execution function error", [e, f, args]);
+		res = isFunction(func) ? func(...args) : func;
+	} catch (error) {
+		log.error("tryEXEC Error:", { error, func, args });
 	}
 	return res;
-};
-export const tryJSON = str => tryEXEC(JSON.parse, str);
-// eslint-disable-next-line no-eval
+}; // eslint-disable-next-line no-eval
 export const tryEVAL = str => tryEXEC(eval, `(${str})`);
+export const tryJSON = str => tryEXEC(JSON.parse, str);
 export const verIE = () => {
 	// 返回{ver:IE版本,mod:兼容版本}, 仅支持11以下模式版本
 	const isIE = tryEVAL("/*@cc_on !@*/false");
 	const ver = tryEVAL("/*@cc_on @_jscript_version@*/-0");
-	if (isIE) {
-		const mod = document.documentMode;
-		return { ver, mod };
-	}
+	const mod = document.documentMode;
+	return isIE ? { ver, mod } : {};
 };
 export const verClient = () => {
 	const ua = window.navigator.userAgent;
@@ -190,25 +245,19 @@ export const verClient = () => {
 	}
 	return res;
 };
-export const urlArgs = (v, b) => {
-	// b==false,返回值{args:URL中的参数,hash:URL中的哈希,main:URL中的主体}
-	// b==true,逆向操作
-	if (b) {
+export const urlArgs = (v, isGetUrl) => {
+	// isGetUrl假,返回{args:URL参数,hash:URL哈希,main:URL主体}
+	// isGetUrl真,逆向操作,返回对应的URL
+	if (isGetUrl) {
 		const { main = "", args = {}, hash = "" } = v || {};
 		let str = "";
-		for (const x in args) {
-			const key = encodeURIComponent(x || "");
-			const value = encodeURIComponent(args[key] || "");
-			if (key || value) {
-				str += "&" + key + "=" + value;
-			}
+		for (const k in args) {
+			const key = encodeURIComponent(k || "");
+			const val = encodeURIComponent(args[key] || "");
+			str += key || val ? "&" + key + "=" + val : "";
 		}
-		if (str) {
-			str = "?" + str.slice(1);
-		}
-		if (hash) {
-			str += "#" + encodeURIComponent(hash || "");
-		}
+		if (str) { str = "?" + str.slice(1); }
+		str += hash ? "#" + encodeURIComponent(hash) : "";
 		return main + str;
 	} else {
 		const obj = { main: "", args: {}, hash: "" };

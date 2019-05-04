@@ -89,7 +89,7 @@
 		"husky": "^2.2.0",
 		"js-cookie": "^2.2.0",
 		"less": "^3.9.0",
-		"lint-staged": "^8.1.5",
+		"lint-staged": "^8.1.6",
 		"moment": "^2.24.0",
 		"multer": "^1.4.1",
 		"node-sass": "^4.12.0",

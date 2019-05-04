@@ -2,38 +2,18 @@ import React from "react";
 import { render as draw } from "react-dom";
 import { Provider } from "react-redux";
 import { applyMiddleware, createStore } from "redux";
-import { isArray, isFunction, split, log } from "./fns";
+import {
+	isArray, isObject, isFunction, log,
+	fmtde, split, happen, dolock, unlock,
+} from "./fns";
 
 const STATE_MAP = {};
 const MODEL_MAP = {};
 const AFTER_INIT = [];
 const BEFORE_INIT = [];
-const ASYNC_LOCK_MAP = {};
 const ASYNC_CALL_TYPE = "@@SKY_ASYNC";
 const UPDATE_CALL_TYPE = "@@SKY_UPDATE";
-const ACTION_MEETS = { promises: {}, resolves: {} };
-// async lock method
-const initLock = key => {
-	if (key != null && String(key)) {
-		if (ASYNC_LOCK_MAP[key]) { return true; }
-		ASYNC_LOCK_MAP[key] = true;
-	}
-};
-const undoLock = key => {
-	if (key != null && String(key)) {
-		ASYNC_LOCK_MAP[key] = false;
-	}
-};
-// meet action method
-export const meet = type => {
-	const { promises, resolves } = ACTION_MEETS;
-	if (!promises[type] || !resolves[type]) {
-		promises[type] = new Promise(
-			resolve => (resolves[type] = resolve)
-		);
-	}
-	return promises[type] || Promise.resolve({});
-};
+
 // middleware and reducer
 export const thunk = store => next => action =>
 	isFunction(action) ? action(store) : next(action);
@@ -50,8 +30,8 @@ export const update = (state, action) => {
 	const { type, payload, path } = action || {};
 	const keys = split(type);
 	const [func] = keys.splice(-1, 1, ...split(path));
-	const data = payload && typeof payload === "object"
-		? payload : { [keys.splice(-1, 1)]: payload };
+	const data = isObject(payload) ? payload
+		: { [keys.splice(-1, 1)]: payload };
 	if (func !== UPDATE_CALL_TYPE) {
 		return state;
 	}
@@ -78,13 +58,7 @@ const middleware = store => next => action => {
 	const keys = split(type);
 	if (keys.length === 2) {
 		const keyword = keys.join("/");
-		const {
-			promises: { [keyword]: ps },
-			resolves: { [keyword]: rs },
-		} = ACTION_MEETS;
-		ps && isFunction(rs) && rs(action);
-		// 清除旧的meet等待action的resolve方法
-		delete ACTION_MEETS.resolves[keyword];
+		happen(keyword, action);
 		// 获取对应model的effect
 		const { effects } = MODEL_MAP[keys[0]] || {};
 		const { [keys.slice(-1)]: effect } = effects || {};
@@ -93,12 +67,11 @@ const middleware = store => next => action => {
 		}
 	}
 	if (type === ASYNC_CALL_TYPE) {
-		// 中间件处理异步
-		const error = [];
+		const error = []; // 中间件处理异步
 		fn || error.push("ASYNC missing `fn`");
 		prefix || error.push("ASYNC missing `prefix`");
 		error.length && log.error(error, action);
-		if (error.length || initLock(lock)) {
+		if (error.length || dolock(lock)) {
 			return next(action);
 		}
 		store.dispatch({
@@ -106,15 +79,13 @@ const middleware = store => next => action => {
 			fn, prefix, meta, lock,
 		});
 		const handle = payload => {
-			undoLock(lock);
+			unlock(lock);
 			return store.dispatch({
 				type: `${prefix}_RESPONSE`,
 				payload, fn, prefix, meta, lock,
 			});
 		};
-		return Promise.resolve(isFunction(fn) ? fn() : fn)
-			.then(d => handle([d, null]))
-			.catch(e => handle([null, e]));
+		return fmtde(fn).then(handle);
 	}
 	return next(action);
 };

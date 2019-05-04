@@ -1,7 +1,7 @@
 import $ from "jquery";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { isFunction, log, fmtde } from "./fns";
+import { isFunction, fmtde, log, happen } from "./fns";
 
 // 各浏览器支持的 localStorage 和 sessionStorage 容量上限不同
 const keep = window.localStorage || window.sessionStorage;
@@ -41,56 +41,6 @@ export const ERR_HANDLE = (data, status, statusText) => {
 		: `[HTTP]${status} ${statusText}`;
 	return error ? { intro, message, stack } : null;
 };
-// async cache method
-const ASYNC_CACHE = { async: {}, cache: {} };
-export const delCache = key => {
-	const { async, cache } = ASYNC_CACHE;
-	if (key) {
-		delete async[key];
-		delete cache[key];
-	} else {
-		ASYNC_CACHE.async = {};
-		ASYNC_CACHE.cache = {};
-	}
-};
-export const getCache = (key, fn) => {
-	const { async, cache } = ASYNC_CACHE;
-	if (key in cache) {
-		return Promise.resolve(cache[key]);
-	} else if (!async[key]) {
-		async[key] = Promise.resolve(
-			isFunction(fn) ? fn() : fn);
-	}
-	async[key].then(v => (cache[key] = v))
-		.then(_ => delete async[key])
-		.catch(_ => delete async[key]);
-	return async[key];
-};
-// async lock method
-const ASYNC_LOCKS = {};
-export const initLock = key => {
-	if (key != null && String(key)) {
-		if (ASYNC_LOCKS[key]) { return true; }
-		ASYNC_LOCKS[key] = true;
-	}
-};
-export const undoLock = key => {
-	if (key != null && String(key)) {
-		ASYNC_LOCKS[key] = false;
-	}
-};
-// meet async method
-const ASYNC_MEETS = { promises: {}, resolves: {} };
-export const meet = key => {
-	const { promises, resolves } = ASYNC_MEETS;
-	if (!promises[key] || !resolves[key]) {
-		promises[key] = new Promise(
-			resolve => (resolves[key] = resolve)
-		);
-	}
-	return promises[key];
-};
-
 // jquery 常用请求封装 详细见file/my/heaven.js
 export const $get = // data 为请求参数
 	(url, data, type = "GET", dataType = "JSON") =>
@@ -128,15 +78,7 @@ export const jqCheck = (xhr, check) => {
 export const jq = config => {
 	const { key, ...req } = config || {};
 	const result = fmtde(jqCheck($.ajax(req)));
-	if (key) {
-		const {
-			promises: { [key]: ps },
-			resolves: { [key]: rs },
-		} = ASYNC_MEETS;
-		ps && isFunction(rs) && rs(result);
-		// 清除旧的meet等待async的resolve方法
-		delete ASYNC_MEETS.resolves[key];
-	}
+	key && happen(key, result);
 	return result;
 };
 
@@ -214,15 +156,7 @@ export const axCheck = (xhr, check) => {
 export const ax = config => {
 	const { key, ...req } = config || {};
 	const result = fmtde(axCheck(service.request(req)));
-	if (key) {
-		const {
-			promises: { [key]: ps },
-			resolves: { [key]: rs },
-		} = ASYNC_MEETS;
-		ps && isFunction(rs) && rs(result);
-		// 清除旧的meet等待async的resolve方法
-		delete ASYNC_MEETS.resolves[key];
-	}
+	key && happen(key, result);
 	return result;
 };
 

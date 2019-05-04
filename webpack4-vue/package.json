@@ -84,7 +84,7 @@
 		"js-cookie": "^2.2.0",
 		"less": "^3.9.0",
 		"less-loader": "^5.0.0",
-		"lint-staged": "^8.1.5",
+		"lint-staged": "^8.1.6",
 		"mini-css-extract-plugin": "^0.6.0",
 		"moment": "^2.24.0",
 		"multer": "^1.4.1",

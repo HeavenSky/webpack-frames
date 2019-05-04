@@ -6,13 +6,10 @@ import { isFunction } from "./fns";
 export const wrap = (router, before, after) => {
 	router.beforeEach((to, from, next) => {
 		nprogress.start();
-		const path = isFunction(before) && before(to, from);
-		Promise.resolve(path).then(route => {
-			if (route) {
-				nprogress.done();
-				return next(route);
-			}
-			throw new Error(`beforeEach return:${route}`);
+		const res = isFunction(before) && before(to, from);
+		Promise.resolve(res).then(route => {
+			if (!route) { throw new Error(); }
+			return [next(route), nprogress.done()];
 		}).catch(_ => next());
 	});
 	router.afterEach((to, from) => {
