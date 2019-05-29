@@ -4,9 +4,7 @@
 		"parser": "babel-eslint",
 		"sourceType": "module",
 		"ecmaVersion": 9,
-		"ecmaFeatures": {
-			"jsx": true
-		}
+		"ecmaFeatures": { "jsx": true }
 	},
 	"env": {
 		"commonjs": true,
@@ -16,13 +14,13 @@
 		"mocha": true,
 		"jest": true,
 		"node": true,
-		"amd": true,
-		"es6": true
+		"amd": true
 	},
 	"plugins": [
 		"flowtype",
 		"jsx-a11y",
 		"promise",
+		"compat",
 		"import",
 		"babel",
 		"react",
@@ -36,10 +34,8 @@
 		"plugin:vue/recommended",
 		"eslint:recommended"
 	],
-	"globals": {
-		"Vue": true,
-		"React": true
-	},
+	"globals": { "Vue": true, "React": true },
+	"settings": { "polyfills": ["fetch"] },
 	"rules": {
 		"accessor-pairs": "error",
 		"array-bracket-spacing": ["error", "never"],
@@ -157,6 +153,7 @@
 		"babel/object-curly-spacing": ["error", "always", { "arraysInObjects": true, "objectsInObjects": true }],
 		"babel/no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true, "allowTaggedTemplates": true }],
 
+		"compat/compat": ["off", "android >= 4", "ios >= 7", "ie >= 8", ">= 0.2%"],
 		"import/default": "error",
 		"import/export": "error",
 		"import/first": "error",

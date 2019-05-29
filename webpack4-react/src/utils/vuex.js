@@ -10,7 +10,7 @@ export const wrap = (router, before, after) => {
 		Promise.resolve(res).then(route => {
 			if (!route) { throw new Error(); }
 			return [next(route), nprogress.done()];
-		}).catch(_ => next());
+		}).catch(() => next());
 	});
 	router.afterEach((to, from) => {
 		nprogress.done();

@@ -1,6 +1,7 @@
 export const lower = v => String(v).toLowerCase();
 export const upper = v => String(v).toUpperCase();
-export const getType = v => ({}).toString.call(v).slice(8, -1);
+export const merge = (...v) => Object.assign({}, ...v);
+export const getType = v => toString.call(v).slice(8, -1);
 export const isMap = v => getType(v) === "Map";
 export const isSet = v => getType(v) === "Set";
 export const isDate = v => getType(v) === "Date";
@@ -26,8 +27,11 @@ export const fmtde = v => Promise.resolve(isFunction(v)
 	? v() : v).then(d => [d, null]).catch(e => [null, e]);
 export const split = (v, slash) => String(v || "")
 	.split(slash || "/").filter(Boolean);
-export const merge = (...v) => Object.assign({}, ...v);
-// Browser console logger tools
+export const dmt = list => { // 字符串数组去重
+	const obj = {}; // 更优秀的数组去重 [...new Set(list)]
+	isArray(list) && list.forEach(k => (obj[k] = null));
+	return Object.getOwnPropertyNames(obj);
+}; // Browser console logger tools
 export const logger = (key, msg, data) =>
 	// eslint-disable-next-line no-console
 	[console[key](msg), console.dir(data)];
@@ -52,10 +56,10 @@ export const unlock = key => {
 		ASYNC_LOCKS[key] = false;
 	}
 };
-// async meet method
-const ASYNC_MEETS = { promises: {}, resolves: {} };
-export const meet = key => {
-	const { promises, resolves } = ASYNC_MEETS;
+// async listener method
+const ASYNC_LISTENER = { promises: {}, resolves: {} };
+export const listener = key => {
+	const { promises, resolves } = ASYNC_LISTENER;
 	if (!promises[key] || !resolves[key]) {
 		promises[key] = new Promise(
 			resolve => (resolves[key] = resolve)
@@ -63,12 +67,12 @@ export const meet = key => {
 	}
 	return promises[key];
 };
-export const happen = (key, result) => {
-	if (!key || !result) { return; }
-	const { promises, resolves } = ASYNC_MEETS;
+export const trigger = (key, result) => {
+	if (!key) { return; }
+	const { promises, resolves } = ASYNC_LISTENER;
 	const ps = promises[key];
 	const rs = resolves[key];
-	// 清除旧的meet等待async的resolve方法
+	// 清除旧resolve函数,并结束promise等待
 	delete resolves[key];
 	ps && isFunction(rs) && rs(result);
 };
@@ -83,8 +87,8 @@ export const getCache = (key, fn) => {
 			isFunction(fn) ? fn() : fn);
 	}
 	async[key].then(v => (cache[key] = v))
-		.then(_ => delete async[key])
-		.catch(_ => delete async[key]);
+		.then(() => delete async[key])
+		.catch(() => delete async[key]);
 	return async[key];
 };
 export const delCache = key => {
@@ -127,18 +131,14 @@ http://miit.gov.cn/n1146285/n1146352/n3054355/n3057709/n3057714/c5622616/content
 3. 固话支持加区号和不加区号 021,021-,0712,0712-
 4. 固话第一个号码不是0和1 */
 export const phoneCheck = v => /^([+0]?[1-9]\d{1,2}-?)?(1([3589]\d|4[5-9]|6[124-7]|7[0-8])\d{8}|(0[1-9]\d{1,2}-?)?[2-9]\d{6,7}(-\d{3,})?)$/.test(v);
-export const calcText = v => {
-	let text = v;
-	const type = typeof v;
+export const calcText = text => {
+	const type = typeof text;
 	if (type === "number" || type === "boolean") {
-		text = String(v);
-	} else if (type !== "string") {
-		return 0;
-	}
-	// ascii字符 算半个字符
+		text = String(text);
+	} else if (type !== "string") { return 0; }
 	// eslint-disable-next-line no-control-regex
 	const ascii = text.match(/[\x00-\xff]/g) || [];
-	// surrogate pair 代理字符对 两个字符算一个字符
+	// surrogate pair 代理字符对2个算1个; ascii字符 算半个字符
 	const pair = text.match(/[\ud800-\udbff][\udc00-\udfff]/g) || [];
 	return text.length - (ascii.length / 2) - pair.length;
 };
@@ -245,47 +245,35 @@ export const verClient = () => {
 	}
 	return res;
 };
-export const urlArgs = (v, isGetUrl) => {
-	// isGetUrl假,返回{args:URL参数,hash:URL哈希,main:URL主体}
-	// isGetUrl真,逆向操作,返回对应的URL
-	if (isGetUrl) {
-		const { main = "", args = {}, hash = "" } = v || {};
-		let str = "";
-		for (const k in args) {
-			const key = encodeURIComponent(k || "");
-			const val = encodeURIComponent(args[key] || "");
-			str += key || val ? "&" + key + "=" + val : "";
+export const parse = url => { // 链接转换成对象
+	const obj = { main: "", args: {}, hash: "" };
+	String(url || "").replace(/^([^?#]*)(\?[^#]*)?(#.*)?$/,
+		(_match, main, args = "", hash = "") => {
+			obj.main = decodeURIComponent(main);
+			obj.hash = decodeURIComponent(hash.slice(1));
+			return args.replace(/(\?|&)([^&=]*)(=[^&]*)?/g,
+				(_match, _prefix, key, val = "") => {
+					key = decodeURIComponent(key);
+					val = decodeURIComponent(val.slice(1));
+					if (!key && !val) { return ""; }
+					return (obj.args[key] = val);
+				}
+			);
 		}
-		if (str) { str = "?" + str.slice(1); }
-		str += hash ? "#" + encodeURIComponent(hash) : "";
-		return main + str;
-	} else {
-		const obj = { main: "", args: {}, hash: "" };
-		String(v || "").replace(
-			/^([^?#]*)(\?[^#]*)?(#.*)?$/,
-			(_match, main, args, hash) => {
-				obj.main = decodeURIComponent(main || "");
-				obj.hash = decodeURIComponent(
-					String(hash || "").slice(1)
-				);
-				String(args || "").replace(
-					/(\?|&)([^&=]*)(=[^&]*)?/g,
-					(_match, _prefix, key, value) => {
-						key = decodeURIComponent(key || "");
-						value = decodeURIComponent(
-							String(value || "").slice(1)
-						);
-						if (key || value) {
-							obj.args[key] = value;
-						}
-						return "";
-					}
-				);
-				return "";
-			}
-		);
-		return obj;
-	}
+	);
+	return obj;
+};
+export const stringify = obj => { // 对象转换成链接
+	const { main = "", args = {}, hash = "" } = obj || {};
+	let str = "";
+	Object.keys(args).forEach(k => {
+		const key = encodeURIComponent(k || "");
+		const val = encodeURIComponent(args[key] || "");
+		str += key || val ? "&" + key + "=" + val : "";
+	});
+	if (str) { str = "?" + str.slice(1); }
+	str += hash ? "#" + encodeURIComponent(hash) : "";
+	return main + str;
 };
 const HTTP = "http://";
 const HTTPS = "https://";

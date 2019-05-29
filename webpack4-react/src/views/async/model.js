@@ -1,15 +1,10 @@
-import { async } from "../../utils/store";
 import { jqCheck } from "../../utils/service";
+import { ASYNC, UPDATE } from "../../utils/store";
 
+const jq = config => () => jqCheck($.ajax(config));
 const reddits = ["ActionScript", "C", "Clojure", "CoffeeScript", "CSS", "Go", "Haskell", "HTML", "Java", "JavaScript", "Lua", "Matlab", "Objective-C", "Perl", "PHP", "Python", "R", "Ruby", "Scala", "Shell", "Swift", "TeX", "TypeScript", "Vim script"];
 const orders = ["asc", "desc"];
 const name = "star";
-
-const UPDATE = (dispatch, payload, path = name) =>
-	dispatch(async({ payload, path }, true));
-const jq = config => jqCheck($.ajax(config));
-const FETCH = (dispatch, config, prefix, lock) =>
-	dispatch(async({ fn: _ => jq(config), prefix, lock }));
 export default {
 	name,
 	state: {
@@ -40,35 +35,47 @@ export default {
 			if (!reddit || !order || loading) {
 				return;
 			}
-			UPDATE(dispatch, { reddit, order });
+			dispatch({
+				type: UPDATE,
+				payload: { reddit, order },
+				path: name,
+			});
 			if (payload && fetched) {
 				return;
 			}
-			UPDATE(dispatch, { loading: true }, `${name}/history/${key}`);
-			FETCH(
-				dispatch,
-				{
+			dispatch({
+				type: UPDATE,
+				payload: { loading: true },
+				path: `${name}/history/${key}`,
+			});
+			dispatch({
+				type: ASYNC,
+				fn: jq({
 					crossDomain: true,
 					url: "https://api.github.com/search/repositories",
-					data: { sort: "stars", q: `topic:${reddit} language:${reddit}`, order },
-				},
-				`${name}/REDDIT`,
-				`${name}/REDDIT_${key}`
-			);
+					data: {
+						sort: "stars", order,
+						q: `topic:${reddit} language:${reddit}`,
+					},
+				}),
+				prefix: `${name}/REDDIT`,
+				lock: `${name}/REDDIT_${key}`,
+			});
 		},
-		async REDDIT_RESPONSE({ payload, lock }, { dispatch }) {
-			const key = (lock || "").replace(/^.*_/, "");
+		async REDDIT_RES({ payload, action }, { dispatch }) {
+			const { lock, prefix } = action;
+			const key = lock.slice(prefix.length + 1);
 			const [{ items } = {}] = payload || [];
-			UPDATE(
-				dispatch,
-				{
+			dispatch({
+				type: UPDATE,
+				payload: {
 					fetched: true,
 					loading: false,
 					data: items || [],
 					time: new Date().toLocaleString(),
 				},
-				`${name}/history/${key}`
-			);
+				path: `${name}/history/${key}`,
+			});
 		},
 	},
 	after: ({ dispatch }) => dispatch({ type: `${name}/GET_DATA` }),

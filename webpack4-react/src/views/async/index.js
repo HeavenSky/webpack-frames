@@ -55,7 +55,7 @@ const mapDispatchToProps = dispatch => ({
 		type: "star/GET_DATA",
 		payload: { order: e.target.value },
 	}),
-	handleRefresh: _ => dispatch({
+	handleRefresh: () => dispatch({
 		type: "star/GET_DATA",
 	}),
 });

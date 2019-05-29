@@ -27,6 +27,7 @@ const outputFolder = "dist";
 const staticFolder = "static";
 const templateFolder = "src/views";
 
+const cssUrl = true;
 // https://github.com/webpack-contrib/style-loader#options
 const styleLoader = {
 	loader: "style-loader",
@@ -36,7 +37,7 @@ const styleLoader = {
 const cssStyleLoader = {
 	loader: "css-loader",
 	options: {
-		url: false,
+		url: cssUrl,
 		modules: false,
 		sourceMap: !isProd,
 	},
@@ -44,7 +45,7 @@ const cssStyleLoader = {
 const cssModuleLoader = {
 	loader: "css-loader",
 	options: {
-		url: false,
+		url: cssUrl,
 		modules: true,
 		sourceMap: !isProd,
 		localIdentName: "[name]_[local]_[hash:base64:5]",
@@ -62,7 +63,7 @@ const lessStyleLoader = {
 	loader: "less-loader",
 	options: {
 		sourceMap: !isProd,
-		relativeUrls: false,
+		relativeUrls: cssUrl,
 		javascriptEnabled: true,
 		modifyVars: {
 			"@icon-url": JSON.stringify("../antd/antd"),

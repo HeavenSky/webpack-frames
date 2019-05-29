@@ -3,11 +3,10 @@ import { getCache } from "./fns";
 
 // 单行文字自适应大小
 export const fitText = (target, text, rdx = 3) => {
-	const span = create("span", text, { parent: target });
-	span.style.cssText = "border:0;margin:0;padding:0;width:auto;min-width:auto;max-width:none;overflow:visible;position:absolute;visibility:hidden;white-space:nowrap;font:inherit;columns:inherit;transform:inherit;text-indent:inherit;word-spacing:inherit;letter-spacing:inherit;text-transform:inherit;";
+	const div = create("div", text, { parent: target, attrs: { style: "display:none;border:0;margin:0;padding:0;width:auto;min-width:unset;max-width:unset;overflow:visible;position:relative;visibility:hidden;white-space:nowrap;font:inherit;columns:inherit;transform:inherit;text-indent:inherit;word-spacing:inherit;letter-spacing:inherit;text-transform:inherit;" } });
 	const limit = parseFloat(gcs(target).width) || 0;
-	const width = parseFloat(gcs(span).width) || 0;
-	const sfs = parseFloat(gcs(span).fontSize) || 0;
+	const width = parseFloat(gcs(div).width) || 0;
+	const sfs = parseFloat(gcs(div).fontSize) || 0;
 	target.innerText = text;
 	if (limit && width && sfs) {
 		rdx = rdx > 0 && rdx < 9 ? rdx >> 0 : 0;
@@ -17,7 +16,7 @@ export const fitText = (target, text, rdx = 3) => {
 };
 
 // 用来手动加载excel导出依赖的js
-export const xlsxOk = _ => getCache("xlsxOk", _ =>
+export const xlsxOk = () => getCache("xlsxOk", () =>
 	Promise.all([ // npmh xlsx;npmh file-saver;
 		"npm/xlsx@0.14.3/dist/xlsx.full.min.js",
 		"npm/file-saver@2.0.1/dist/FileSaver.min.js",
@@ -62,9 +61,9 @@ export const downBySwf = (html, opts, btn) => {
 		filename: opts.name,
 		swf: "downloadify.swf",
 		downloadImage: "download.png",
-		data: _ => html2file(html, opts),
-		onComplete: _ => "文件保存成功!",
-		onCancel: _ => "文件保存取消!",
-		onError: _ => "文件保存错误!",
+		data: () => html2file(html, opts),
+		onComplete: () => "文件保存成功!",
+		onCancel: () => "文件保存取消!",
+		onError: () => "文件保存错误!",
 	});
 };

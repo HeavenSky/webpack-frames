@@ -1,7 +1,7 @@
 import $ from "jquery";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { isFunction, fmtde, log, happen } from "./fns";
+import { log, fmtde, trigger, isFunction } from "./fns";
 
 // 各浏览器支持的 localStorage 和 sessionStorage 容量上限不同
 const keep = window.localStorage || window.sessionStorage;
@@ -78,13 +78,13 @@ export const jqCheck = (xhr, check) => {
 export const jq = config => {
 	const { key, ...req } = config || {};
 	const result = fmtde(jqCheck($.ajax(req)));
-	key && happen(key, result);
+	key && trigger(key, result);
 	return result;
 };
 
 // 创建 axios 请求实例
 export const service = axios.create({
-	validateStatus: _status => true,
+	validateStatus: status => Boolean(status),
 	baseURL: "/rest",
 	timeout: 0,
 });
@@ -156,7 +156,7 @@ export const axCheck = (xhr, check) => {
 export const ax = config => {
 	const { key, ...req } = config || {};
 	const result = fmtde(axCheck(service.request(req)));
-	key && happen(key, result);
+	key && trigger(key, result);
 	return result;
 };
 

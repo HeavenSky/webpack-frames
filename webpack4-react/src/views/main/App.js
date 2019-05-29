@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Layout, Alert, Upload } from "antd";
+import { Layout, Alert, Upload, Input, Button } from "antd";
 import { hot } from "react-hot-loader";
 import { HashRouter } from "react-router-dom";
 
