@@ -22,7 +22,10 @@
 	- 删除`node_modules`目录
 	- 重新运行`npminstall -c`
 	- 最后换一个好点的网络,升级`node`和`npm`
-> `npminstall -c`和`npm install`不兼容,前者比后者快很多,但是不能同时使用,`切换使用需要删除node_modules文件夹`,`node-v12.0.0`有问题请先别升级`node-v12`
+5. 使用注意:
+	- `npminstall -c`和`npm install`不兼容,前者比后者快很多,但是不能混着用
+	- 切换使用需要删除`node_modules`文件夹
+	- `node-v12.0.0`有问题请先别升级,`node-v12`的最新版已经没有问题
 
 ## 开发坏境启动
 1. `npm run dll` 此前执行过,可跳过

@@ -27,7 +27,7 @@ const outputFolder = "dist";
 const staticFolder = "static";
 const templateFolder = "src/views";
 
-const cssUrl = true;
+const cssUrl = false;
 // https://github.com/webpack-contrib/style-loader#options
 const styleLoader = {
 	loader: "style-loader",

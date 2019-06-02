@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import { applyMiddleware, createStore } from "redux";
 import {
 	isArray, isObject, isString, isFunction,
-	log, fmtde, split, dolock, unlock, trigger,
+	log, fdata, split, dolock, unlock, trigger,
 } from "./fns";
 
 const STATE_MAP = {};
@@ -18,12 +18,12 @@ export const UPDATE = "UPDATE";
 export const thunk = store => next => action =>
 	isFunction(action) ? action(store) : next(action);
 export const print = store => next => action => {
-	const { type = +new Date() } = action || {};
+	const { type = new Date().toJSON() } = action || {};
 	const result = next(action);
-	log.group("PrintAction", type);
-	log.info("\tDispatchAction:\t", action);
-	log.info("\tGetStoreState:\t", store.getState());
-	log.groupEnd("PrintAction", type);
+	log.group("PrintAction " + type);
+	log("\tDispatchAction:\t", action);
+	log("\tGetStoreState:\t", store.getState());
+	log.groupEnd("PrintAction " + type);
 	return result;
 };
 export const update = (state, action) => {
@@ -52,7 +52,7 @@ export const update = (state, action) => {
 // 模仿dva且自动加载model的封装实现
 const reducer = (st, ac) => update(st || STATE_MAP, ac);
 const middleware = store => next => action => {
-	const { type, fn, prefix, lock } = action || {};
+	const { type, fn, args, prefix, lock } = action || {};
 	const keys = split(type);
 	if (keys.length === 2) {
 		trigger(keys.join("/"), action);
@@ -72,14 +72,14 @@ const middleware = store => next => action => {
 		err && log.error(err, action);
 		if (err || dolock(lock)) { return next(action); }
 		store.dispatch({ type: `${prefix}_REQ`, action });
-		const handle = payload => {
+		const end = success => payload => {
 			unlock(lock);
 			store.dispatch({
 				type: `${prefix}_RES`,
-				payload, action,
+				success, payload, action,
 			});
 		};
-		return fmtde(fn).then(handle);
+		return fdata(fn, args).then(end(1)).catch(end(0));
 	}
 	return next(action);
 };

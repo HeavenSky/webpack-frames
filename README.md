@@ -18,6 +18,7 @@ export default hot(module)(App); // 改成 export default App;
 1. 配置变化比较大, 将可配置项几乎全部提取到 `webpack.ini.js` 内, 基本统一了 `webpack1 webpack3 webpack4 react vue` 等各种框架的配置, 但是具体细节参数上还是有差异的
 2. 文件夹 `webpack3-*/src` 和 `webpack4-*/src` 完全重复, 如果缺失请自行拷贝一份, `vue` 和 `react` 的还是不一样的
 3. 将不再更新 `README.md` (变化太多,改起来有点烦), 具体关键点在 `webapck.*.js` 中均有注释和相对应官方文档地址参考
+4. `devDependencies` 被我用来放锁版本的依赖了, `dependencies` 是保持最新的依赖, 因为这个并不用发布到npm上, 所以这个我比较随意了, 如果要发布的话, 这两个还是要做好区分, 具体细节自行找文档看咯
 
 ## 环境准备工作
 1. 设置淘宝镜像 `npm config set registry https://registry.npm.taobao.org`
@@ -28,7 +29,10 @@ export default hot(module)(App); // 改成 export default App;
 	- 删除`node_modules`目录
 	- 重新运行`npminstall -c`
 	- 最后换一个好点的网络,升级`node`和`npm`
-> `npminstall -c`和`npm install`不兼容,前者比后者快很多,但是不能同时使用,`切换使用需要删除node_modules文件夹`,`node-v12.0.0`有问题请先别升级`node-v12`
+5. 使用注意:
+	- `npminstall -c`和`npm install`不兼容,前者比后者快很多,但是不能混着用
+	- 切换使用需要删除`node_modules`文件夹
+	- `node-v12.0.0`有问题请先别升级,`node-v12`的最新版已经没有问题
 
 ## 热重载(hot reload)
 1. `WebpackDevServer` 的 inline 配置必须为 true, 然而 ie11 以下不支持 inline
@@ -50,8 +54,8 @@ export default hot(module)(App);
 ```
 
 ### 图片处理
-- 普通图片 => [图片压缩](https://tinypng.com) => `url-loader`(5kb以下)
-- svg图片 => [svg压缩](https://github.com/svg/svgo) => `svg-url-loader`
+- 普通图片 => https://tinypng.com `图片压缩` => `url-loader`(5kb以下)
+- svg图片 => https://github.com/svg/svgo `svg压缩` => `svg-url-loader`
 ```js
 // 5kb以下使用,再大考虑还是file-loader
 const src = require("-!svg-url-loader?noquotes!./x.svg");
@@ -67,13 +71,13 @@ const src = require("-!svg-url-loader?noquotes!./x.svg");
 	* https://github.com/natural-fe/natural-cli/blob/master/ie8-mvvm.md
 
 ## 代码规范参考
-* [js规范es5,es6,react](https://github.com/airbnb/javascript)
-* [js规范中文版](https://github.com/yuche/javascript)
-* [React规范中文版](https://github.com/JasonBoy/javascript/tree/master/react)
-* [es5规范中文版](https://github.com/sivan/javascript-style-guide/tree/master/es5)
-* [eslint规则](http://eslint.cn/docs/rules)
-* [js标准化介绍](https://standardjs.com/readme-zhcn.html)
-* [js标准化规则](https://standardjs.com/rules-zhcn.html)
+* https://github.com/airbnb/javascript `js规范es5,es6,react`
+* https://github.com/yuche/javascript `js规范中文版`
+* https://github.com/JasonBoy/javascript/tree/master/react `React规范中文版`
+* https://github.com/sivan/javascript-style-guide/tree/master/es5 `es5规范中文版`
+* http://eslint.cn/docs/rules `eslint规则`
+* https://standardjs.com/readme-zhcn.html `js标准化介绍`
+* https://standardjs.com/rules-zhcn.html `js标准化规则`
 
 ## 个人代码习惯(因人而异,选择你认为对的,仅供参考)
 ### 关于文件末尾留一空行

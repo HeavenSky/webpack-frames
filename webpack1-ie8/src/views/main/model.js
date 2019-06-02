@@ -1,8 +1,7 @@
 import { listener } from "../../utils/fns";
-import { jqCheck } from "../../utils/service";
+import { jq } from "../../utils/service";
 import { ASYNC, UPDATE } from "../../utils/store";
 
-const jq = config => () => jqCheck($.ajax(config));
 const reddits = ["ActionScript", "C", "Clojure", "CoffeeScript", "CSS", "Go", "Haskell", "HTML", "Java", "JavaScript", "Lua", "Matlab", "Objective-C", "Perl", "PHP", "Python", "R", "Ruby", "Scala", "Shell", "Swift", "TeX", "TypeScript", "Vim script"];
 const orders = ["asc", "desc"];
 const name = "home";
@@ -55,7 +54,7 @@ export default {
 			});
 			dispatch({
 				type: ASYNC,
-				fn: jq({
+				fn: () => jq({
 					crossDomain: true,
 					url: "https://api.github.com/search/repositories",
 					data: {
@@ -67,9 +66,10 @@ export default {
 				lock: `${name}/REDDIT_${key}`,
 			});
 		},
-		async REDDIT_RES({ payload, lock }, { dispatch }) {
-			const key = (lock || "").replace(/^.*_/, "");
-			const [{ items } = {}] = payload || [];
+		async REDDIT_RES({ payload, action }, { dispatch }) {
+			const { lock, prefix } = action;
+			const key = lock.slice(prefix.length + 1);
+			const { items } = payload || {};
 			dispatch({
 				type: UPDATE,
 				payload: {
@@ -89,13 +89,13 @@ export default {
 			});
 			dispatch({
 				type: ASYNC,
-				fn: jq({ url: "json/patent.json" }),
+				fn: () => jq({ url: "json/patent.json" }),
 				prefix: `${name}/patent`,
 				lock: `${name}/patent`,
 			});
 			dispatch({
 				type: ASYNC,
-				fn: jq({ url: "json/division.json" }),
+				fn: () => jq({ url: "json/division.json" }),
 				prefix: `${name}/division`,
 				lock: `${name}/division`,
 			});
@@ -103,8 +103,7 @@ export default {
 				listener(`${name}/patent_RES`),
 				listener(`${name}/division_RES`),
 			]);
-			const [patent, division] = result.map(
-				({ payload: [data] }) => data || []);
+			const [patent, division] = result.map(({ payload, success }) => success ? payload : []);
 			dispatch({
 				type: UPDATE,
 				payload: { loading: false, patent, division },

@@ -47,10 +47,10 @@ class LiMark extends Component {
 /* markdown编辑器:
 https://npmjs.com/package/simplemde
 	不含预览样式,预览容器.editor-preview
-	SimpleMDE.prototype.markdown=md=>html
+	SimpleMDE.prototype.markdown=marked=md=>html
 https://npmjs.com/package/github-markdown-css
 	markdown预览样式,样式容器.markdown-body
-https://npmjs.com/package/europa
-	new Europa().convert=html=>md
+https://npmjs.com/package/turndown
+	new TurndownService().turndown=html=>md
 */
 export default LiMark;

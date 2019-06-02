@@ -1,7 +1,7 @@
 import $ from "jquery";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { log, fmtde, trigger, isFunction } from "./fns";
+import { dir, trigger, isFunction } from "./fns";
 
 // 各浏览器支持的 localStorage 和 sessionStorage 容量上限不同
 const keep = window.localStorage || window.sessionStorage;
@@ -75,9 +75,9 @@ export const jqCheck = (xhr, check) => {
 		resolve((data || {}).data || data);
 	}));
 };
-export const jq = config => {
+export const jq = (config, check) => {
 	const { key, ...req } = config || {};
-	const result = fmtde(jqCheck($.ajax(req)));
+	const result = jqCheck($.ajax(req), check);
 	key && trigger(key, result);
 	return result;
 };
@@ -107,7 +107,7 @@ service.interceptors.request.use(
 		return config;
 	},
 	error => {
-		log("service.interceptors.request.error", error);
+		dir.error("service.interceptors.request.error", error);
 		// 在 Promise 中 throw error 相当于 Promise.reject(error)
 		throw error;
 	}
@@ -131,7 +131,7 @@ service.interceptors.response.use(
 	},
 	error => {
 		// validateStatus 函数判 false 时响应处理函数, 返回值相当于 Promise.reject 处理的结果
-		log("service.interceptors.response.error", error);
+		dir.error("service.interceptors.response.error", error);
 		/* error = {
 			message: "", // `message` 给服务器发送请求的响应错误标题
 			response: {}, // `headers` 给服务器发送请求的响应信息
@@ -153,9 +153,9 @@ export const axCheck = (xhr, check) => {
 		return (data || {}).data || data;
 	});
 };
-export const ax = config => {
+export const ax = (config, check) => {
 	const { key, ...req } = config || {};
-	const result = fmtde(axCheck(service.request(req)));
+	const result = axCheck(service.request(req), check);
 	key && trigger(key, result);
 	return result;
 };

@@ -4,7 +4,7 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const {
 	ver, scssStyleLoader, lessStyleLoader,
-	outputFolder, cssStyleLoader, cssModuleLoader,
+	cssStyleLoader, cssModuleLoader,
 } = require("./webpack.ini");
 
 const extractLoader = new ExtractTextPlugin(
@@ -69,7 +69,7 @@ const productionConfig = {
 		],
 	},
 	plugins: [
-		new CleanWebpackPlugin([outputFolder]),
+		new CleanWebpackPlugin(),
 		new webpack.DefinePlugin({
 			"process.env": {
 				NODE_ENV: JSON.stringify("production"),

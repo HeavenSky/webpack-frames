@@ -23,26 +23,35 @@ export const isInt = v => (isNumber(v) || isString(v)) &&
 // true+true=={toString:v=>2}=={valueOf:v=>2};
 export const delay = ms =>
 	new Promise(resolve => setTimeout(resolve, ms));
-export const fmtde = v => Promise.resolve(isFunction(v)
-	? v() : v).then(d => [d, null]).catch(e => [null, e]);
+export const fdata = (fn, args) => {
+	if (isFunction(fn)) {
+		const params = isArray(args) ? args : [args];
+		return Promise.resolve(fn(...params));
+	} else { return Promise.resolve(fn); }
+};
+export const fmtde = (fn, args) => fdata(fn, args)
+	.then(d => [d, null]).catch(e => [null, e]);
 export const split = (v, slash) => String(v || "")
 	.split(slash || "/").filter(Boolean);
 export const dmt = list => { // 字符串数组去重
 	const obj = {}; // 更优秀的数组去重 [...new Set(list)]
 	isArray(list) && list.forEach(k => (obj[k] = null));
 	return Object.getOwnPropertyNames(obj);
-}; // Browser console logger tools
-export const logger = (key, msg, data) =>
-	// eslint-disable-next-line no-console
-	[console[key](msg), console.dir(data)];
-export const log = (m, ...d) => logger("log", m, d);
-[
+}; // eslint-disable-next-line no-console
+export const logger = (k, ...args) => console[k](...args);
+export const log = (...args) => logger("log", ...args);
+export const dir = (...args) => // console.dir 只打印一个参数
+	logger("dir", args.length > 1 ? args : args[0]);
+[ // browser console logger tools
 	"debug", "error", "info", "log", "warn", "dir",
 	"dirxml", "table", "trace", "group", "groupCollapsed",
 	"groupEnd", "clear", "count", "assert", "markTimeline",
 	"profile", "profileEnd", "timeline", "timelineEnd",
 	"time", "timeEnd", "timeStamp", "context",
-].forEach(k => (log[k] = (m, ...d) => logger(k, m, d)));
+].forEach(k => {
+	log[k] = (m, ...args) => [logger(k, m), log(...args)];
+	dir[k] = (m, ...args) => [logger(k, m), dir(...args)];
+});
 // async lock method
 const ASYNC_LOCKS = {};
 export const dolock = key => {

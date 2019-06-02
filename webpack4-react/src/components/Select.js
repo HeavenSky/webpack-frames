@@ -8,13 +8,13 @@ const lower = v => String(v || "").toLowerCase();
  * React Select 封装组件 依赖 antd{Select,Spin}
  * https://ant.design/components/select-cn/#API
  * @param {Object} props
- * @param {Boolean} props.openSearch 是否开启搜索
- * @param {Boolean} props.fetching 是否是否正在拉取数据
- * @param {Array} props.options 选项数据数组 默认值 [] 示例 [{label:"文字",value:"word"}]
- * @param {String} props.labelKey 选项元素的labelKey 默认值 "label"
- * @param {String} props.valueKey 选项元素的valueKey 默认值 "value"
- * @param {String} props.groupLabelKey 选项元素的groupLabelKey 默认值 "groupLabel"
- * @param {String} props.groupListKey 选项元素的groupListKey 默认值 "groupList"
+ * @property {Boolean} openSearch 是否开启搜索
+ * @property {Boolean} fetching 是否是否正在拉取数据
+ * @property {Array} options 选项数据数组 默认值 [] 示例 [{label:"文字",value:"word"}]
+ * @property {String} labelKey 选项元素的labelKey 默认值 "label"
+ * @property {String} valueKey 选项元素的valueKey 默认值 "value"
+ * @property {String} groupLabelKey 选项元素的groupLabelKey 默认值 "groupLabel"
+ * @property {String} groupListKey 选项元素的groupListKey 默认值 "groupList"
  * @returns React Select Element
  */
 const WrapSelect = props => {

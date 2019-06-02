@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { Layout, Alert, Upload, Input, Button } from "antd";
+import React, { PureComponent } from "react";
+import { Layout, Alert, Upload } from "antd";
 import { hot } from "react-hot-loader";
 import { HashRouter } from "react-router-dom";
 
@@ -9,7 +9,7 @@ import { RouteMenu } from "../../components/Menu";
 import { NAV_MENUS, NAV_MAPS } from "../../constants/columns";
 import "./App.less";
 
-class NoAu extends Component {
+class NoAu extends PureComponent {
 	state = { arr: Array(30).fill().map((_, i) => i + 1) };
 	componentDidMount() {
 		const wrap = $(".sort-test");
