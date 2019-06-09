@@ -1,22 +1,5 @@
 {
-	"presets": [
-		["env", {
-			"loose": false,
-			"useBuiltIns": false,
-			"modules": "commonjs",
-			"targets": {
-				"node": true,
-				"browsers": [
-					"android >= 4",
-					"ios >= 7",
-					"ie >= 8",
-					">= 0.2%"
-				]
-			}
-		}],
-		"react",
-		"stage-0"
-	],
+	"presets": ["env", "react", "stage-0"],
 	"plugins": [
 		"transform-decorators-legacy",
 		"react-hot-loader/babel",

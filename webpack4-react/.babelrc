@@ -1,21 +1,5 @@
 {
-	"presets": [
-		["@babel/preset-env", {
-			"loose": false,
-			"useBuiltIns": false,
-			"modules": "commonjs",
-			"targets": {
-				"node": true,
-				"browsers": [
-					"android >= 4",
-					"ios >= 7",
-					"ie >= 9",
-					">= 0.2%"
-				]
-			}
-		}],
-		"@babel/preset-react"
-	],
+	"presets": ["@babel/preset-env", "@babel/preset-react"],
 	"plugins": [
 		// Stage 0
 		"@babel/plugin-proposal-function-bind",

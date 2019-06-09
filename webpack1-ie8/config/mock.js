@@ -95,7 +95,6 @@ resolve返回的是模块id,cache里键也是模块id
 https://webpack.js.org/guides/dependency-management/
 https://webpack.docschina.org/guides/dependency-management/
 */
-const path = require("path");
 const multer = require("multer");
 const chokidar = require("chokidar");
 const bodyParser = require("body-parser");
@@ -104,14 +103,10 @@ const cookieParser = require("cookie-parser");
 const pathToRegExp = require("path-to-regexp");
 const requireEsModule = require("esm")(module);
 const proxy = require("http-proxy-middleware");
-const dir = path.join.bind(path, __dirname);
-/**
- * routeMatch
- * 路由路径 和 pathname 进行匹配
- * @param {String} route 路由路径 如 /user/:id
- * @param {String} pathname 浏览器 pathname 如 /user/12
- * @param {Object,other} config 可选 路径匹配规则配置
- * @returns {Object,other} 不匹配时返回 undefined
+/** 路由路径 和 页面路径 进行匹配,返回匹配结果和undefined
+ * route: 路由路径,如/user/:id
+ * pathname: 页面路径,如/user/12
+ * config: 路径匹配规则[可选] 参考npm包path-to-regexp
  */
 const routeMatch = (route, pathname, config) => {
 	config = Object.assign({
@@ -123,22 +118,20 @@ const routeMatch = (route, pathname, config) => {
 	const keys = [];
 	const reg = pathToRegExp(route, keys, config);
 	const vals = reg.exec(pathname);
-	if (vals) {
-		const res = {};
-		keys.forEach((key, idx) => {
-			res[key.name] = vals[idx + 1];
-		});
-		return res;
-	}
+	if (!vals) { return; }
+	const res = {};
+	keys.forEach((k, i) => (res[k.name] = vals[i + 1]));
+	return res;
 };
 
-const tryEXEC = (f, ...args) => {
+const { log } = console;
+const isFunc = v => typeof v === "function";
+const tryEXEC = (func, ...args) => {
 	let res;
 	try {
-		res = typeof f === "function" ? f(...args) : f;
-	} catch (e) {
-		// eslint-disable-next-line
-		console.log("execution function error", e);
+		res = isFunc(func) ? func(...args) : func;
+	} catch (error) {
+		log("tryEXEC Error:", { error, func, args });
 	}
 	return res;
 };
@@ -154,7 +147,7 @@ const clearRequireEsModule = mo => {
 	return file && tryEXEC(requireEsModule, file);
 };
 
-const httpMock = (app, folder = "mock") => {
+const httpMock = (app, mockFolder) => {
 	const moduleMap = {};
 	const addModule = file => {
 		const esm = clearRequireEsModule(file);
@@ -214,24 +207,19 @@ const httpMock = (app, folder = "mock") => {
 	];
 	app.all("*", (req, res, next) => {
 		const f = findCallBack(req, res, next);
-		// eslint-disable-next-line no-console
-		f && console.log(new Date(), req.method, req.path);
+		f && log(new Date(), req.method, req.path);
 		!f ? next() : f.length > 2 ? f(req, res, next)
-			: Promise.all(parser.map(f => new Promise(
-				// eslint-disable-next-line 执行代理中间件
-				resolve => f(req, res, resolve)))).then(f);
+			: Promise.all(parser.map(h => new Promise(
+				resolve => h(req, res, resolve)))).then(f);
 	});
-
-	const mock = dir(folder);
-	chokidar.watch(mock).on("all", (event, info) => {
+	chokidar.watch(mockFolder).on("all", (event, info) => {
 		switch (event) {
 			case "add": addModule(info); calc(); break;
 			case "unlink": delModule(info); calc(); break;
 			case "change": addModule(info); calc(); break;
 			case "error": break;
 			default: break;
-		} // https://npmjs.com/package/chokidar
+		} // 具体文档查看npm包chokidar
 	});
 };
-
 module.exports = { example, status, httpMock };

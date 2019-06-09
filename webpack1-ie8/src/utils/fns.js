@@ -37,7 +37,8 @@ export const dmt = list => { // 字符串数组去重
 	const obj = {}; // 更优秀的数组去重 [...new Set(list)]
 	isArray(list) && list.forEach(k => (obj[k] = null));
 	return Object.getOwnPropertyNames(obj);
-}; // eslint-disable-next-line no-console
+}; // 从 window 中取值就不会触发对应console的eslint了
+const console = window.console || { memory: {} };
 export const logger = (k, ...args) => console[k](...args);
 export const log = (...args) => logger("log", ...args);
 export const dir = (...args) => // console.dir 只打印一个参数
@@ -49,9 +50,11 @@ export const dir = (...args) => // console.dir 只打印一个参数
 	"profile", "profileEnd", "timeline", "timelineEnd",
 	"time", "timeEnd", "timeStamp", "context",
 ].forEach(k => {
+	if (!console[k]) { console[k] = () => undefined; }
 	log[k] = (m, ...args) => [logger(k, m), log(...args)];
 	dir[k] = (m, ...args) => [logger(k, m), dir(...args)];
-});
+}); // ployfill console global object
+if (!window.console) { window.console = console; }
 // async lock method
 const ASYNC_LOCKS = {};
 export const dolock = key => {
@@ -186,7 +189,7 @@ export const tryEXEC = (func, ...args) => {
 	try {
 		res = isFunction(func) ? func(...args) : func;
 	} catch (error) {
-		log.error("tryEXEC Error:", { error, func, args });
+		dir.error("tryEXEC Error:", { error, func, args });
 	}
 	return res;
 }; // eslint-disable-next-line no-eval

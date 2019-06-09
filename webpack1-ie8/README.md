@@ -1,11 +1,11 @@
-# 提前了解一下
-部分重复的文档说明已经提取到上一级的目录的`README.md`, 如果有疑问请重点看一下
+# 请仔细阅读上级目录的[readme](../)
+部分重复的文档说明已经提取到上级目录的`README.md`,若有疑问请先参考
 
 # webpack1-ie8
-采用 `React` 和 `Ant Design` 兼容到浏览器 `IE8` 的 `demo` 例子.
-* 采用低版本兼容的 `dependency` 有 `react@0.x` `antd@1.x` `jquery@1.x`
+* 采用 `react` 和 `antd` 兼容到浏览器 `IE8` 的 `demo` 例子
+* 采用低版本兼容的有 `dependency` `react@0.x` `antd@1.x` `jquery@1.x`
 * 其他 `dependency` 均采用最新版本, 具体请见 `package.json`
-* 关于 `dev dependency` 低版本兼容的比较多, 就不一一列举了, 具体请见 `package.json`
+* 关于 `dev dependency` 均采用兼容版本, 具体请见 `package.json`
 
 ## 更新 `package.json` 方法
 * 在当前目录执行 `npm update -D -S`
@@ -26,8 +26,9 @@
 	- `node-v12.0.0`有问题请先别升级,`node-v12`的最新版已经没有问题
 
 ## 开发坏境启动
-1. `npm start`
-2. 浏览器打开 http://localhost:8888
+1. `npm run dll` 此前执行过,可跳过
+2. `npm start`
+3. 浏览器打开 http://localhost:8888
 
 ## 生产坏境部署
 1. `npm run app`
@@ -62,5 +63,3 @@
 	* https://cdnjs.com `cdnjs` 大而全, 更新迅速及时, 国内访问速度慢, 如果不是速度慢, 最佳选择
 	* https://npm.elemecdn.com `elecdn` 大而全, 更新迅速及时, 国内访问速度可以, 但是资源路径非常不清晰
 	* https://cdn.jsdelivr.net `jsdelivr` 大而全, 更新迅速及时, 国内访问速度可以, css引用字体资源文件会报错
-
-## 刚开始学 webpack, 还有很多不懂, 欢迎指点秘籍, 或者纠错改进, 共同学习,共同进步

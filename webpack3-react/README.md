@@ -1,13 +1,9 @@
-# 提前了解一下
-部分重复的文档说明已经提取到上一级的目录的`README.md`, 如果有疑问请重点看一下
+# 请仔细阅读上级目录的[readme](../)
+部分重复的文档说明已经提取到上级目录的`README.md`,若有疑问请先参考
 
-# webpack3-react
-* 采用 `React` 和 `Ant Design` 兼容到浏览器 `IE9` 的 `demo` 例子
+# webpack4-react
+* 采用 `react` 和 `antd` 兼容到浏览器 `IE9` 的 `demo` 例子
 * 所有 `dependency` 和 `dev dependency` 均采用最新版本, 具体请见 `package.json`
-
-## 重要说明
-* 文件夹 `webpack3-*/src` 和 `webpack4-*/src` 完全重复
-* 如果缺失请自行拷贝一份, `vue` 和 `react` 的还是不一样的
 
 ## 更新 `package.json` 方法
 * 在当前目录执行 `npm update -D -S`
@@ -68,5 +64,3 @@
 	* https://cdnjs.com `cdnjs` 大而全, 更新迅速及时, 国内访问速度慢, 如果不是速度慢, 最佳选择
 	* https://npm.elemecdn.com `elecdn` 大而全, 更新迅速及时, 国内访问速度可以, 但是资源路径非常不清晰
 	* https://cdn.jsdelivr.net `jsdelivr` 大而全, 更新迅速及时, 国内访问速度可以, css引用字体资源文件会报错
-
-## 刚开始学 webpack, 还有很多不懂, 欢迎指点秘籍, 或者纠错改进, 共同学习,共同进步

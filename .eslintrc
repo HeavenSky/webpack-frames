@@ -174,7 +174,7 @@
 		"react/prop-types": "off",
 		"react/react-in-jsx-scope": "error",
 		"react/self-closing-comp": "error",
-		"vue/component-name-in-template-casing": ["error", "kebab-case"],
+		"vue/component-name-in-template-casing": ["error", "kebab-case", { "registeredComponentsOnly": false, "ignores": [] }],
 		"vue/html-indent": ["error", "tab"],
 		"vue/html-quotes": ["error", "double"]
 	}

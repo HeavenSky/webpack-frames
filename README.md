@@ -1,24 +1,22 @@
-## 重要说明
-1. 文件夹 `webpack3-*/src` 和 `webpack4-*/src` 完全重复, 如果缺失请自行拷贝一份, `vue` 和 `react` 的还是不一样的
-2. 开发环境已经做了热重载, 热重载不兼容 ie11 以下环境, 所以开发环境就不做兼容 ie11 以下了, 生产环境还是兼容的
-3. 若还是想开发环境兼容ie11以下, 请做实现热重载的逆向操作
-	* `.babel` plugins 中移除 react-hot-loader/babel
-	* `package.json` devDependencies 中移除 react-hot-loader
-	* `webpack.cfg.dev.js` devServer.inline 一定要为 false (Vue框架仅需改此一条)
-	* 根组件移除 export 时修饰
-```js
-import { hot } from 'react-hot-loader'; // 移除删掉
-// bala bala ...
-export default hot(module)(App); // 改成 export default App;
-```
-4. 开发环境已经支持前端 mock api, 会自动读取 `src/mock` 文件夹下的文件, 并进行热更新, 逻辑代码在对应项目下的`browser.js`, 示例参考 `webpack*-react/src/mock/api.js`, 若想关掉 mock api, 只需一个文件内配置 `NO_MOCK:true`
-5. `vue`一定要和`vue-template-compiler`版本完全一致,v2.5.18目前存在问题,建议不要使用
-
 ## 更新说明
-1. 配置变化比较大, 将可配置项几乎全部提取到 `webpack.ini.js` 内, 基本统一了 `webpack1 webpack3 webpack4 react vue` 等各种框架的配置, 但是具体细节参数上还是有差异的
-2. 文件夹 `webpack3-*/src` 和 `webpack4-*/src` 完全重复, 如果缺失请自行拷贝一份, `vue` 和 `react` 的还是不一样的
-3. 将不再更新 `README.md` (变化太多,改起来有点烦), 具体关键点在 `webapck.*.js` 中均有注释和相对应官方文档地址参考
-4. `devDependencies` 被我用来放锁版本的依赖了, `dependencies` 是保持最新的依赖, 因为这个并不用发布到npm上, 所以这个我比较随意了, 如果要发布的话, 这两个还是要做好区分, 具体细节自行找文档看咯
+1. `webpack4-vue`和`webpack3-vue`包含的文件夹完全一致
+2. `webpack4-react`和`webpack3-react`包含的文件夹完全一致
+3. 考虑到一致就没有在代码中再复制一份了,若有需要请自行拷贝
+4. 开发环境已经做了热重载,最新的`react-hot-loader`有毛病,目前配置不能热重载
+5. 若想开发环境兼容ie11以下,请去除热重载
+	* 文件`.babelrc`的`plugins`中移除`react-hot-loader/babel`
+	* `package.json`的`devDependencies`中移除`react-hot-loader`
+	* `config/opt.dev.js`中`devServer.inline`必需为false(vue仅需此项)
+	* 根组件移除`export`时的`hot`修饰
+	```js
+	import { hot } from 'react-hot-loader'; // 移除删掉
+	export default hot(module)(App); // 改为 export default App;
+	```
+5. 开发环境已经支持前端`mock api`,会自动读取`src/mock`下的文件,并进行热更新,代码逻辑在`config/mock.js`, 其中有`example`示例
+6. `vue`和`vue-template-compiler`版本必需完全一致
+7. `config`目录`webapck134,react,vue`配置已统一,不同项目仅需改`opt.self.js`即可
+8. `readme`说明有遗漏,麻烦移驾到文件中看代码注释,关键点在`config`目录中的文件均有注释和官方参考文档地址
+9. `devDependencies`被用来放锁版本的依赖了,`dependencies`是保持最新的依赖;由于不用发布到npm上,因此比较随意;若要发布,请做好区分,具体细节谷歌百度找文档
 
 ## 环境准备工作
 1. 设置淘宝镜像 `npm config set registry https://registry.npm.taobao.org`
@@ -34,12 +32,8 @@ export default hot(module)(App); // 改成 export default App;
 	- 切换使用需要删除`node_modules`文件夹
 	- `node-v12.0.0`有问题请先别升级,`node-v12`的最新版已经没有问题
 
-## 热重载(hot reload)
-1. `WebpackDevServer` 的 inline 配置必须为 true, 然而 ie11 以下不支持 inline
-2. react 使用 react-hot-loader, vue 本身支持热重载
-
 ### react-hot-loader 4.3.12 用法
-最新版的`react-hot-loader`已经不能这样简单实现!!!
+最新版`react-hot-loader`该方法已失效
 > https://github.com/gaearon/react-hot-loader `官方用法`
 
 1. `package.json` devDependencies 中加入 react-hot-loader
@@ -49,7 +43,6 @@ export default hot(module)(App); // 改成 export default App;
 5. 根组件 export 时修饰
 ```js
 import { hot } from 'react-hot-loader';
-...
 export default hot(module)(App);
 ```
 

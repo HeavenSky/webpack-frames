@@ -153,8 +153,8 @@ export const delCls = (element, cls) => {
 	const result = list.filter(v => !del.includes(v));
 	element.className = dmt(result).join(" ");
 };
-export const ready = new Promise(resolve => attachEvt(
-	document, "DOMContentLoaded", resolve, false));
+export const ready = f => new Promise(resolve => attachEvt(
+	document, "DOMContentLoaded", resolve, false)).then(f);
 export const clientInfo = () => {
 	const { documentElement: html, head, body } = document;
 	const { clientWidth: vw, clientHeight: vh } = html;
