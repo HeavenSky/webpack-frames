@@ -3,7 +3,7 @@
 ![](https://img.shields.io/npm/v/element-ui.svg?label=element-ui)
 ![](https://img.shields.io/npm/v/prettier.svg?label=prettier)
 
-### 请仔细阅读上级目录的[readme](../)
+### 请仔细阅读上级目录的[README.md](../README.md)
 部分重复的文档说明已经提取到上级目录的`README.md`,若有疑问请先参考
 
 ### webpack3-vue

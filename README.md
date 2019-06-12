@@ -1,24 +1,24 @@
 ### Badge
-* check & format
+* [check](https://eslint.cn) & [format](https://prettier.io)
 ![](https://img.shields.io/npm/v/eslint.svg?label=eslint)
 ![](https://img.shields.io/npm/v/prettier.svg?label=prettier)
-* webpack1-ie8
+* [webpack1-ie8](tree/master/webpack1-ie8)
 ![](https://img.shields.io/npm/v/webpack/legacy.svg?label=webpack)
 ![](https://img.shields.io/static/v1.svg?label=react&message=v0.14.9&color=blue)
 ![](https://img.shields.io/badge/antd-v1.11.6-blue.svg)
-* webpack3-react
+* [webpack3-react](tree/master/webpack3-react)
 ![](https://img.shields.io/npm/v/webpack/webpack-3.svg?label=webpack)
 ![](https://img.shields.io/npm/v/react.svg?label=react)
 ![](https://img.shields.io/npm/v/antd.svg?label=antd)
-* webpack3-vue
+* [webpack3-vue](tree/master/webpack3-vue)
 ![](https://img.shields.io/npm/v/webpack/webpack-3.svg?label=webpack)
 ![](https://img.shields.io/npm/v/vue.svg?label=vue)
 ![](https://img.shields.io/npm/v/element-ui.svg?label=element-ui)
-* webpack4-react
+* [webpack4-react](tree/master/webpack4-react)
 ![](https://img.shields.io/npm/v/webpack.svg?label=webpack)
 ![](https://img.shields.io/npm/v/react.svg?label=react)
 ![](https://img.shields.io/npm/v/antd.svg?label=antd)
-* webpack4-vue
+* [webpack4-vue](tree/master/webpack4-vue)
 ![](https://img.shields.io/npm/v/webpack.svg?label=webpack)
 ![](https://img.shields.io/npm/v/vue.svg?label=vue)
 ![](https://img.shields.io/npm/v/element-ui.svg?label=element-ui)
@@ -27,17 +27,16 @@
 1. `webpack4-vue`和`webpack3-vue`包含的文件夹完全一致
 2. `webpack4-react`和`webpack3-react`包含的文件夹完全一致
 3. 考虑到一致就没有在代码中再复制一份了,若有需要请自行拷贝
-4. 开发环境已经做了热重载,最新的`react-hot-loader`有毛病,目前配置不能热重载
-5. 若想开发环境兼容ie11以下,请去除热重载
+4. 开发环境已经做了热重载,若想开发环境兼容ie11以下,请清除热重载
 	* 文件`.babelrc`的`plugins`中移除`react-hot-loader/babel`
 	* `package.json`的`devDependencies`中移除`react-hot-loader`
-	* `config/opt.dev.js`中`devServer.inline`必须为false(vue仅需此项)
+	* `config/opt.dev.js`中`devServer.inline`必须为false(vue只需修改这一处)
 	* 代码中移除`react-hot-loader`
-6. 开发环境已经支持前端`mock api`,会自动读取`src/mock`下的文件,并进行热更新,代码逻辑在`config/mock.js`, 其中有`example`示例
-7. `vue`和`vue-template-compiler`版本必须完全一致,否则有不可预见错误
-8. `config`目录`webapck134,react,vue`配置已统一,不同项目仅需改`opt.self.js`即可
-9. `readme`说明有遗漏,麻烦移驾到文件中看代码注释,关键点在`config`目录中的文件均有注释和官方参考文档地址
-10. `devDependencies`被用来放锁版本的依赖了,`dependencies`是保持最新的依赖;由于不用发布到npm上,因此这个分类比较随意,甚至说是错误的;若要发布,请做好区分,具体细节谷歌百度找文档
+5. 开发环境已经支持前端`mock api`,会自动读取`src/mock`下的文件,并进行热更新,代码逻辑在`config/mock.js`, 其中有`example`示例
+6. `vue`和`vue-template-compiler`版本必须完全一致,否则有不可预见错误
+7. `config`目录`webapck134,react,vue`配置已统一,不同项目仅需改`opt.self.js`即可
+8. `readme`说明有遗漏,麻烦移驾到文件中看代码注释,关键点在`config`目录中的文件均有注释和官方参考文档地址
+9. `devDependencies`被用来放锁版本的依赖了,`dependencies`是保持最新的依赖;由于不用发布到npm上,因此这个分类比较随意,甚至说是错误的;若要发布,请做好区分,具体细节谷歌百度找文档
 
 ### 环境准备工作
 1. 设置淘宝镜像 `npm config set registry https://registry.npm.taobao.org`
@@ -66,7 +65,7 @@
 * 在当前目录执行 `npm update -D -S`
 * 还可以安装`npm i -g npm-check-updates`, 然后在当前目录执行 `ncu` 或 `ncu -u`
 
-### 使用 react-hot-loader
+### 使用 react-hot-loader 热重载
 [官方文档](https://github.com/gaearon/react-hot-loader)
 1. `package.json`的`devDependencies`中加入`react-hot-loader`
 2. `webpack.cfg.dev.js`的`devServer.inline`一定要为`true`
@@ -77,6 +76,7 @@
 import { hot } from 'react-hot-loader';
 export default hot(module)(App);
 ```
+注: 仅4.3.12支持`ie8+react@0`,且需要一个小变更,已在脚本内完成
 
 ### 图片处理
 * 普通图片 => https://tinypng.com `图片压缩` => `url-loader`(5kb以下)
