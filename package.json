@@ -1,6 +1,6 @@
 {
 	"name": "eslint-es6",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"license": "MIT",
 	"main": "index.js",
 	"author": "HeavenSky",
@@ -11,7 +11,7 @@
 	"dependencies": {
 		"babel-eslint": "^10.0.1",
 		"eslint": "^5.16.0",
-		"eslint-plugin-flowtype": "^3.9.1",
+		"eslint-plugin-flowtype": "^3.10.1",
 		"eslint-plugin-import": "^2.17.3",
 		"eslint-plugin-jsx-a11y": "^6.2.1",
 		"eslint-plugin-promise": "^4.1.1"

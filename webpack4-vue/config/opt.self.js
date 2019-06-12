@@ -1,5 +1,5 @@
-const { PROD, PKG_CSS, DIR_SVC, IE_SHIM, dir, pair, poly,
-	bootcdn, pkgcdn, WK } = require("./basic");
+const { PROD, PKG_CSS, DIR_SVC, IE_SHIM, dir, pair,
+	bootcdn, pkgcdn, poly, WK } = require("./basic");
 // 路径常量请尽可能以`/`结尾 output.publicPath
 const publicPath = undefined;
 const prefixAjax = undefined;
@@ -21,7 +21,6 @@ const DLL = {
 		"js-cookie",
 		"nprogress",
 		"pubsub-js",
-		"moment/locale/zh-cn",
 	],
 	vendor: [
 		"vue",
@@ -31,9 +30,7 @@ const DLL = {
 };
 /* *** file merge config *** */
 const LIB = { // 纯文本拼接,无编译过程
-	/* "ie8.js": ["es5-shim", "es5-sham", "html5shiv",
-		"selectivizr", "nwmatcher", "respond"]
-		.map(v => `./ie8/${v}.min.js`),
+	/* "ie8.lib.js": ["./ie8.js", "./dom4.js"],
 	"style.css": ["normalize/normalize.min.css",
 		"./editor/wangeditor.min.css"],
 	"jquery.js": "jquery/dist/jquery.min.js", */
@@ -44,10 +41,7 @@ const IPT = {
 		.slice(PROD || IE_SHIM ? 0 : -1),
 };
 /* *** module cdn resource *** */
-const CDN = {
-	jquery: "$",
-	wangeditor: "wangEditor",
-};
+const CDN = { jquery: "$", wangeditor: "wangEditor" };
 /* *** page entry config *** */
 const page = ["index"];
 /* *** page title config *** */
@@ -56,9 +50,9 @@ const title = "";
 const ico = "favicon.ico";
 /* *** css resource config *** */
 const css = [
-	"css/normalize-ie8.min.css",
+	"css/normalize.min.css",
 	"editor/wangeditor.min.css",
-	!"fa/fa-4.x.min.css",
+	!"fa/fa-5.x.min.css",
 	// highlight.js
 	!`${bootcdn}highlight.js/9.15.6/styles/atom-one-light.min.css`,
 	!`${bootcdn}highlight.js/9.15.6/styles/atom-one-dark.min.css`,
@@ -67,8 +61,8 @@ const css = [
 	!`${pkgcdn + pair("element-ui", "@")}/lib/theme-chalk/index.css`,
 	!`${pkgcdn + pair("element-ui", "@")}/lib/index.js`,
 	// vant
-	!`${pkgcdn + pair("vant", "@")}/lib/index.css`,
 	!`${pkgcdn + pair("vant", "@")}/lib/vant.min.js`,
+	!`${pkgcdn + pair("vant", "@")}/lib/index.css`,
 ];
 /* *** js resource config *** */
 const js = [

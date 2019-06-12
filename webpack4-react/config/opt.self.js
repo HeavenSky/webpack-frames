@@ -1,5 +1,5 @@
-const { PROD, PKG_CSS, DIR_SVC, IE_SHIM, dir, pair, poly,
-	bootcdn, pkgcdn, WK } = require("./basic");
+const { PROD, PKG_CSS, DIR_SVC, IE_SHIM, dir, pair,
+	bootcdn, pkgcdn, poly, WK } = require("./basic");
 // 路径常量请尽可能以`/`结尾 output.publicPath
 const publicPath = undefined;
 const prefixAjax = undefined;
@@ -21,23 +21,18 @@ const DLL = {
 		"js-cookie",
 		"nprogress",
 		"pubsub-js",
-		"moment/locale/zh-cn",
 	],
 	vendor: [
 		"react",
 		"redux",
-		"history",
 		"react-dom",
 		"react-redux",
-		"react-hot-loader",
 		"react-router-dom",
 	],
 };
 /* *** file merge config *** */
 const LIB = { // 纯文本拼接,无编译过程
-	/* "ie8.js": ["es5-shim", "es5-sham", "html5shiv",
-		"selectivizr", "nwmatcher", "respond"]
-		.map(v => `./ie8/${v}.min.js`),
+	/* "ie8.lib.js": ["./ie8.js", "./dom4.js"],
 	"style.css": ["normalize/normalize.min.css",
 		"./editor/wangeditor.min.css"],
 	"jquery.js": "jquery/dist/jquery.min.js", */
@@ -48,10 +43,7 @@ const IPT = {
 		.slice(PROD || IE_SHIM ? 0 : -1),
 };
 /* *** module cdn resource *** */
-const CDN = {
-	jquery: "$",
-	wangeditor: "wangEditor",
-};
+const CDN = { jquery: "$", wangeditor: "wangEditor" };
 /* *** page entry config *** */
 const page = ["index"];
 /* *** page title config *** */
@@ -60,7 +52,7 @@ const title = "";
 const ico = "favicon.ico";
 /* *** css resource config *** */
 const css = [
-	"css/normalize-ie8.min.css",
+	"css/normalize.min.css",
 	"editor/wangeditor.min.css",
 	!"antd/antd-1.11.6.css",
 	!"fa/fa-4.x.min.css",
@@ -72,8 +64,8 @@ const css = [
 	!`${pkgcdn + pair("antd-mobile", "@")}/dist/antd-mobile.min.css`,
 	!`${pkgcdn + pair("antd-mobile", "@")}/dist/antd-mobile.min.js`,
 	// antd
-	`${pkgcdn + pair("antd", "@")}/dist/antd.min.css`,
 	!`${pkgcdn + pair("antd", "@")}/dist/antd.min.js`,
+	`${pkgcdn + pair("antd", "@")}/dist/antd.min.css`,
 ];
 /* *** js resource config *** */
 const js = [

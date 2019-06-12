@@ -1,6 +1,6 @@
+import { hot } from "react-hot-loader/root";
 import React, { PureComponent } from "react";
 import { Layout, Alert, Upload } from "antd";
-import { hot } from "react-hot-loader";
 import { HashRouter } from "react-router-dom";
 
 import Todo from "../todo";
@@ -30,7 +30,7 @@ class NoAu extends PureComponent {
 		const { arr } = this.state;
 		return <div className="sort-test">
 			<div key="other" className="it-margin">
-				<Alert message="页面出错了, 请确认后刷新重试..." />
+				<Alert message="系统错误, 请稍后重试..." />
 			</div>
 			{arr.map(
 				v => <div key={v} className="it-margin item" data-idx={v}>
@@ -72,4 +72,4 @@ const App = () => <HashRouter>
 		</Layout>
 	</Layout>
 </HashRouter>;
-export default hot(module)(App);
+export default hot(App);

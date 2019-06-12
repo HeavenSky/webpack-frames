@@ -10,18 +10,19 @@ const styleLoader = {
 const cssStyleLoader = {
 	loader: "css-loader",
 	options: {
+		sourceMap: !PROD,
+		import: urlRel,
 		url: urlRel,
 		modules: false,
-		sourceMap: !PROD,
 	},
 };
 const cssModuleLoader = {
 	loader: "css-loader",
 	options: {
-		url: urlRel,
-		modules: true,
 		sourceMap: !PROD,
-		localIdentName: "[name]_[local]_[hash:base64:5]",
+		import: urlRel,
+		url: urlRel,
+		modules: { localIdentName: "[name]_[local]_[hash:base64:5]" },
 	},
 };
 // https://github.com/webpack-contrib/sass-loader

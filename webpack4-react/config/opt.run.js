@@ -199,8 +199,8 @@ const addEntryPage = name => {
 	};
 	opt.title = fmt(title, app) || `Home Page for ${app}`;
 	opt.ico = fmt(ico, app) || "favicon.ico";
-	opt.css = isArray(css) ? css.map(v => fmt(v)) : [];
-	opt.js = isArray(js) ? js.map(v => fmt(v)) : [];
+	opt.css = isArray(css) ? css.map(v => fmt(v, app)) : [];
+	opt.js = isArray(js) ? js.map(v => fmt(v, app)) : [];
 	every(LIB, k => /\.css$/i.test(k)
 		? opt.css.push(`css/${k}?${ts}`) : /\.js$/i.test(k)
 			? opt.js.push(`js/${k}?${ts}`) : null);

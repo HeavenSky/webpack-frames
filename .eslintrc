@@ -1,5 +1,4 @@
 {
-	"root": true,
 	"parserOptions": {
 		"parser": "babel-eslint",
 		"sourceType": "module",
@@ -34,8 +33,8 @@
 		"plugin:vue/recommended",
 		"eslint:recommended"
 	],
-	"globals": { "Vue": true, "React": true },
-	"settings": { "polyfills": ["fetch"] },
+	"root": false, "settings": { "polyfills": ["fetch"] },
+	"globals": { "Vue": false, "React": false },
 	"rules": {
 		"accessor-pairs": "error",
 		"array-bracket-spacing": ["error", "never"],

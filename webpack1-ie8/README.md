@@ -1,40 +1,18 @@
-# 请仔细阅读上级目录的[readme](../)
+![](https://img.shields.io/npm/v/webpack/legacy.svg?label=webpack)
+![](https://img.shields.io/static/v1.svg?label=react&message=v0.14.9&color=blue)
+![](https://img.shields.io/badge/antd-v1.11.6-blue.svg)
+![](https://img.shields.io/npm/v/prettier.svg?label=prettier)
+
+### 请仔细阅读上级目录的[readme](../)
 部分重复的文档说明已经提取到上级目录的`README.md`,若有疑问请先参考
 
-# webpack1-ie8
+### webpack1-ie8
 * 采用 `react` 和 `antd` 兼容到浏览器 `IE8` 的 `demo` 例子
 * 采用低版本兼容的有 `dependency` `react@0.x` `antd@1.x` `jquery@1.x`
 * 其他 `dependency` 均采用最新版本, 具体请见 `package.json`
 * 关于 `dev dependency` 均采用兼容版本, 具体请见 `package.json`
 
-## 更新 `package.json` 方法
-* 在当前目录执行 `npm update -D -S`
-* 还可以安装`npm i -g npm-check-updates`, 然后在当前目录执行 `ncu` 或 `ncu -u`
-
-## 环境准备工作
-1. 设置淘宝镜像 `npm config set registry https://registry.npm.taobao.org`
-2. 管理员身份运行 `npm i -g npminstall`
-3. 命令行进入当前目录,运行 `npminstall -c`
-4. 若出现报错,常用解决办法如下:
-	- 管理员身份运行`npm cache clean -f`和`npm cache verify -f`
-	- 删除`node_modules`目录
-	- 重新运行`npminstall -c`
-	- 最后换一个好点的网络,升级`node`和`npm`
-5. 使用注意:
-	- `npminstall -c`和`npm install`不兼容,前者比后者快很多,但是不能混着用
-	- 切换使用需要删除`node_modules`文件夹
-	- `node-v12.0.0`有问题请先别升级,`node-v12`的最新版已经没有问题
-
-## 开发坏境启动
-1. `npm run dll` 此前执行过,可跳过
-2. `npm start`
-3. 浏览器打开 http://localhost:8888
-
-## 生产坏境部署
-1. `npm run app`
-2. 拷贝dist文件夹内容至服务器即可
-
-## 技术栈介绍
+### 技术栈介绍
 * 初期搭建的时候, 完全参考 https://github.com/brickspert `砖家`的 https://github.com/brickspert/react-family-ie8 `react-family-ie8`项目配置
 * 后期配置上改动也很大, 引入了 `antd` `cross-env` `less` `autoprefixer`, 以及配置上的加入多个单页应用的处理
 * 关于 `redux` 的是否使用, 个人感觉, 一上来就用 `redux`, 组件耦合高, 逻辑结构复杂, 不利于提取组件和组件迁移复用等; 使用 `redux` 真的是属于吃力不讨好的事情; `如果你不清楚要不要用 redux, 那么就不用`; `redux` 写的项目代码耦合太高, 改动和变更起来十分费劲

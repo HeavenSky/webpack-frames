@@ -257,35 +257,33 @@ export const verClient = () => {
 	}
 	return res;
 };
-export const parse = url => { // 链接转换成对象
+export const parse = url => { // 地址解析成对象
 	const obj = { main: "", args: {}, hash: "" };
 	String(url || "").replace(/^([^?#]*)(\?[^#]*)?(#.*)?$/,
 		(_match, main, args = "", hash = "") => {
-			obj.main = decodeURIComponent(main);
-			obj.hash = decodeURIComponent(hash.slice(1));
-			return args.replace(/(\?|&)([^&=]*)(=[^&]*)?/g,
+			obj.main = decodeURI(main); // main和hash少转义
+			obj.hash = decodeURI(hash).slice(1);
+			args.replace(/(\?|&)([^&=]*)(=[^&]*)?/g,
 				(_match, _prefix, key, val = "") => {
 					key = decodeURIComponent(key);
 					val = decodeURIComponent(val.slice(1));
-					if (!key && !val) { return ""; }
-					return (obj.args[key] = val);
-				}
-			);
-		}
-	);
+					key && val && (obj.args[key] = val);
+				} // 正则(**)?无配对时,对应undefined
+			); // 正则(**)配对什么,就对应什么,哪怕为空字符串
+		}); // args的key和val是各种特殊字符都要处理
 	return obj;
 };
-export const stringify = obj => { // 对象转换成链接
-	const { main = "", args = {}, hash = "" } = obj || {};
+export const stringify = obj => { // 对象还原成地址
+	const { main, args, hash } = obj || {};
 	let str = "";
-	Object.keys(args).forEach(k => {
+	for (const k in (args || {})) {
 		const key = encodeURIComponent(k || "");
 		const val = encodeURIComponent(args[key] || "");
 		str += key || val ? "&" + key + "=" + val : "";
-	});
+	} // args的key和val是各种特殊字符都要处理
 	if (str) { str = "?" + str.slice(1); }
-	str += hash ? "#" + encodeURIComponent(hash) : "";
-	return main + str;
+	str += hash ? "#" + encodeURI(hash) : "";
+	return encodeURI(main || "") + str; // main和hash少转义
 };
 const HTTP = "http://";
 const HTTPS = "https://";
