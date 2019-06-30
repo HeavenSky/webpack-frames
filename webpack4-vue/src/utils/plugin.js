@@ -1,6 +1,5 @@
 import { gcs, create, loadJs } from "./dom";
-import { getCache } from "./fns";
-
+import { keys, getCache } from "./fns";
 // 单行文字自适应大小
 export const fitText = (target, text, rdx = 3) => {
 	const div = create("div", text, { parent: target, attrs: { style: "display:none;border:0;margin:0;padding:0;width:auto;min-width:unset;max-width:unset;overflow:visible;position:relative;visibility:hidden;white-space:nowrap;font:inherit;columns:inherit;transform:inherit;text-indent:inherit;word-spacing:inherit;letter-spacing:inherit;text-transform:inherit;" } });
@@ -14,26 +13,22 @@ export const fitText = (target, text, rdx = 3) => {
 		target.style.fontSize = tfs + "px";
 	}
 };
-
 // 用来手动加载excel导出依赖的js
 export const xlsxOk = () => getCache("xlsxOk", () =>
 	Promise.all([ // npmh xlsx;npmh file-saver;
-		"npm/xlsx@0.14.3/dist/xlsx.full.min.js",
-		"npm/file-saver@2.0.1/dist/FileSaver.min.js",
+		"npm/xlsx/dist/xlsx.full.min.js",
+		"npm/file-saver/dist/FileSaver.min.js",
 	].map(v => loadJs("https://cdn.jsdelivr.net/" + v))));
-export const rows2list = (rows, keys) => {
-	// rows:列表数组 keys:列名数组
-	keys || (keys = Object.keys(rows[0]));
-	return rows.map(v => keys.map(k => v[k]));
-};
+export const rows2list = (rows, cols) => {
+	cols || (cols = keys(rows[0]));
+	return rows.map(v => cols.map(k => v[k]));
+}; // rows:列表数组 cols:列名数组
 export const list2html = (list, id, editable) => {
-	// list:二维数组[[1,2],[2,4]] 返回table的html字符串
 	const { utils } = window.XLSX;
 	const sheet = utils.aoa_to_sheet(list);
 	return utils.sheet_to_html(sheet, { id, editable });
-};
+}; // list:二维数组[[1,2],[2,4]] 返回table的html字符串
 export const html2file = (html, opts) => {
-	// bookType 和 name 后缀对应关系
 	const type2name = {
 		biff8: ".xls",
 		xlsx: ".xlsx",
@@ -41,7 +36,7 @@ export const html2file = (html, opts) => {
 		fods: ".fods",
 		ods: ".ods",
 		csv: ".csv",
-	};
+	}; // bookType 和 name 后缀对应关系
 	const { writeFile, write, utils } = window.XLSX;
 	const { onlydata, sheet = "sheet", bookType = "xlsx",
 		name = sheet + type2name[bookType] } = opts || {};
@@ -50,8 +45,8 @@ export const html2file = (html, opts) => {
 		book, { bookType, bookSST: true, type: "base64" });
 };
 export const downBySwf = (html, opts, btn) => {
-	// TODO SOME UI, 监测当前低版本浏览器
-	opts = Object.assign(opts, { onlydata: true });
+	// TODO SOME UI 监测当前低版本浏览器
+	opts = { ...opts, onlydata: true };
 	window.Downloadify.create(btn, {
 		width: 80,
 		height: 20,

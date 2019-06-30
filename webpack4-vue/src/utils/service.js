@@ -1,23 +1,21 @@
 import $ from "jquery";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { dir, trigger, isFunction } from "./fns";
-
+import { dir, trigger, isFunction, fmtde } from "./fns";
 // 各浏览器支持的 localStorage 和 sessionStorage 容量上限不同
-const keep = window.localStorage || window.sessionStorage;
-export const clsStore = (...args) => keep && keep.clear(...args);
-export const getStore = (...args) => keep && keep.getItem(...args);
-export const setStore = (...args) => keep && keep.setItem(...args);
-export const delStore = (...args) => keep && keep.removeItem(...args);
-
+const ST = window.localStorage || window.sessionStorage;
+export const clsStore = (...v) => ST && ST.clear(...v);
+export const getStore = (...v) => ST && ST.getItem(...v);
+export const setStore = (...v) => ST && ST.setItem(...v);
+export const delStore = (...v) => ST && ST.removeItem(...v);
 // 单个 cookie 保存的数据不能超过 4KB
-export const getCookie = (...args) => Cookies.get(...args);
-export const setCookie = (...args) => Cookies.set(...args);
-export const delCookie = (...args) => Cookies.remove(...args);
-
+export const getCookie = (...v) => Cookies.get(...v);
+export const setCookie = (...v) => Cookies.set(...v);
+export const delCookie = (...v) => Cookies.remove(...v);
+// 跨域请求headers 压缩数据响应headers
+export const AUTH_KEY = "Authorization";
 export const AUTH_TOKEN_KEY = "x-auth-token";
 export const XSRF_TOKEN_KEY = "x-xsrf-token";
-export const AUTH_KEY = "Authorization";
 export const CONTENT_TYPE = {
 	KEY: "Content-Type",
 	XML: "text/xml; charset=utf-8",
@@ -25,13 +23,12 @@ export const CONTENT_TYPE = {
 	TEXT: "text/plain; charset=utf-8",
 	JSON: "application/json; charset=utf-8",
 	FORM: "multipart/form-data; charset=utf-8",
-	URLS: "application/x-www-form-urlencoded; charset=utf-8",
+	URL: "application/x-www-form-urlencoded; charset=utf-8",
 };
 export const ACCEPT_ENCODING = {
 	KEY: "Accept-Encoding",
 	VAL: "br, gzip, deflate, compress, identity, *",
-	// https://qgy18.com/request-compress 压缩 POST 请求数据
-};
+}; // https://qgy18.com/request-compress 压缩 POST 数据
 export const ERR_HANDLE = (data, status, statusText) => {
 	const isOk = [200, 304].includes(status);
 	const error = isOk ? data && data.error : data;
@@ -41,12 +38,14 @@ export const ERR_HANDLE = (data, status, statusText) => {
 		: `[HTTP]${status} ${statusText}`;
 	return error ? { intro, message, stack } : null;
 };
+const DF = v => (v || {}).data || v; // 格式化 data 数据
+const PF = v => v || fmtde(v); // 格式化 promise 数据
 // jquery 常用请求封装 详细见file/my/heaven.js
 export const $get = // data 为请求参数
 	(url, data, type = "GET", dataType = "JSON") =>
 		$.ajax({
 			url, data, type, dataType,
-			contentType: CONTENT_TYPE.URLS,
+			contentType: CONTENT_TYPE.URL,
 		});
 export const $post = // data 为 json 对象
 	(url, data, type = "POST", dataType = "JSON") =>
@@ -69,53 +68,43 @@ export const jqCheck = (xhr, check) => {
 		const { responseText, status, statusText,
 			responseJSON: data = responseText } = xhr;
 		const err = check(data, status, statusText);
-		if (err) { // eslint-disable-next-line
-			throw { ...err, data, xhr };
-		}
-		resolve((data || {}).data || data);
+		// eslint-disable-next-line no-throw-literal
+		if (err) { throw { ...err, data, xhr }; }
+		resolve(DF(data));
 	}));
 };
 export const jq = (config, check) => {
 	const { key, ...req } = config || {};
-	const result = jqCheck($.ajax(req), check);
+	const result = PF(jqCheck($.ajax(req), check));
 	key && trigger(key, result);
 	return result;
 };
-
 // 创建 axios 请求实例
 export const service = axios.create({
-	validateStatus: status => Boolean(status),
-	baseURL: "/rest",
-	timeout: 0,
+	validateStatus: Boolean, baseURL: "/rest", timeout: 0,
 });
 /* axios 常用请求封装
-https://github.com/axios/axios#request-method-aliases
 service.get/delete/head/options(url, { params, headers });
 service.post/put/patch(url, data, { params, headers });
 下载二进制文件增加参数 {responseType:"blob"} jquery 不支持此方法
-service.defaults.headers.get[CONTENT_TYPE.KEY] = CONTENT_TYPE.URLS;
+service.defaults.headers.get[CONTENT_TYPE.KEY] = CONTENT_TYPE.URL;
 service.defaults.headers.put[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
 service.defaults.headers.post[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
 service.defaults.headers.delete[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
 service.defaults.headers.common[AUTH_TOKEN_KEY] = AUTH_KEY;
-*/
-service.interceptors.request.use(
-	// request 拦截器
+https://github.com/axios/axios#request-method-aliases */
+service.interceptors.request.use( // request 拦截器
 	config => {
-		// 在发送请求时执行函数, headers 携带 token, 请根据实际情况自行修改
 		config.headers[AUTH_TOKEN_KEY] = AUTH_KEY;
 		return config;
-	},
+	}, // 在发送请求时执行函数,可用来给 headers 携带 token
 	error => {
-		dir.error("service.interceptors.request.error", error);
-		// 在 Promise 中 throw error 相当于 Promise.reject(error)
+		dir.error("service.request.error", error);
 		throw error;
-	}
+	} // Promise 中 throw err 相当于 Promise.reject(err)
 );
-service.interceptors.response.use(
-	// respone 拦截器
-	response => {
-		// validateStatus 函数判 true 时响应处理函数, 返回值相当于 Promise.resolve 处理的结果
+service.interceptors.response.use( // respone 拦截器
+	response => { // validateStatus 返回 true 时执行
 		/* response = {
 			data: {} || "", // `data` 给服务器发送请求的响应数据信息
 			status: 200, // `status` 给服务器发送请求的响应 HTTP 状态码
@@ -129,15 +118,14 @@ service.interceptors.response.use(
 		setStore(AUTH_TOKEN_KEY, token);
 		return response;
 	},
-	error => {
-		// validateStatus 函数判 false 时响应处理函数, 返回值相当于 Promise.reject 处理的结果
-		dir.error("service.interceptors.response.error", error);
+	error => { // validateStatus 返回 false 时执行
 		/* error = {
 			message: "", // `message` 给服务器发送请求的响应错误标题
 			response: {}, // `headers` 给服务器发送请求的响应信息
 			request: {}, // `request` 给服务器发送请求的请求信息
 			config: {}, // `config` 给服务器发送请求的配置信息
 		}; */
+		dir.error("service.response.error", error);
 		throw error;
 	}
 );
@@ -147,19 +135,17 @@ export const axCheck = (xhr, check) => {
 	return xhr.then(response => {
 		const { data, status, statusText } = response || {};
 		const err = check(data, status, statusText);
-		if (err) { // eslint-disable-next-line
-			throw { ...err, response };
-		}
-		return (data || {}).data || data;
+		// eslint-disable-next-line no-throw-literal
+		if (err) { throw { ...err, response }; }
+		return DF(data);
 	});
 };
 export const ax = (config, check) => {
 	const { key, ...req } = config || {};
-	const result = axCheck(service.request(req), check);
+	const result = PF(axCheck(service.request(req), check));
 	key && trigger(key, result);
 	return result;
 };
-
 export const downLink = (link, name) => {
 	const a = document.createElement("a");
 	a.style.display = "none";
@@ -172,10 +158,8 @@ export const downLink = (link, name) => {
 };
 export const downBolb = (blob, name) => {
 	const { msSaveBlob } = window.navigator;
-	if (msSaveBlob) { // IE10+ 下载
-		return msSaveBlob(blob, name);
-	}
+	if (msSaveBlob) { return msSaveBlob(blob, name); }
 	const url = URL.createObjectURL(blob);
-	downLink(url, name);
+	downLink(url, name); // // IE10+ 用 msSaveBlob 下载
 	URL.revokeObjectURL(url);
 };

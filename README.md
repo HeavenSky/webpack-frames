@@ -79,11 +79,11 @@ export default hot(module)(App);
 注: 仅4.3.12支持`ie8+react@0`,且需要一个小变更,已在脚本内完成
 
 ### 图片处理
-* 普通图片 => https://tinypng.com `图片压缩` => `url-loader`(5kb以下)
+* 普通图片 => https://tinypng.com `图片压缩` => `url-loader`(4kb以下)
 * svg图片 => https://github.com/svg/svgo `svg压缩` => `svg-url-loader`
 ```js
-// 5kb以下使用,再大考虑还是file-loader
-const src = require("-!svg-url-loader?noquotes!./x.svg");
+// 建议4kb以下使用,较大文件建议用file-loader
+const src = require("!svg-url-loader?noquotes!./x.svg");
 ```
 
 ### webpack 3 4 支持 ie8 研究
@@ -104,22 +104,29 @@ const src = require("-!svg-url-loader?noquotes!./x.svg");
 * 常用`esling`配置 `eslint-config-egg` `eslint-config-react-app` `eslint-config-ali`
 
 ### 个人代码习惯(因人而异,选择你认为对的,仅供参考)
+
 #### 关于文件末尾留一空行
 * 个人按照习惯来, 团队开发通过自动`eslint --fix`来统一
+
 #### 关于代码缩进
 * 个人按照习惯来, 团队开发通过自动`eslint --fix`来统一
 * tab和空格争论不休:不追求html的attr换行对齐和css的冒号对齐,tab没什么不好;如果要追求对齐那还是空格吧
+
 #### 关于引号
 * js统一双引号,字符串内的双引号统一`\"`,单引号`\x27`,双引号`\x22`,那样就统一双引号了
 * css统一双引号,content内容必须转义,防止出现乱码
 * css/less/scss,很多时候可以用双引号代替单引号,而且某些情况下单引号编译时会有问题,另外html标签也是用双引号,正好都统一双引号了
+
 #### 是否加逗号
 * 如果没有语法错误, 那就加上吧, 那样改动的diff也会少点
+
 #### 是否加分号
 * 如果没有语法错误, 那就加上吧, 那样改动的diff也会少点
+
 #### 关于定义变量
 * 如果是单独定义,一个变量一行,优先const,使用let而不用var
 * 如果可以,尽可能用对象或数组的解构形式进行赋值
+
 #### 关于import顺序
 * 最优先引入polyfill, React/Vue次之
 * 其次是模块目录(node_modules)内, 优先模块路径深度排序, 依次按照(组件>函数>常量)分类和排序

@@ -1,11 +1,11 @@
 const webpack = require("webpack");
-const merge = require("webpack-merge");
+const webpackMerge = require("webpack-merge");
 const { buildFolder, DLL } = require("./opt.self");
-const { WK, dir } = require("./basic");
+const { WK, dir, dmt: { merge } } = require("./basic");
 WK !== 1 && require("./mix"); // 执行文本拼接
 const optAll = require("./opt.all");
 const optDll = {
-	entry: Object.assign({}, DLL),
+	entry: merge(DLL),
 	output: {
 		path: dir(buildFolder),
 		filename: "[name].dll.js",
@@ -20,4 +20,4 @@ const optDll = {
 		}),
 	],
 };
-module.exports = merge(optAll, optDll);
+module.exports = webpackMerge(optAll, optDll);

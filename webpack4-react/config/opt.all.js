@@ -50,8 +50,8 @@ const hasTerser = dpv("terser-webpack-plugin");
 const X = { cache: true, parallel: true, sourceMap: false };
 const O = {
 	ie8: WK === 1, safari10: false, warnings: false,
-	output: { comments: false },
 	compress: { drop_console: true },
+	output: { beautify: false },
 };
 if (WK >= 4 && hasTerser) {
 	const TerserPlugin = require("terser-webpack-plugin");

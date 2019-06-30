@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { isArray, WK, dir, dst, fmt } = require("./basic");
+const { isArray, WK, dir, dmt, fmt } = require("./basic");
 const { buildFolder, LIB } = require("./opt.self");
 // fs.existsSync(buildPath) && fs.rmdirSync(buildPath);
 const isValid = v => v && typeof v === "string";
@@ -24,4 +24,4 @@ if (WK === 1 && fs.existsSync(p)) {
 		"(stack.children||[]).push");
 	fs.writeFileSync(p, str, "utf-8");
 } // 执行文本拼接
-dst.every(LIB, name => fm(LIB[name], name));
+dmt.keys(LIB).forEach(name => fm(LIB[name], name));

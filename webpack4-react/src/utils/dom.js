@@ -1,3 +1,4 @@
+import { keys, join } from "./fns";
 export const attachEvt = (ele, evt, listener, capture) => {
 	const target = ele || document;
 	const handler = e => {
@@ -5,7 +6,7 @@ export const attachEvt = (ele, evt, listener, capture) => {
 		const src = event.srcElement || event.target;
 		const [touch] = event.targetTouches || [];
 		const proto = Object.getPrototypeOf(touch || {});
-		Object.keys(proto).forEach(k => (k in event) ||
+		keys(proto).forEach(k => (k in event) ||
 			(event[k] = touch[k])); // touch属性赋予事件上
 		listener(event, src);
 	};
@@ -51,15 +52,15 @@ export const query = k => (s, e = document) => e[k](s);
 export const q = query("querySelector");
 export const qId = query("getElementById");
 export const qs = query("querySelectorAll");
-export const qsTag = query("get​Elements​ByTagName");
-export const qsClass = query("get​Elements​ByClass​Name");
+export const qsTag = query("getElementsByTagName");
+export const qsClass = query("getElementsByClassName");
 export const create = (tag, html, opts) => {
 	/^[a-z]+[1-6]?$/i.test(tag) || (tag = "span");
 	const element = document.createElement(tag);
 	element.innerHTML = html || "";
 	const { attrs, props, parent } = opts || {};
-	Object.assign(element, props);
-	Object.keys(attrs || {}).forEach(
+	join(element, props);
+	keys(attrs || {}).forEach(
 		k => element.setAttribute(k, attrs[k]));
 	parent && parent.appendChild(element);
 	return element;
@@ -133,7 +134,7 @@ export const dmt = cls => {
 		: String(cls || "").split(/\s+/);
 	const hash = {}; // [...new Set(items)]
 	list.forEach(k => k && (hash[k] = true));
-	return Object.getOwnPropertyNames(hash);
+	return keys(hash);
 };
 export const hasCls = (element, cls) => {
 	const list = dmt(element.className);

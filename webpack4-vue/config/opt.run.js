@@ -1,5 +1,5 @@
 const webpack = require("webpack");
-const merge = require("webpack-merge");
+const webpackMerge = require("webpack-merge");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { publicPath, prefixAjax, compileFolder, templateFile,
@@ -7,8 +7,8 @@ const { publicPath, prefixAjax, compileFolder, templateFile,
 	IPT, CDN, title, ico, css, js } = require("./opt.self");
 const { scssStyleLoader, lessStyleLoader, cssStyleLoader,
 	cssModuleLoader, styleLoader } = require("./loader");
-const { PROD, WK, isArray, verh, rel, dir, calc,
-	dst: { every }, fmt, ts } = require("./basic");
+const { PROD, isArray, WK, ver, dir, rel, fmt, calc, ts,
+	dmt: { keys, merge } } = require("./basic");
 const copyList = [ // 文件和文件夹拷贝列表
 	{ context: dir(buildFolder), from: "*.js", to: "js" },
 	{ context: dir(buildFolder), from: "*.css", to: "css" },
@@ -21,12 +21,11 @@ if (calc("vue-loader") >= 15) {
 // import按需加载 https://doc.webpack-china.org/api/module-methods/#import-
 const optAll = require("./opt.all");
 const optNow = require(PROD ? "./opt.prod" : "./opt.dev");
-const out = `js/[name]${verh(PROD ? "chunk" : "")}.js`;
+const out = `js/${ver("chunk")}.js`;
 let reg = /.*/; // regexp use for optimize of modules chunk
 reg = /[\\/]node_modules[\\/].*\.(json|vue|jsx?)(\?.*)?$/i;
 const optRun = {
-	entry: Object.assign({}, IPT),
-	externals: Object.assign({}, CDN),
+	entry: merge(IPT), externals: merge(CDN),
 	output: {
 		publicPath, path: dir(outputFolder),
 		filename: out, // 开发环境chunkhash更合适,妥协用hash
@@ -54,8 +53,8 @@ const optRun = {
 			use: [{
 				loader: "url-loader",
 				options: {
-					limit: 5000,
-					name: `img/[name]${verh()}.[ext]`,
+					limit: 4000,
+					name: `img/${ver()}.[ext]`,
 				},
 			}],
 		}, {
@@ -63,20 +62,20 @@ const optRun = {
 			use: [{
 				loader: "url-loader",
 				options: {
-					limit: 5000,
-					name: `font/[name]${verh()}.[ext]`,
+					limit: 4000,
+					name: `font/${ver()}.[ext]`,
 				},
 			}],
 		}],
 	},
 	plugins,
-	optimization: {
-		runtimeChunk: { name: "runtime" },
+	optimization: { // runtime 作用不大,暂时去掉
+		// runtimeChunk: { name: "runtime" },
 		splitChunks: {
 			cacheGroups: {
-				manifest: {
+				vendor: {
 					test: reg,
-					name: "manifest",
+					name: "vendor",
 					chunks: "all",
 				},
 			},
@@ -105,16 +104,16 @@ if (WK < 4) {
 	delete optRun.optimization;
 	optRun.plugins.push(
 		new webpack.optimize.CommonsChunkPlugin({
-			name: "runtime",
+			name: "vendor",
 			minChunks(module, _count) {
 				const { resource } = module || {};
-				return reg.test(resource);
+				return resource && reg.test(resource);
 			},
-		}),
-		new webpack.optimize.CommonsChunkPlugin({
-			name: "manifest",
-			chunks: ["runtime"],
-		})
+		}) // runtime 作用不大,暂时去掉
+		/* new webpack.optimize.CommonsChunkPlugin({
+			name: "runtime",
+			chunks: Infinity,
+		}) */
 	);
 } else {
 	const { loader } = require("mini-css-extract-plugin");
@@ -172,8 +171,7 @@ if (WK < 4) {
 		}],
 	});
 }
-
-every(DLL, dll => plugins.push(
+keys(DLL).forEach(dll => plugins.push(
 	new webpack.DllReferencePlugin({
 		context: dir(),
 		manifest: require(dir(
@@ -188,25 +186,21 @@ const addEntryPage = name => {
 	const opt = {
 		filename: app + ".html",
 		template: dir(templateFile),
-		chunks: ["manifest", "runtime", app],
-		chunksSortMode: "manual",
-		showErrors: true,
-		minify: false,
-		inject: true,
-		cache: true,
-		xhtml: true,
-		hash: true,
+		chunks: ["runtime", "vendor", ...keys(IPT), app],
+		chunksSortMode: "manual", showErrors: true,
+		minify: false, inject: true, cache: true,
+		xhtml: true, hash: true,
 	};
 	opt.title = fmt(title, app) || `Home Page for ${app}`;
 	opt.ico = fmt(ico, app) || "favicon.ico";
 	opt.css = isArray(css) ? css.map(v => fmt(v, app)) : [];
 	opt.js = isArray(js) ? js.map(v => fmt(v, app)) : [];
-	every(LIB, k => /\.css$/i.test(k)
+	keys(LIB).forEach(k => /\.css$/i.test(k)
 		? opt.css.push(`css/${k}?${ts}`) : /\.js$/i.test(k)
-			? opt.js.push(`js/${k}?${ts}`) : null);
-	every(DLL, k => opt.js.push(`js/${k}.dll.js?${ts}`));
+			? opt.js.push(`js/${k}?${ts}`) : undefined);
 	opt.css = opt.css.filter(Boolean);
-	opt.js = opt.js.filter(Boolean);
+	opt.js = opt.js.concat(keys(DLL).map(k =>
+		`js/${k}.dll.js?${ts}`)).filter(Boolean);
 	opt.prefix = prefixAjax || "";
 	opt.pubrel = publicPath || rel(app, "").slice(0, -2);
 	plugins.push(new HtmlWebpackPlugin(opt));
@@ -214,4 +208,4 @@ const addEntryPage = name => {
 if (isArray(page) && page.length) {
 	page.forEach(addEntryPage); // 多页面打包
 } else { copyList.length = 0; }
-module.exports = merge(optAll, optNow, optRun);
+module.exports = webpackMerge(optAll, optNow, optRun);

@@ -1,5 +1,5 @@
-const { PROD, PKG_CSS, DIR_SVC, IE_SHIM, dir, pair,
-	bootcdn, pkgcdn, poly, WK } = require("./basic");
+const { PROD, PKG_CSS, DIR_SVC, IE_SHIM,
+	dir, pkgcdn, poly, WK } = require("./basic");
 // 路径常量请尽可能以`/`结尾 output.publicPath
 const publicPath = undefined;
 const prefixAjax = undefined;
@@ -39,15 +39,15 @@ const css = [
 	"antd/antd-1.11.6.css",
 	!"fa/fa-5.x.min.css",
 	// highlight.js
-	!`${bootcdn}highlight.js/9.15.6/styles/atom-one-light.min.css`,
-	!`${bootcdn}highlight.js/9.15.6/styles/atom-one-dark.min.css`,
-	!`${bootcdn}highlight.js/9.15.6/highlight.min.js`,
+	!`${pkgcdn}highlight.js/styles/atom-one-light.min.css`,
+	!`${pkgcdn}highlight.js/styles/atom-one-dark.min.css`,
+	!`${pkgcdn}highlight.js/lib/highlight.min.js`,
 	// antd-mobile
-	!`${pkgcdn + pair("antd-mobile", "@")}/dist/antd-mobile.min.css`,
-	!`${pkgcdn + pair("antd-mobile", "@")}/dist/antd-mobile.min.js`,
+	!`${pkgcdn}antd-mobile/dist/antd-mobile.min.css`,
+	!`${pkgcdn}antd-mobile/dist/antd-mobile.min.js`,
 	// antd
-	!`${pkgcdn + pair("antd", "@")}/dist/antd.min.css`,
-	!`${pkgcdn + pair("antd", "@")}/dist/antd.min.js`,
+	!`${pkgcdn}antd/dist/antd.min.css`,
+	!`${pkgcdn}antd/dist/antd.min.js`,
 ];
 /* *** js resource config *** */
 const js = [

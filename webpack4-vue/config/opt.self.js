@@ -1,5 +1,5 @@
-const { PROD, PKG_CSS, DIR_SVC, IE_SHIM, dir, pair,
-	bootcdn, pkgcdn, poly, WK } = require("./basic");
+const { PROD, PKG_CSS, DIR_SVC, IE_SHIM,
+	dir, pkgcdn, poly, WK } = require("./basic");
 // 路径常量请尽可能以`/`结尾 output.publicPath
 const publicPath = undefined;
 const prefixAjax = undefined;
@@ -54,15 +54,15 @@ const css = [
 	"editor/wangeditor.min.css",
 	!"fa/fa-5.x.min.css",
 	// highlight.js
-	!`${bootcdn}highlight.js/9.15.6/styles/atom-one-light.min.css`,
-	!`${bootcdn}highlight.js/9.15.6/styles/atom-one-dark.min.css`,
-	!`${bootcdn}highlight.js/9.15.6/highlight.min.js`,
+	!`${pkgcdn}highlight.js/styles/atom-one-light.min.css`,
+	!`${pkgcdn}highlight.js/styles/atom-one-dark.min.css`,
+	!`${pkgcdn}highlight.js/lib/highlight.min.js`,
 	// element-ui
-	!`${pkgcdn + pair("element-ui", "@")}/lib/theme-chalk/index.css`,
-	!`${pkgcdn + pair("element-ui", "@")}/lib/index.js`,
+	!`${pkgcdn}element-ui/lib/theme-chalk/index.css`,
+	!`${pkgcdn}element-ui/lib/index.js`,
 	// vant
-	!`${pkgcdn + pair("vant", "@")}/lib/vant.min.js`,
-	!`${pkgcdn + pair("vant", "@")}/lib/index.css`,
+	!`${pkgcdn}vant/lib/vant.min.js`,
+	!`${pkgcdn}vant/lib/index.css`,
 ];
 /* *** js resource config *** */
 const js = [

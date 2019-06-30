@@ -3,7 +3,7 @@ import { render as draw } from "react-dom";
 import { Provider } from "react-redux";
 import { applyMiddleware, createStore } from "redux";
 import {
-	isArray, isObject, isString, isFunction,
+	isArray, isObject, isString, isFunction, join, vals,
 	log, fdata, split, dolock, unlock, trigger,
 } from "./fns";
 
@@ -28,13 +28,13 @@ export const print = store => next => action => {
 };
 export const update = (state, action) => {
 	const { type, payload, path } = action || {};
-	const keys = split(type);
-	const [func] = keys.splice(-1, 1, ...split(path));
-	if (func !== UPDATE || !keys.length) { return state; }
+	const types = split(type);
+	const [func] = types.splice(-1, 1, ...split(path));
+	if (func !== UPDATE || !types.length) { return state; }
 	const data = isObject(payload) ? payload
-		: { [keys.splice(-1, 1)]: payload };
-	keys.splice(0, 0, state);
-	const last = keys.reduce((prev, now) => {
+		: { [types.splice(-1, 1)]: payload };
+	types.splice(0, 0, state);
+	join(types.reduce((prev, now) => {
 		if (!now) {
 			return prev;
 		} else if (!prev[now]) {
@@ -45,19 +45,17 @@ export const update = (state, action) => {
 			prev[now] = { ...prev[now] };
 		}
 		return prev[now];
-	});
-	Object.assign(last, data);
+	}), data);
 	return ({ ...state });
 };
 // 模仿dva且自动加载model的封装实现
 const reducer = (st, ac) => update(st || STATE_MAP, ac);
 const middleware = store => next => action => {
 	const { type, fn, args, prefix, lock } = action || {};
-	const keys = split(type);
-	if (keys.length === 2) {
-		trigger(keys.join("/"), action);
-		// 获取对应model的effect
-		const [name, method] = keys;
+	const types = split(type);
+	if (types.length === 2) {
+		trigger(types.join("/"), action);
+		const [name, method] = types; // 获取model的effect
 		const { effects } = MODEL_MAP[name] || {};
 		const { [method]: effect } = effects || {};
 		if (isFunction(effect)) {
@@ -89,11 +87,11 @@ export const set = model => {
 		STATE_MAP[name] = state;
 		MODEL_MAP[name] = model;
 		isFunction(before) ? BEFORE_INIT.push(before)
-			: Object.values(before || {}).forEach(
-				f => isFunction(f) && BEFORE_INIT.push(f));
+			: vals(before).forEach(f => isFunction(f) &&
+				BEFORE_INIT.push(f));
 		isFunction(after) ? AFTER_INIT.push(after)
-			: Object.values(after || {}).forEach(
-				f => isFunction(f) && AFTER_INIT.push(f));
+			: vals(after).forEach(f => isFunction(f) &&
+				AFTER_INIT.push(f));
 	}
 };
 export const init = (...args) => {
@@ -106,9 +104,8 @@ export const init = (...args) => {
 export const render = (App, store) => draw(
 	<Provider store={store}><App /></Provider>,
 	document.getElementById("app"));
-/* http://cn.redux.js.org/docs/api redux中文api
+/* redux中文api文档 http://cn.redux.js.org/docs/api
 const r = require.context("./", true,
 	/\/(models\/.*|model)\.jsx?$/i);
-r.keys().map(r).forEach(v =>
-	Object.values(v).forEach(set));
+r.keys().map(r).forEach(v => vals(v).forEach(set));
 render(App, init()); */

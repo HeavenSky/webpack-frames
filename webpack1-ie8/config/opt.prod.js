@@ -3,8 +3,8 @@ const cwPlugin = require("clean-webpack-plugin");
 const { CleanWebpackPlugin = cwPlugin } = cwPlugin;
 const { scssStyleLoader, lessStyleLoader, cssStyleLoader,
 	cssModuleLoader, styleLoader } = require("./loader");
-const { WK, verh } = require("./basic");
-const mod = `css/[name]${verh("content")}.css`;
+const { WK, ver } = require("./basic");
+const mod = `css/${ver("content")}.css`;
 const optProd = { devtool: false, module: {}, plugins: [] };
 if (WK === 1) { // devtool: "source-map",
 	const ExtraTWP = require("extract-text-webpack-plugin");

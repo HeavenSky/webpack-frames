@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import nprogress from "nprogress";
-import { isFunction, log } from "./fns";
+import { isFunction, join, log } from "./fns";
 
 Vue.use(Vuex); // 全局处理ELEMENT和IVIEW的默认展示
 Vue.prototype.$ELEMENT = { zIndex: 1111, size: "mini" };
@@ -22,12 +22,12 @@ export const wrap = (router, before, after) => {
 };
 const modules = {}; // 自动加载module的封装实现
 modules.ROOT = { mutations: { log }, actions: { log } };
-export const set = mod => Object.assign(modules, mod || {});
+export const set = (...v) => join(modules, ...v);
 export const init = () => new Vuex.Store({ modules });
 export const render = ob => new Vue({ el: "#app", ...ob });
 /* const r = require.context("./main", true,
 	/\/(models\/.*|model)\.jsx?$/i);
-r.keys().map(r).forEach(set);
+set(...r.keys().map(r)); // set支持传参多个设置module
 render({ router, store: init(), render: h => h(App) });
 const name = { // https://vuex.vuejs.org/zh/api 接口文档
 	namespaced: true, // 开启命名空间 用index.d.ts查看具体接口

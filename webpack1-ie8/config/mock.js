@@ -103,37 +103,19 @@ const cookieParser = require("cookie-parser");
 const pathToRegExp = require("path-to-regexp");
 const requireEsModule = require("esm")(module);
 const proxy = require("http-proxy-middleware");
-/** 路由路径 和 页面路径 进行匹配,返回匹配结果和undefined
- * route: 路由路径,如/user/:id
- * pathname: 页面路径,如/user/12
- * config: 路径匹配规则[可选] 参考npm包path-to-regexp
- */
-const routeMatch = (route, pathname, config) => {
-	config = Object.assign({
-		sensitive: true,
-		strict: false,
-		start: true,
-		end: true,
-	}, config);
-	const keys = [];
-	const reg = pathToRegExp(route, keys, config);
-	const vals = reg.exec(pathname);
-	if (!vals) { return; }
-	const res = {};
-	keys.forEach((k, i) => (res[k.name] = vals[i + 1]));
-	return res;
-};
 
-const { log } = console;
-const isFunc = v => typeof v === "function";
+const print = console.log; // eslint-disable-line no-console
+const isSt = v => typeof v === "string";
+const isFn = v => typeof v === "function";
+const keys = v => Object.keys(v || {});
+const vals = v => Object.values(v || {});
+const merge = (...v) => Object.assign({}, ...v);
 const tryEXEC = (func, ...args) => {
-	let res;
 	try {
-		res = isFunc(func) ? func(...args) : func;
+		return isFn(func) ? func(...args) : func;
 	} catch (error) {
-		log("tryEXEC Error:", { error, func, args });
+		print("tryEXEC error:", { func, args, error });
 	}
-	return res;
 };
 const clearRequireCache = file => {
 	const data = require.cache[file] || {};
@@ -141,12 +123,27 @@ const clearRequireCache = file => {
 	list && list.splice(list.indexOf(data), 1);
 	delete require.cache[file];
 };
-const clearRequireEsModule = mo => {
-	const file = tryEXEC(() => require.resolve(mo));
+const clearRequireEsModule = mo => tryEXEC(() => {
+	const file = require.resolve(mo);
 	clearRequireCache(file || mo);
-	return file && tryEXEC(requireEsModule, file);
+	return requireEsModule(file);
+});
+/* 参考文档 https://npmjs.com/package/path-to-regexp#usage
+route: 路由路径,如/user/:id
+pathname: 页面路径,如/user/12
+config: 路径匹配规则设置[可选]
+路由路径 和 页面路径 进行匹配 返回匹配结果或undefined */
+const routeMatch = (route, pathname, config) => {
+	config = merge({ sensitive: true }, config);
+	const args = [];
+	const reg = pathToRegExp(route, args, config);
+	const match = reg.exec(pathname);
+	if (!match) { return; }
+	const result = {};
+	args.forEach((k, i) => (result[k.name] = match[++i]));
+	return result;
 };
-
+// 对express的application实例进行路由拦截,做mock处理
 const httpMock = (app, mockFolder) => {
 	const moduleMap = {};
 	const addModule = file => {
@@ -157,17 +154,16 @@ const httpMock = (app, mockFolder) => {
 
 	let routeMap = {}; // 防抖 500ms 内无触发才会执行
 	const calc = debounce(() => {
-		const routes = Object.assign({},
-			...Object.values(moduleMap));
+		const routes = merge(...vals(moduleMap));
 		const { NO_MOCK } = routes;
 		routeMap = { NO_MOCK }; // 重置路由
-		NO_MOCK || Object.keys(routes).forEach(k => {
-			let [, method, route] = // 请求方式 路由参数
-				k.match(/^\s*(\S+)\s+(\S.*)$/) || [];
+		NO_MOCK || keys(routes).forEach(k => {
+			let [, method, route] = // 请求方式,路由地址
+				/^\s*(\S+)\s+(\S.*)$/.exec(k) || [];
 			route = (route || "").replace(/\s+/g, "");
 			method = (method || "all").toLowerCase();
 			method === "method" && (method = "all");
-			route && (routeMap[route] = Object.assign({},
+			route && (routeMap[route] = merge( // 增量更新
 				routeMap[route], { [method]: routes[k] }));
 		});
 	}, 500);
@@ -175,26 +171,22 @@ const httpMock = (app, mockFolder) => {
 	const findCallBack = (req, res, next) => {
 		if (routeMap.NO_MOCK) { return; }
 		let params; // 计算路由参数使用
-		const pathname = req.path;
-		const route = Object.keys(routeMap).find(
-			k => (params = routeMatch(k, pathname)));
+		const route = keys(routeMap).find(routePath =>
+			(params = routeMatch(routePath, req.path)));
 		const handler = routeMap[route] || {};
 		const method = req.method.toLowerCase();
-		const data = method in handler
+		const f = method in handler
 			? handler[method] : handler.all;
-		const isStr = typeof data === "string";
-		const isFn = typeof data === "function";
-		const isProxy = isFn && data.length === 0;
+		const isProxy = isFn(f) && f.length === 0;
 		/* 将字符串认定为设定响应的字符串
 		将对象认定为设定响应的JSON字符串
 		将带参函数认定为自定义处理请求或响应
 		将无参函数认定为返回一个代理配置 */
-		return isProxy ? tryEXEC(() => proxy(data))
-			: data ? () => {
-				req.params = params || {};
-				isFn ? tryEXEC(data, req, res, next)
-					: res[isStr ? "send" : "json"](data);
-			} : null; // send json next 不要同时使用
+		return isProxy ? tryEXEC(proxy, f) : f ? () => {
+			req.params = params || {};
+			isFn(f) ? tryEXEC(f, req, res, next)
+				: res[isSt(f) ? "send" : "json"](f);
+		} : null; // send json next 不要同时使用
 	};
 	const parser = [
 		cookieParser(), // 解析请求中的 cookie
@@ -207,7 +199,7 @@ const httpMock = (app, mockFolder) => {
 	];
 	app.all("*", (req, res, next) => {
 		const f = findCallBack(req, res, next);
-		f && log(new Date(), req.method, req.path);
+		f && print(new Date(), req.method, req.path);
 		!f ? next() : f.length > 2 ? f(req, res, next)
 			: Promise.all(parser.map(h => new Promise(
 				resolve => h(req, res, resolve)))).then(f);
