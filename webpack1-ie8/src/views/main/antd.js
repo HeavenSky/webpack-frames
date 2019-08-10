@@ -20,8 +20,8 @@ const checkBind = (ev, fn) => (_idx, el) => {
 	!res && $(el).on(ev, fn);
 };
 export const shimAntdTable = () => {
-	const res = verIE();
-	if ((res.mod || res.ver) < 9) {
+	const { mod, ver } = verIE();
+	if ((mod || ver) < 9) {
 		$(".ant-table-scroll .ant-table-header,.ant-table-scroll .ant-table-body").each(checkBind("scroll", horizontalScroll));
 		$(".ant-table-fixed-left .ant-table-body-inner,.ant-table-scroll .ant-table-body,.ant-table-fixed-right .ant-table-body-inner").each(checkBind("scroll", verticalScroll));
 	}

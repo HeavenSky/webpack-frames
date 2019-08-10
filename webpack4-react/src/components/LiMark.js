@@ -4,11 +4,11 @@ import SimpleMDE from "simplemde";
 class LiMark extends Component {
 	componentDidMount() {
 		const { config, update, content } = this.props;
-		const opts = Object.assign({
-			element: this.dom,
+		const opts = {
 			spellChecker: false,
 			autoDownloadFontAwesome: false,
-		}, config);
+			element: this.dom, ...(config || {}),
+		};
 		opts.previewRender = (text, preview) => {
 			const { className, style } = preview;
 			/\smarkdown-body\s/.test(` ${className} `) ||
@@ -26,7 +26,7 @@ class LiMark extends Component {
 	}
 	componentWillUnmount() {
 		this.editor.toTextArea();
-		this.editor = undefined;
+		this.editor = void 0;
 	}
 	shouldComponentUpdate(nextProps, _nextState) {
 		const { editor } = this;

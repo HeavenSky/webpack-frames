@@ -10,6 +10,7 @@
 </template>
 <script>
 import E from "wangeditor";
+import { join } from "../utils/fns";
 let key = "$textElem";
 if (E.config) {
 	key = "$txt";
@@ -31,7 +32,7 @@ export default {
 		},
 	},
 	data() {
-		return { editor: undefined };
+		return { editor: void 0 };
 	},
 	watch: {
 		content() {
@@ -47,7 +48,7 @@ export default {
 		const { config, content, $refs } = this;
 		const editor = new E($refs.dom);
 		if (E.config) {
-			Object.assign(editor.config, {
+			join(editor.config, {
 				jsFilter: false,
 				pasteText: false,
 				pasteFilter: false,
@@ -56,7 +57,7 @@ export default {
 			editor.onchange = () =>
 				this.$emit("update", editor[key].html());
 		} else {
-			Object.assign(editor.customConfig, {
+			join(editor.customConfig, {
 				debug: false,
 				pasteIgnoreImg: false,
 				pasteFilterStyle: false,
@@ -70,7 +71,7 @@ export default {
 		this.editor = editor;
 	},
 	beforeDestroy() {
-		this.editor = undefined;
+		this.editor = void 0;
 	},
 };
 /*

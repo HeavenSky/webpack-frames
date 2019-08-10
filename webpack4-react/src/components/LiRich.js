@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import E from "wangeditor";
+import { isFunction, join } from "../utils/fns";
 
 let key = "$textElem";
 if (E.config) {
@@ -11,24 +12,24 @@ class LiRich extends Component {
 		const editor = new E(this.dom);
 		const { config, update, content } = this.props;
 		if (E.config) {
-			Object.assign(editor.config, {
+			join(editor.config, {
 				jsFilter: false,
 				pasteText: false,
 				pasteFilter: false,
 				withCredentials: false,
 			}, config);
 			editor.onchange = () =>
-				typeof update === "function" &&
+				isFunction(update) &&
 				update(editor[key].html());
 		} else {
-			Object.assign(editor.customConfig, {
+			join(editor.customConfig, {
 				debug: false,
 				pasteIgnoreImg: false,
 				pasteFilterStyle: false,
 				uploadImgShowBase64: false,
 			}, config);
 			editor.customConfig.onchange = () =>
-				typeof update === "function" &&
+				isFunction(update) &&
 				update(editor[key].html());
 		}
 		editor.create();
@@ -36,7 +37,7 @@ class LiRich extends Component {
 		this.editor = editor;
 	}
 	componentWillUnmount() {
-		this.editor = undefined;
+		this.editor = void 0;
 	}
 	shouldComponentUpdate(nextProps, _nextState) {
 		const { editor } = this;

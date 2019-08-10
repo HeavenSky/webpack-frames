@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Icon, InputNumber, Spin, Tooltip, Table, Cascader, Collapse, DatePicker, Timeline } from "antd";
 import Select from "../../components/Select";
 import { shimAntdTable } from "./antd";
+import { keys } from "../../utils/fns";
 
 const List = ({ items, ...res }) => (
 	<Collapse accordion {...res}>
@@ -102,15 +103,8 @@ class Hello extends Component {
 			},
 		];
 		const { patent = [] } = this.props;
-		if (patent[0]) {
-			for (const x in patent[0]) {
-				columns.splice(-1, 0, {
-					title: x,
-					dataIndex: x,
-					key: x,
-				});
-			}
-		}
+		keys(patent[0]).forEach(x => columns.splice(
+			-1, 0, { title: x, dataIndex: x, key: x }));
 		return columns;
 	};
 	componentDidUpdate = shimAntdTable;

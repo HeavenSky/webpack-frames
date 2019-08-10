@@ -1,6 +1,6 @@
-import { listener } from "../../utils/fns";
-import { jq } from "../../utils/service";
+import { listener, over } from "../../utils/fns";
 import { ASYNC, UPDATE } from "../../utils/store";
+import { jq } from "../../utils/service";
 
 const reddits = ["ActionScript", "C", "Clojure", "CoffeeScript", "CSS", "Go", "Haskell", "HTML", "Java", "JavaScript", "Lua", "Matlab", "Objective-C", "Perl", "PHP", "Python", "R", "Ruby", "Scala", "Shell", "Swift", "TeX", "TypeScript", "Vim script"];
 const orders = ["asc", "desc"];
@@ -99,7 +99,7 @@ export default {
 				prefix: `${name}/division`,
 				lock: `${name}/division`,
 			});
-			const result = await Promise.all([
+			const result = await over([
 				listener(`${name}/patent_RES`),
 				listener(`${name}/division_RES`),
 			]);

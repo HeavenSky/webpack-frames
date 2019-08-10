@@ -1,7 +1,7 @@
 import $ from "jquery";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { dir, trigger, isFunction, fmtde } from "./fns";
+import { isFunction, dir, pending, trigger } from "./fns";
 // 各浏览器支持的 localStorage 和 sessionStorage 容量上限不同
 const ST = window.localStorage || window.sessionStorage;
 export const clsStore = (...v) => ST && ST.clear(...v);
@@ -38,8 +38,8 @@ export const ERR_HANDLE = (data, status, statusText) => {
 		: `[HTTP]${status} ${statusText}`;
 	return error ? { intro, message, stack } : null;
 };
-const DF = v => (v || {}).data || v; // 格式化 data 数据
-const PF = v => v || fmtde(v); // 格式化 promise 数据
+const DF = v => "data" in (v || {}) ? v.data : v; // dataFmt
+const PF = v => v; // promiseFmt 数据格式化
 // jquery 常用请求封装 详细见file/my/heaven.js
 export const $get = // data 为请求参数
 	(url, data, type = "GET", dataType = "JSON") =>
@@ -64,13 +64,13 @@ export const $form = // data 为 FormData 对象
 export const jqCheck = (xhr, check) => {
 	// xhr 为 jquery 的 deferred 对象
 	isFunction(check) || (check = ERR_HANDLE);
-	return new Promise(resolve => xhr.always(() => {
+	return pending(res => xhr.always(() => {
 		const { responseText, status, statusText,
 			responseJSON: data = responseText } = xhr;
 		const err = check(data, status, statusText);
 		// eslint-disable-next-line no-throw-literal
 		if (err) { throw { ...err, data, xhr }; }
-		resolve(DF(data));
+		res(DF(data));
 	}));
 };
 export const jq = (config, check) => {
@@ -101,7 +101,7 @@ service.interceptors.request.use( // request 拦截器
 	error => {
 		dir.error("service.request.error", error);
 		throw error;
-	} // Promise 中 throw err 相当于 Promise.reject(err)
+	}
 );
 service.interceptors.response.use( // respone 拦截器
 	response => { // validateStatus 返回 true 时执行
@@ -143,23 +143,17 @@ export const axCheck = (xhr, check) => {
 export const ax = (config, check) => {
 	const { key, ...req } = config || {};
 	const result = PF(axCheck(service.request(req), check));
-	key && trigger(key, result);
-	return result;
+	key && trigger(key, result); return result;
 };
 export const downLink = (link, name) => {
-	const a = document.createElement("a");
-	a.style.display = "none";
-	a.target = "_blank";
-	a.download = name;
-	a.href = link;
-	document.body.appendChild(a);
-	a.click();
-	document.body.removeChild(a);
+	const a = document.createElement("a"); a.href = link;
+	a.style.display = "none"; a.target = "_blank";
+	a.download = name; document.body.appendChild(a);
+	a.click(); document.body.removeChild(a);
 };
 export const downBolb = (blob, name) => {
 	const { msSaveBlob } = window.navigator;
 	if (msSaveBlob) { return msSaveBlob(blob, name); }
 	const url = URL.createObjectURL(blob);
-	downLink(url, name); // // IE10+ 用 msSaveBlob 下载
-	URL.revokeObjectURL(url);
-};
+	downLink(url, name); URL.revokeObjectURL(url);
+}; // IE10+ 用 msSaveBlob 下载

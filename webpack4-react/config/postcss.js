@@ -1,28 +1,19 @@
-const { PROD: p } = require("./basic");
-// postcss.config.js 配置生效需 postcss-loader 不携带 options
+const { PROD } = require("./basic");
+// https://github.com/postcss/postcss-loader#options
 const plugins = {
 	autoprefixer: {},
 	cssnano: { safe: true },
 	"postcss-preset-env": {},
-	"postcss-px-to-viewport": {
-		unitToConvert: "px",
-		viewportWidth: 750,
-		unitPrecision: 3,
-		propList: ["*"],
-		viewportUnit: "vmin",
-		fontViewportUnit: "vmin",
-		selectorBlackList: [],
-		minPixelValue: 1,
-		mediaQuery: false,
-		replace: true,
-		exclude: [],
-		landscape: false,
-		landscapeUnit: "vmax",
-		landscapeWidth: 1334,
+	"postcss-plugin-px2rem": {
+		rootValue: 100,
+		minPixelValue: 2,
 	},
-};
-p || (delete plugins.cssnano);
+}; // postcss.config.js 生效需要 postcss-loader 无 options
+delete plugins["postcss-plugin-px2rem"];
 delete plugins["postcss-preset-env"];
-delete plugins["postcss-px-to-viewport"];
-module.exports = { plugins, minimize: p, sourceMap: !p };
-// https://github.com/postcss/postcss-loader#options
+PROD || (delete plugins.cssnano);
+module.exports = {
+	plugins,
+	minimize: PROD,
+	sourceMap: !PROD,
+};

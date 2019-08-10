@@ -2,18 +2,18 @@
 .ant-table table {
 	border-collapse: collapse;
 	th, td {
-		text-align: center;
-		line-height: 30px;
-		max-width: 130px;
-		min-width: 130px;
-		padding: 8px;
 		overflow: hidden;
-		white-space: nowrap;
+		padding: 8px;
+		min-width: 130px;
+		max-width: 130px;
+		text-align: center;
 		text-overflow: ellipsis;
+		white-space: nowrap;
+		line-height: 30px;
 		.anticon {
-			font-size: 22px;
 			margin-left: 6px;
 			vertical-align: middle;
+			font-size: 22px;
 		}
 	}
 	th {
@@ -21,15 +21,33 @@
 	}
 }
 .c-whole {
+	::-webkit-scrollbar {
+		display: none;
+	}
 	.c-sider {
 		float: left;
 	}
 	.logo {
-		height: 32px;
 		margin: 16px;
+		height: 32px;
 	}
 	.c-content {
-		height: calc( 100vh - 112px);
+		padding: 20px;
+		height: calc(100vh - 112px);
+		form {
+			display: flex;
+
+		}
+		.ant-input {
+			width: 50%;
+		}
+		.ant-btn, .ant-input, .ant-select {
+			margin-right: 10px;
+		}
+		.ant-alert, .ant-select {
+			margin-top: 10px;
+			width: 160px;
+		}
 	}
 	.c-sider, .c-content {
 		overflow: auto;
@@ -40,14 +58,4 @@
 	.c-header, .c-footer, .logo {
 		background-color: @header;
 	}
-}
-.it-margin {
-	margin: 10px 0;
-}
-.sort-test {
-	padding: 10px 20px;
-}
-.strike {
-	color: #ddd;
-	text-decoration: line-through;
 }

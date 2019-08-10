@@ -2,12 +2,11 @@ const webpack = require("webpack");
 const ErrFmt = require("friendly-errors-webpack-plugin");
 const { scssStyleLoader, lessStyleLoader, cssStyleLoader,
 	cssModuleLoader, styleLoader } = require("./loader");
-const { IE_SHIM, WK, dir } = require("./basic");
+const { FOR_IE, WK, dir } = require("./basic");
 const { httpMock } = require("./mock");
 const optSelf = require("./opt.self");
-const { staticFolder, mockApiFolder, proxy } = optSelf;
 const optDev = {
-	devtool: "eval-source-map",
+	devtool: !FOR_IE && "cheap-module-eval-source-map",
 	module: {},
 	plugins: [
 		new ErrFmt(),
@@ -21,6 +20,7 @@ const optDev = {
 		compress: true,
 		hotOnly: true,
 		noInfo: true,
+		inline: !FOR_IE, // ie11以下不支持inline
 		https: false,
 		quiet: false,
 		open: false,
@@ -29,15 +29,13 @@ const optDev = {
 		host: "0.0.0.0",
 		publicPath: "/",
 		clientLogLevel: "error",
-		proxy, inline: !IE_SHIM, // ie11以下不支持inline
-		contentBase: dir(staticFolder),
-		before: app => httpMock(app, dir(mockApiFolder)),
+		contentBase: dir(optSelf.staticFolder),
+		[WK < 2 ? "setup" : "before"]: app =>
+			httpMock(app, dir(optSelf.mockApiFolder)),
 	},
 };
-if (WK === 1) {
+if (WK < 2) {
 	optDev.plugins.push(new webpack.NamedModulesPlugin());
-	optDev.devServer.setup = optDev.devServer.before;
-	delete optDev.devServer.before; // WK=1用setup其他before
 	optDev.module.loaders = [{
 		test: /_\.css(\?.*)?$/i,
 		loaders: [
@@ -85,7 +83,7 @@ if (WK === 1) {
 			scssStyleLoader,
 		],
 	}];
-} else if (WK === 3) {
+} else if (WK < 4) {
 	optDev.plugins.push(new webpack.NamedModulesPlugin());
 	optDev.module.rules = [{
 		test: /\.css(\?.*)?$/i,

@@ -1,37 +1,45 @@
+require("./mix"); // 执行文本拼接
 const webpack = require("webpack");
-const webpackMerge = require("webpack-merge");
+const merge = require("webpack-merge");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { publicPath, prefixAjax, compileFolder, templateFile,
-	buildFolder, outputFolder, staticFolder, DLL, LIB, page,
-	IPT, CDN, title, ico, css, js } = require("./opt.self");
+const { buildFolder, outputFolder, staticFolder,
+	compileFolder, templateFile, LIB, IPT, modify,
+	title, ico, css, js, page } = require("./opt.self");
 const { scssStyleLoader, lessStyleLoader, cssStyleLoader,
 	cssModuleLoader, styleLoader } = require("./loader");
-const { PROD, isArray, WK, ver, dir, rel, fmt, calc, ts,
-	dmt: { keys, merge } } = require("./basic");
+const { FOR_IE, PROD, isArray, WK, ts, dir, rel, ver, fmt,
+	dmt: { keys, join }, calc, poly } = require("./basic");
+const mode = PROD ? "production" : "development";
 const copyList = [ // 文件和文件夹拷贝列表
 	{ context: dir(buildFolder), from: "*.js", to: "js" },
 	{ context: dir(buildFolder), from: "*.css", to: "css" },
-].concat(PROD ? [dir(staticFolder)] : []);
-const plugins = [new CopyWebpackPlugin(copyList)];
+].concat(PROD ? dir(staticFolder) : []);
+const plugins = [
+	new webpack.DefinePlugin({
+		"process.env.NODE_ENV": JSON.stringify(mode),
+	}),
+	new webpack.ContextReplacementPlugin(
+		/moment[/\\]locale/i, /zh-cn/i
+	), // 还有一个ignorePlugin
+	new CopyWebpackPlugin(copyList),
+]; // https://vue-loader.vuejs.org/zh/migrating.html
 if (calc("vue-loader") >= 15) {
 	const VueLodPlugin = require("vue-loader/lib/plugin");
 	plugins.push(new VueLodPlugin());
-} // https://vue-loader.vuejs.org/zh/migrating.html
-// import按需加载 https://doc.webpack-china.org/api/module-methods/#import-
-const optAll = require("./opt.all");
-const optNow = require(PROD ? "./opt.prod" : "./opt.dev");
+}
 const out = `js/${ver("chunk")}.js`;
-let reg = /.*/; // regexp use for optimize of modules chunk
-reg = /[\\/]node_modules[\\/].*\.(json|vue|jsx?)(\?.*)?$/i;
+const minimizer = []; const splitChunks = {};
+const optNow = require(PROD ? "./opt.prod" : "./opt.dev");
 const optRun = {
-	entry: merge(IPT), externals: merge(CDN),
-	output: {
-		publicPath, path: dir(outputFolder),
-		filename: out, // 开发环境chunkhash更合适,妥协用hash
-		chunkFilename: out, // 因为与dev-server --hot不兼容
-	},
-	module: {
+	entry: join(0, IPT), performance: { hints: false },
+	optimization: { splitChunks, minimizer }, plugins, mode,
+	output: { // publicPath必须以/结尾,防止路径拼接出错
+		path: dir(outputFolder), publicPath: void 0,
+		filename: out, chunkFilename: out, pathinfo: !PROD,
+		library: ["MyLib", "[name]"], libraryTarget: "umd",
+	}, // 开发环境chunkhash更合适,但与热部署不兼容,妥协用hash
+	module: { // module-variables,module-methods,performance
 		rules: [{
 			test: /\.jsx?(\?.*)?$/i,
 			use: [{
@@ -67,55 +75,67 @@ const optRun = {
 				},
 			}],
 		}],
-	},
-	plugins,
-	optimization: { // runtime 作用不大,暂时去掉
-		// runtimeChunk: { name: "runtime" },
-		splitChunks: {
-			cacheGroups: {
-				vendor: {
-					test: reg,
-					name: "vendor",
-					chunks: "all",
-				},
-			},
+	}, // https://webpack.docschina.org/api/module-methods
+	resolve: {
+		alias: {
+			"@": dir("src"), vue$: "vue/dist/vue.esm",
+			"@ant-design/icons/lib/dist$": "@/alias/icons",
 		},
-	},
-};
-if (WK === 1) {
-	require("./mix"); // 执行文本拼接
+		extensions: [".js", ".jsx", ".vue", ".json"],
+	}, // https://webpack.docschina.org/api/module-variables
+	externals: { jquery: "$", wangeditor: "wangEditor" },
+}; // https://webpack.docschina.org/guides/build-performance
+const rhl = "react-hot-loader"; // ie浏览器兼容处理
+const rhlPath = `${rhl}/dist/${rhl}.production.min`;
+if (FOR_IE) { optRun.resolve.alias[`${rhl}$`] = rhlPath; }
+if (WK < 2) {
 	optRun.module.postLoaders = [{
 		test: /\.jsx?(\?.*)?$/i,
 		loader: "export-from-ie8/loader",
 		query: { cacheDirectory: true },
 	}];
-	const { rules } = optRun.module;
-	optRun.module.loaders = rules.map(rule => {
-		const { use: [{ loader, options }], ...rs } = rule;
-		return { loader, query: options, ...rs };
+	optRun.module.loaders = optRun.module.rules.map(v => {
+		const { use: [{ loader, options }], ...rest } = v;
+		return { loader, query: options, ...rest };
 	});
 	delete optRun.module.rules;
 	const Es3ifyPlugin = require("es3ify-webpack-plugin");
-	optRun.plugins.push(new Es3ifyPlugin({
+	plugins.push(new Es3ifyPlugin({
 		test: /\.jsx?(\?.*)?$/i, sourceMap: false,
 	}));
+	optRun.resolve.extensions.unshift("");
 }
+const X = { cache: true, parallel: true, sourceMap: false };
+const O = {
+	ie8: WK < 2, safari10: true, warnings: false,
+	compress: { drop_console: true }, mangle: true,
+	output: { beautify: false }, keep_fnames: false,
+};
 if (WK < 4) {
-	delete optRun.optimization;
-	optRun.plugins.push(
-		new webpack.optimize.CommonsChunkPlugin({
-			name: "vendor",
-			minChunks(module, _count) {
-				const { resource } = module || {};
-				return resource && reg.test(resource);
-			},
-		}) // runtime 作用不大,暂时去掉
-		/* new webpack.optimize.CommonsChunkPlugin({
-			name: "runtime",
-			chunks: Infinity,
-		}) */
-	);
+	delete optRun.mode; delete optRun.optimization;
+	PROD && plugins.push(new (require("uglifyjs" +
+		"-webpack-plugin"))({ ...X, uglifyOptions: O }));
+	plugins.push(new webpack.optimize.CommonsChunkPlugin({
+		name: "vendor", minSize: 0, // chunks:[name]
+		minChunks: ({ context, resource }, count) =>
+			context && resource && count > 1 &&
+			!context.startsWith(dir(compileFolder)),
+	})); // context引用起点 resource引用目标 count引用次数
+	plugins.push(new webpack.optimize.CommonsChunkPlugin({
+		name: "runtime", minChunks: Infinity,
+	})); // 抽取webpack每次运行编译时的变化,文件会比较小
 } else {
+	PROD && minimizer.push(new (require("terser" +
+		"-webpack-plugin"))({ ...X, terserOptions: O }));
+	const vendor = {
+		name: "vendor", chunks: "all", enforce: true,
+		minChunks: 2, minSize: 0, // chunks:[{name}]
+		test: ({ type, context, resource }, _chunks) =>
+			context && (type || resource) &&
+			!context.startsWith(dir(compileFolder)),
+	}; // type模块类型 context引用起点 resource引用目标
+	splitChunks.cacheGroups = { vendor };
+	optRun.optimization.runtimeChunk = { name: "runtime" };
 	const { loader } = require("mini-css-extract-plugin");
 	optRun.module.rules.push({
 		test: /\.css(\?.*)?$/i,
@@ -171,41 +191,34 @@ if (WK < 4) {
 		}],
 	});
 }
-keys(DLL).forEach(dll => plugins.push(
-	new webpack.DllReferencePlugin({
-		context: dir(),
-		manifest: require(dir(
-			buildFolder, dll + ".manifest.json")),
-	})
-));
 const addEntryPage = name => {
 	const app = name || "index";
-	optRun.entry[app] = [
-		require.resolve(dir(compileFolder, app)),
-	];
+	optRun.entry[app] = (PROD || FOR_IE ? poly : []).concat(
+		dir("src/utils/public"), dir(compileFolder, app));
 	const opt = {
 		filename: app + ".html",
 		template: dir(templateFile),
 		chunks: ["runtime", "vendor", ...keys(IPT), app],
-		chunksSortMode: "manual", showErrors: true,
-		minify: false, inject: true, cache: true,
-		xhtml: true, hash: true,
+		chunksSortMode: "manual", inject: true, hash: true,
+		showErrors: true, cache: true, xhtml: true,
+		minify: false, templateParameters: {},
 	};
-	opt.title = fmt(title, app) || `Home Page for ${app}`;
-	opt.ico = fmt(ico, app) || "favicon.ico";
-	opt.css = isArray(css) ? css.map(v => fmt(v, app)) : [];
-	opt.js = isArray(js) ? js.map(v => fmt(v, app)) : [];
-	keys(LIB).forEach(k => /\.css$/i.test(k)
-		? opt.css.push(`css/${k}?${ts}`) : /\.js$/i.test(k)
-			? opt.js.push(`js/${k}?${ts}`) : undefined);
-	opt.css = opt.css.filter(Boolean);
-	opt.js = opt.js.concat(keys(DLL).map(k =>
-		`js/${k}.dll.js?${ts}`)).filter(Boolean);
-	opt.prefix = prefixAjax || "";
-	opt.pubrel = publicPath || rel(app, "").slice(0, -2);
+	const arg = opt.templateParameters;
+	const p = rel(app, "").slice(0, -2); // 保证路径是/结尾
+	const fu = v => /^(https?:\/)?\//i.test(v) ? v : p + v;
+	arg.ico = fu(fmt(ico, app) || "favicon.ico"); arg.p = p;
+	arg.title = fmt(title, app) || `Home Page for ${app}`;
+	arg.js = isArray(js) ? js.map(v => fmt(v, app)) : [];
+	arg.css = isArray(css) ? css.map(v => fmt(v, app)) : [];
+	keys(LIB).forEach(k => /\.js$/i.test(k)
+		? arg.js.push(`js/${k}?${ts}`) : /\.css$/i.test(k)
+			? arg.css.push(`css/${k}?${ts}`) : void 0);
+	arg.js = arg.js.filter(Boolean).map(fu);
+	arg.css = arg.css.filter(Boolean).map(fu);
 	plugins.push(new HtmlWebpackPlugin(opt));
 };
-if (isArray(page) && page.length) {
-	page.forEach(addEntryPage); // 多页面打包
-} else { copyList.length = 0; }
-module.exports = webpackMerge(optAll, optNow, optRun);
+isArray(page) && page.forEach(addEntryPage); // 多页面打包
+(page && page.length) || (copyList.length = 0);
+/* *** modify final configuration  *** */
+const config = merge(optNow, optRun);
+module.exports = modify ? modify(config) || config : config;

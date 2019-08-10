@@ -1,7 +1,7 @@
-import React from "react";
-import { HashRouter, Switch, Route, Redirect } from "react-router-dom";
 import { hot } from "react-hot-loader";
+import React from "react";
 import { Spin } from "antd";
+import { HashRouter, Switch, Route, Redirect } from "react-router-dom";
 
 import { RouteMenu } from "../../components/Menu";
 import { NAV_MENUS, NAV_MAPS } from "../../constants/columns";

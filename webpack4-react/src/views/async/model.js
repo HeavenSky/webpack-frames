@@ -3,7 +3,7 @@ import { ASYNC, UPDATE } from "../../utils/store";
 
 const reddits = ["ActionScript", "C", "Clojure", "CoffeeScript", "CSS", "Go", "Haskell", "HTML", "Java", "JavaScript", "Lua", "Matlab", "Objective-C", "Perl", "PHP", "Python", "R", "Ruby", "Scala", "Shell", "Swift", "TeX", "TypeScript", "Vim script"];
 const orders = ["asc", "desc"];
-const name = "star";
+const name = "async";
 
 export default {
 	name,

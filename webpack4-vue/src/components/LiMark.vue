@@ -10,6 +10,7 @@
 </template>
 <script>
 import SimpleMDE from "simplemde";
+import { join } from "../utils/fns";
 export default {
 	model: {
 		prop: "content",
@@ -26,7 +27,7 @@ export default {
 		},
 	},
 	data() {
-		return { editor: undefined };
+		return { editor: void 0 };
 	},
 	watch: {
 		content() {
@@ -39,7 +40,7 @@ export default {
 	},
 	mounted() {
 		const { config, content, $refs } = this;
-		const opts = Object.assign({
+		const opts = join({
 			element: $refs.dom,
 			spellChecker: false,
 			autoDownloadFontAwesome: false,
@@ -61,7 +62,7 @@ export default {
 	},
 	beforeDestroy() {
 		this.editor.toTextArea();
-		this.editor = undefined;
+		this.editor = void 0;
 	},
 };
 /* markdown编辑器:

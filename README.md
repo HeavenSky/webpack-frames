@@ -37,6 +37,7 @@
 7. `config`目录`webapck134,react,vue`配置已统一,不同项目仅需改`opt.self.js`即可
 8. `readme`说明有遗漏,麻烦移驾到文件中看代码注释,关键点在`config`目录中的文件均有注释和官方参考文档地址
 9. `devDependencies`被用来放锁版本的依赖了,`dependencies`是保持最新的依赖;由于不用发布到npm上,因此这个分类比较随意,甚至说是错误的;若要发布,请做好区分,具体细节谷歌百度找文档
+10. 由于`DllPlugin`和`CommonsChunkPlugin或splitChunks`存在功能重复,而且前者需前置执行一次webpack命令,另外可以用`externals`来简单替代,后者可操作的空间大,可以自由拆包,使文件大小更均匀,故后续将不再使用`DllPlugin`
 
 ### 环境准备工作
 1. 设置淘宝镜像 `npm config set registry https://registry.npm.taobao.org`
@@ -51,19 +52,29 @@
 	* `npminstall -c`和`npm install`不兼容,前者比后者快很多,但是不能混着用
 	* 切换使用需要删除`node_modules`文件夹
 	* `node-v12.0.0`有问题请先别升级,`node-v12`的最新版已经没有问题
+	* 偶尔出现莫名其妙的打包错误或代码错误,删除`node_modules`重试
 
 ### 开发坏境启动
-1. `npm run dll` 若已经执行过或提示`dll`不存在,则可跳过
-2. `npm start`
-3. 浏览器打开 http://localhost:8888
+1. `npm start`
+	* 需要支持ie时请用 `FOR_IE=1 npm start`
+	* 若用cmd执行命令报错, 请在git-bash内执行
+2. 浏览器打开 http://localhost:8888
 
 ### 生产坏境部署
 1. `npm run app`
-2. 拷贝dist文件夹内容至服务器即可
+	* 需要支持ie时请用 `FOR_IE=1 npm run app`
+	* 若用cmd执行命令报错, 请在git-bash内执行
+2. 拷贝 dist 文件夹内容至服务器即可
+
+### 新增其它功能
+1. `npm run report` 查看生产包bundle组成
+	* 需要支持ie时请用 `FOR_IE=1 npm run report`
+2. `npm run debug` 新增断点调式启动,端口7777
+	* 需要支持ie时请用 `FOR_IE=1 npm run debug`
 
 ### 更新 package.json
-* 在当前目录执行 `npm update -D -S`
-* 还可以安装`npm i -g npm-check-updates`, 然后在当前目录执行 `ncu` 或 `ncu -u`
+* 安装`npm i -g npm-check-updates`
+* 在`package.json`目录执行`ncu`(查看) `ncu -u`(更新)
 
 ### 使用 react-hot-loader 热重载
 [官方文档](https://github.com/gaearon/react-hot-loader)

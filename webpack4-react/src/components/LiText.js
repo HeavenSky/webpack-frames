@@ -2,7 +2,7 @@ import React from "react";
 import classnames from "classnames";
 import { Link, NavLink } from "react-router-dom";
 import { Icon, Button, Tooltip, Popconfirm } from "antd";
-import { isString, merge } from "../utils/fns";
+import { isString, join } from "../utils/fns";
 
 export const LiIcon = ({ type, className, ...rest }) => {
 	const pre = /\s/.test(type) ? "" : "anticon anticon-";
@@ -18,7 +18,7 @@ export const LiText = props => {
 	const Tag = tag && /^[a-z]+[1-6]?$/.test(tag)
 		? tag : TagMap[tag] || "span";
 	const tip = isString(title) ? { title } : title || {};
-	const pop = merge({ okText: "确定", cancelText: "取消" },
+	const pop = join({ okText: "确定", cancelText: "取消" },
 		isString(confirm) ? { title: confirm } : confirm);
 	rest.onClick = disabled || pop.title
 		? e => e.preventDefault() : onClick;

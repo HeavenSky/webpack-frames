@@ -1,5 +1,5 @@
 import { gcs, create, loadJs } from "./dom";
-import { keys, getCache } from "./fns";
+import { keys, over, getCache } from "./fns";
 // 单行文字自适应大小
 export const fitText = (target, text, rdx = 3) => {
 	const div = create("div", text, { parent: target, attrs: { style: "display:none;border:0;margin:0;padding:0;width:auto;min-width:unset;max-width:unset;overflow:visible;position:relative;visibility:hidden;white-space:nowrap;font:inherit;columns:inherit;transform:inherit;text-indent:inherit;word-spacing:inherit;letter-spacing:inherit;text-transform:inherit;" } });
@@ -14,8 +14,8 @@ export const fitText = (target, text, rdx = 3) => {
 	}
 };
 // 用来手动加载excel导出依赖的js
-export const xlsxOk = () => getCache("xlsxOk", () =>
-	Promise.all([ // npmh xlsx;npmh file-saver;
+export const xlsxOk = () => getCache("xlsxOk",
+	() => over([ // npmh xlsx;npmh file-saver;
 		"npm/xlsx/dist/xlsx.full.min.js",
 		"npm/file-saver/dist/FileSaver.min.js",
 	].map(v => loadJs("https://cdn.jsdelivr.net/" + v))));

@@ -16,9 +16,9 @@
 		"amd": true
 	},
 	"plugins": [
+		"react-hooks",
 		"flowtype",
 		"jsx-a11y",
-		"compat",
 		"import",
 		"babel",
 		"react",
@@ -31,7 +31,6 @@
 		"plugin:vue/recommended",
 		"eslint:recommended"
 	],
-	"root": false, "settings": { "polyfills": ["fetch"] },
 	"globals": { "Vue": false, "React": false },
 	"rules": {
 		"accessor-pairs": "error",
@@ -50,6 +49,7 @@
 		"eqeqeq": ["error", "always", { "null": "ignore" }],
 		"func-call-spacing": ["error", "never"],
 		"generator-star-spacing": ["error", "after"],
+		"guard-for-in": "error",
 		"handle-callback-err": ["error", "^(err|error)$"],
 		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"jsx-quotes": ["error", "prefer-double"],
@@ -150,7 +150,6 @@
 		"babel/object-curly-spacing": ["error", "always", { "arraysInObjects": true, "objectsInObjects": true }],
 		"babel/no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true, "allowTaggedTemplates": true }],
 
-		"compat/compat": ["off", "android >= 4", "ios >= 7", "ie >= 8", ">= 0.2%"],
 		"import/default": "error",
 		"import/export": "error",
 		"import/first": "error",
@@ -158,6 +157,8 @@
 		"import/no-named-default": "error",
 		"jsx-a11y/alt-text": "off",
 		"jsx-a11y/href-no-hash": "off",
+		"react-hooks/rules-of-hooks": "error",
+		"react-hooks/exhaustive-deps": "error",
 		"react/jsx-boolean-value": "error",
 		"react/jsx-curly-spacing": ["error", "never"],
 		"react/jsx-equals-spacing": ["error", "never"],

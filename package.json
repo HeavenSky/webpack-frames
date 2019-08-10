@@ -8,6 +8,32 @@
 	"scripts": {
 		"start": "eslint ./ --cache --fix --ext .js,.jsx,.vue"
 	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged",
+			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+		}
+	},
+	"commitlint": {
+		"extends": [
+			"@commitlint/config-conventional"
+		]
+	},
+	"lint-staged": {
+		"*.vue": [
+			"prettier --write",
+			"eslint --cache --fix",
+			"git add"
+		],
+		"*.{js,jsx}": [
+			"eslint --cache --fix",
+			"git add"
+		],
+		"*.{ts,md,gql,css,less,scss,html,json,flow,yaml,graphql}": [
+			"prettier --write",
+			"git add"
+		]
+	},
 	"prettier": {
 		"endOfLine": "lf",
 		"htmlWhitespaceSensitivity": "ignore",
@@ -17,20 +43,17 @@
 		"trailingComma": "es5",
 		"useTabs": true
 	},
-	"dependencies": {},
-	"devDependencies": {
-		"babel-eslint": "^10.0.2",
-		"eslint": "^6.0.1",
-		"eslint-config-ali": "^6.1.0",
+	"devDependencies": {},
+	"dependencies": {
+		"@commitlint/cli": "^8.1.0",
+		"@commitlint/config-conventional": "^8.1.0",
+		"eslint": "^6.1.0",
+		"eslint-config-ali": "^8.0.2",
 		"eslint-config-egg": "^7.4.1",
-		"eslint-config-react-app": "^4.0.1",
+		"eslint-config-react-app": "^5.0.0",
 		"eslint-plugin-babel": "^5.3.0",
-		"eslint-plugin-compat": "^3.2.0",
-		"eslint-plugin-flowtype": "^3.11.1",
-		"eslint-plugin-import": "^2.18.0",
-		"eslint-plugin-jsx-a11y": "^6.2.2",
-		"eslint-plugin-react": "^7.14.2",
-		"eslint-plugin-react-hooks": "^1.6.1",
+		"eslint-plugin-flowtype": "^4.2.0",
+		"eslint-plugin-react-hooks": "^1.7.0",
 		"eslint-plugin-vue": "^5.2.3",
 		"mime-types": "^2.1.24",
 		"prettier": "^1.18.2",

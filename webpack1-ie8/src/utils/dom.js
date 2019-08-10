@@ -1,14 +1,14 @@
-import { keys, join } from "./fns";
+import { keys, join, pending, dmt } from "./fns";
 export const attachEvt = (ele, evt, listener, capture) => {
 	const target = ele || document;
 	const handler = e => {
 		const event = e || window.event;
 		const src = event.srcElement || event.target;
 		const [touch] = event.targetTouches || [];
-		const proto = Object.getPrototypeOf(touch || {});
-		keys(proto).forEach(k => (k in event) ||
-			(event[k] = touch[k])); // touch属性赋予事件上
-		listener(event, src);
+		const { prototype } = window.Touch || {};
+		touch && keys(prototype).forEach(k =>
+			(k in event) || (event[k] = touch[k]));
+		listener(event, src); // touch坐标属性扩展到事件上
 	};
 	if (target.addEventListener) {
 		target.addEventListener(evt, handler, capture);
@@ -26,7 +26,7 @@ export const detachEvt = (ele, evt, listener, capture) => {
 	} else if (target.detachEvent) {
 		target.detachEvent("on" + evt, listener);
 	} else {
-		target["on" + evt] = undefined;
+		target["on" + evt] = void 0;
 	}
 };
 export const stopEvt = e => {
@@ -56,39 +56,35 @@ export const qsTag = query("getElementsByTagName");
 export const qsClass = query("getElementsByClassName");
 export const create = (tag, html, opts) => {
 	/^[a-z]+[1-6]?$/i.test(tag) || (tag = "span");
-	const element = document.createElement(tag);
-	element.innerHTML = html || "";
+	const el = document.createElement(tag);
+	el.innerHTML = html || "";
 	const { attrs, props, parent } = opts || {};
-	join(element, props);
-	keys(attrs || {}).forEach(
-		k => element.setAttribute(k, attrs[k]));
-	parent && parent.appendChild(element);
-	return element;
+	keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
+	join(el, props); parent && parent.appendChild(el);
+	return el;
 };
-export const load = (tag, attrs) =>
-	new Promise((resolve, reject) => {
-		const element = create(tag, null, { attrs });
-		const done = () => resolve({ target: element });
-		element.onload = done;
-		element.onerror = reject;
-		element.onreadystatechange = () => "complete,loaded"
-			.indexOf(element.readyState) > -1 && done();
-		document.body.appendChild(element);
-		const { src, href, data, complete } = element;
-		const isImg = src && /^img$/i.test(tag);
-		const isCss = href && /^link$/i.test(tag);
-		const isData = data && /^object$/i.test(tag);
-		isImg && complete && done();
-		src || isCss || isData || done();
-	});
+export const load = (tag, attrs) => pending((res, rej) => {
+	const el = create(tag, null, { attrs });
+	const done = () => res({ target: el });
+	el.onload = done; el.onerror = rej;
+	el.onreadystatechange = () => "complete,loaded"
+		.indexOf(el.readyState) > -1 && done();
+	document.body.appendChild(el);
+	const { src, href, data, complete } = el;
+	const isImg = src && /^img$/i.test(tag);
+	const isCss = href && /^link$/i.test(tag);
+	const isData = data && /^object$/i.test(tag);
+	isImg && complete && done();
+	src || isCss || isData || done();
+});
 export const loadImg = src => load("img", { src });
-export const loadCss = href => load("link",
-	{ rel: "stylesheet", href });
-export const loadJs = src => load("script",
-	{ type: "text/javascript", src });
-export const gcs = element => {
+export const loadCss = href =>
+	load("link", { rel: "stylesheet", href });
+export const loadJs = src =>
+	load("script", { type: "text/javascript", src });
+export const gcs = el => {
 	const { getComputedStyle: calc } = window;
-	return calc ? calc(element) : element.currentStyle;
+	return calc ? calc(el) : el.currentStyle;
 };
 export const hd = (baseFontSize, sketchWidth) => {
 	baseFontSize = baseFontSize > 0 ? baseFontSize : 100;
@@ -129,33 +125,21 @@ export const hd = (baseFontSize, sketchWidth) => {
 	}); // 移动端组件大多不支持rem,需要自己写组件
 	return [resize(), attachEvt(window, "resize", resize)];
 };
-export const dmt = cls => {
-	const list = cls && cls.forEach ? cls
-		: String(cls || "").split(/\s+/);
-	const hash = {}; // [...new Set(items)]
-	list.forEach(k => k && (hash[k] = true));
-	return keys(hash);
+export const hasCls = (el, cls) => {
+	const list = dmt(el.className); const has = dmt(cls);
+	return !has.filter(v => !list.includes(v)).length;
 };
-export const hasCls = (element, cls) => {
-	const list = dmt(element.className);
-	const has = dmt(cls);
-	const result = has.filter(v => !list.includes(v));
-	return !result.length;
+export const addCls = (el, cls) => {
+	const list = dmt(el.className); const add = dmt(cls);
+	el.className = dmt(list.concat(add)).join(" ");
 };
-export const addCls = (element, cls) => {
-	const list = dmt(element.className);
-	const add = dmt(cls);
-	const result = list.concat(add);
-	element.className = dmt(result).join(" ");
-};
-export const delCls = (element, cls) => {
-	const list = dmt(element.className);
-	const del = dmt(cls);
+export const delCls = (el, cls) => {
+	const list = dmt(el.className); const del = dmt(cls);
 	const result = list.filter(v => !del.includes(v));
-	element.className = dmt(result).join(" ");
+	el.className = dmt(result).join(" ");
 };
-export const ready = f => new Promise(resolve => attachEvt(
-	document, "DOMContentLoaded", resolve, false)).then(f);
+export const ready = f => pending(res => attachEvt(
+	document, "DOMContentLoaded", res, false)).then(f);
 export const clientInfo = () => {
 	const { documentElement: html, head, body } = document;
 	const { clientWidth: vw, clientHeight: vh } = html;
@@ -163,34 +147,33 @@ export const clientInfo = () => {
 		navigator: { userAgent: ua } } = window;
 	return { html, head, body, vw, vh, fc, dpr, ua };
 };
-export const scrollInfo = () => {
-	const { documentElement: html, head, body,
-		scrollingElement: element } = document;
-	const wrap = html.scrollHeight > body.scrollHeight ||
-		html.scrollWidth > body.scrollWidth ? html : body;
-	return { html, head, body, scroll: element || wrap };
-}; // scrollingElement标准模式是html,挂怪异模式是body
+export const getScroll = () => {
+	const { documentElement: html, body } = document;
+	const wrap = html.scrollHeight >= body.scrollHeight ||
+		html.scrollWidth >= body.scrollWidth ? html : body;
+	return document.scrollingElement || wrap;
+}; // scrollingElement标准模式是html,怪异模式是body
 export const scrollLock = (cls = "fixed-scroll-lock") => {
-	const db = { top: null, left: null, ele: null };
-	const isLock = () => db.ele && hasCls(db.ele, cls);
+	const { documentElement: html, body } = document;
+	const db = { top: null, left: null };
+	const isLock = () =>
+		hasCls(html, cls) || hasCls(body, cls);
 	const openLock = () => {
-		if (!isLock()) {
-			db.ele = scrollInfo().scroll;
-			db.top = db.ele.scrollTop || 0;
-			db.left = db.ele.scrollLeft || 0;
-			addCls(db.ele, cls);
-			db.ele.style.top = -db.top + "px";
-			db.ele.style.left = -db.left + "px";
-		}
+		if (isLock()) { return; }
+		const ele = getScroll();
+		db.top = ele.scrollTop || 0;
+		db.left = ele.scrollLeft || 0;
+		addCls(html, cls) || addCls(body, cls);
+		ele.style.top = -db.top + "px";
+		ele.style.left = -db.left + "px";
 	};
 	const closeLock = () => {
-		if (isLock()) {
-			delCls(db.ele, cls);
-			db.ele.style.top = "";
-			db.ele.style.left = "";
-			db.ele.scrollTop = db.top;
-			db.ele.scrollLeft = db.left;
-		}
-	};
+		if (!isLock()) { return; }
+		html.style.top = ""; html.style.left = "";
+		body.style.top = ""; body.style.left = "";
+		delCls(html, cls) || delCls(body, cls);
+		html.scrollTop = db.top; html.scrollLeft = db.left;
+		body.scrollTop = db.top; body.scrollLeft = db.left;
+	}; // 样式更新放一起,实时渲染放一起
 	return { isLock, openLock, closeLock };
 };

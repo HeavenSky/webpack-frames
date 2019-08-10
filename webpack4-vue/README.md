@@ -1,6 +1,7 @@
 ![](https://img.shields.io/npm/v/webpack.svg?label=webpack)
 ![](https://img.shields.io/npm/v/vue.svg?label=vue)
 ![](https://img.shields.io/npm/v/element-ui.svg?label=element-ui)
+![](https://img.shields.io/npm/v/eslint.svg?label=eslint)
 ![](https://img.shields.io/npm/v/prettier.svg?label=prettier)
 
 ### 请仔细阅读上级目录的[README.md](../README.md)

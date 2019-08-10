@@ -1,12 +1,13 @@
 const webpack = require("webpack");
-const cwPlugin = require("clean-webpack-plugin");
-const { CleanWebpackPlugin = cwPlugin } = cwPlugin;
+const cleanWebpack = require("clean-webpack-plugin");
+const { CleanWebpackPlugin = cleanWebpack } = cleanWebpack;
 const { scssStyleLoader, lessStyleLoader, cssStyleLoader,
 	cssModuleLoader, styleLoader } = require("./loader");
 const { WK, ver } = require("./basic");
 const mod = `css/${ver("content")}.css`;
-const optProd = { devtool: false, module: {}, plugins: [] };
-if (WK === 1) { // devtool: "source-map",
+const plugins = [new CleanWebpackPlugin()];
+const optProd = { devtool: false, module: {}, plugins };
+if (WK < 2) { // devtool: "source-map",
 	const ExtraTWP = require("extract-text-webpack-plugin");
 	const loader = new ExtraTWP(mod, { allChunks: true });
 	optProd.module.loaders = [{
@@ -52,15 +53,14 @@ if (WK === 1) { // devtool: "source-map",
 			scssStyleLoader,
 		]),
 	}];
-	optProd.plugins = [
-		new CleanWebpackPlugin(),
+	plugins.push(
 		// new webpack.optimize.ModuleConcatenationPlugin(),
 		new webpack.optimize.OccurrenceOrderPlugin(),
 		// new webpack.HashedModuleIdsPlugin(),
 		// new webpack.NoEmitOnErrorsPlugin(),
-		loader,
-	];
-} else if (WK === 3) {
+		loader
+	);
+} else if (WK < 4) {
 	const ExtraTWP = require("extract-text-webpack-plugin");
 	optProd.module.rules = [{
 		test: /\.css(\?.*)?$/i,
@@ -127,30 +127,27 @@ if (WK === 1) { // devtool: "source-map",
 			}),
 		}],
 	}];
-	optProd.plugins = [
-		new CleanWebpackPlugin(),
+	plugins.push(
 		new webpack.optimize.ModuleConcatenationPlugin(),
 		new webpack.optimize.OccurrenceOrderPlugin(),
 		new webpack.HashedModuleIdsPlugin(),
 		new webpack.NoEmitOnErrorsPlugin(),
-		new ExtraTWP({
-			allChunks: true,
-			filename: mod,
-		}),
-	];
+		new ExtraTWP({ allChunks: true, filename: mod })
+	);
 } else {
 	const MiniExtract = require("mini-css-extract-plugin");
-	optProd.plugins = [
-		new CleanWebpackPlugin(),
+	plugins.push(
 		// new webpack.optimize.ModuleConcatenationPlugin(),
 		// new webpack.optimize.OccurrenceOrderPlugin(),
 		new webpack.HashedModuleIdsPlugin(),
 		// new webpack.NoEmitOnErrorsPlugin(),
 		new MiniExtract({
 			allChunks: true,
-			filename: mod,
-			chunkFilename: mod,
-		}),
-	];
+			filename: mod, chunkFilename: mod,
+		})
+	);
 }
+const analyzer = require("webpack-bundle-analyzer");
+process.env.npm_config_report &&
+	plugins.push(new analyzer.BundleAnalyzerPlugin());
 module.exports = optProd;

@@ -13,39 +13,18 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="format-detection" content="telephone=no,email=no" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no" />
-	<!--[if lt IE 9]>
-		<script type="text/javascript" src="<%=
-			htmlWebpackPlugin.options.pubrel
-		%>js/ie8.lib.js"></script>
-	<![endif]-->
-	<title><%= htmlWebpackPlugin.options.title %></title>
-	<% for (let v of [htmlWebpackPlugin.options.ico]) { %>
-		<link rel="shortcut icon" href="<%=
-			((p,v)=>/^(https?:)?\/\//i.test(v)?v:p+v)
-			(htmlWebpackPlugin.options.pubrel,v)
-		%>" />
-	<% } %>
-	<% for (let v of htmlWebpackPlugin.options.css||[]) { %>
-		<link rel="stylesheet" href="<%=
-			((p,v)=>/^(https?:)?\/\//i.test(v)?v:p+v)
-			(htmlWebpackPlugin.options.pubrel,v)
-		%>" />
-	<% } %>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no,viewport-fit=cover" />
+	<title><%= title %></title>
+	<link rel="shortcut icon" href="<%= ico %>" />
+	<% for (const v of css||[]) { %><link rel="stylesheet" href="<%= v %>" /><% } %>
 </head>
 <body>
 	<div id="app"></div>
-	<!-- publicPath: <%= htmlWebpackPlugin.options.pubrel %> -->
-	<!-- prefixAjax: <%= htmlWebpackPlugin.options.prefix %> -->
-	<script type="text/javascript">
-		window.publicPath = "<%= htmlWebpackPlugin.options.pubrel %>";
-		window.prefixAjax = "<%= htmlWebpackPlugin.options.prefix %>";
-	</script>
-	<% for (let v of htmlWebpackPlugin.options.js||[]) { %>
-		<script type="text/javascript" src="<%=
-			((p,v)=>/^(https?:)?\/\//i.test(v)?v:p+v)
-			(htmlWebpackPlugin.options.pubrel,v)
-		%>"></script>
-	<% } %>
+	<!--[if lt IE 9]>
+	<script type="text/javascript" src="<%= p %>js/ie.lib.js"></script>
+	<script type="text/javascript">window.onerror=function(){var data={};var args=arguments;function transfer(key,value){if(value==null||typeof value!=="object"){data[key]=value;}else{Object.getOwnPropertyNames(value).forEach(function(v){data[key+"-"+v]=value[v];});}}try{["message","source","rowNo","colNo","detail"].forEach(function(v,i){transfer(v,args[i]);});$.post("/api/error",data);console.error(data);}catch(error){}return true;};</script>
+	<![endif]-->
+	<script type="text/javascript">/*Fix Safari innerHeight is 0 in iframe*/document.body.clientHeight;</script>
+	<% for (const v of js||[]) { %><script type="text/javascript" src="<%= v %>"></script><% } %>
 </body>
 </html>

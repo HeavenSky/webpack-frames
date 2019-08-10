@@ -4,7 +4,7 @@ import { Upload, Icon, message } from "antd";
 文件上传组件
 1. 格式化文件下载地址和下载文件名
 fileList.forEach(
-	v => Object.assign(v, {
+	v => ({ ...(v||{}),
 		url: "/upload/file/" + v.uid,
 		linkProps: { download: "附件.xlsx" },
 	})
@@ -59,8 +59,8 @@ const Push = props => {
 	const { value, onChange, ...res } = props;
 	const { list = [], err = "" } = value || {};
 	list.forEach(
-		v => Object.assign(v, {
-			url: "/upload/file/" + v.uid,
+		v => ({
+			...v, url: "/upload/file/" + v.uid,
 			linkProps: { download: v.name || "附件.xlsx" },
 		})
 	);

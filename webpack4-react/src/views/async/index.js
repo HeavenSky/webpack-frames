@@ -1,33 +1,25 @@
 import React from "react";
 import { connect } from "react-redux";
+import { Button } from "antd";
+import Select from "../../components/Select";
 
-const List = ({ style, data }) => (
-	<ul style={style}>
-		{(data || []).map(v =>
-			<li key={v.id}>
-				<a href={v.html_url}>{v.name}</a>
-				<span>(<b>{v.stargazers_count}</b>)stars</span>
-				<br /><i>{v.description}</i>
-			</li>)}
-	</ul>
-);
-const Switch = ({ value, change, opts }) => (
-	<span>
-		{/* eslint-disable-next-line */}
-		<select value={value} onChange={change}>
-			{opts.map(opt =>
-				<option key={opt} value={opt}>{opt}</option>)}
-		</select>
-		<span>{value}</span>
-	</span>
-);
+const List = ({ style, data }) => <ol style={style}>
+	{(data || []).map(v =>
+		<li key={v.id}>
+			<a href={v.html_url}>{v.name}</a>
+			<span>(<b>{v.stargazers_count}</b>)stars</span>
+			<br /><i>{v.description}</i>
+		</li>)}
+</ol>;
 const App = ({ reddits, reddit, redditHandle, orders, order, orderHandle, handleRefresh, style, data, time, fetched, loading }) => (
 	<div>
-		<Switch opts={reddits} value={reddit} change={redditHandle} />
-		<Switch opts={orders} value={order} change={orderHandle} />
+		<Select value={reddit} onChange={redditHandle} openSearch
+			options={reddits.map(k => ({ label: k, value: k }))} />
+		<Select value={order} onChange={orderHandle} openSearch
+			options={orders.map(k => ({ label: k, value: k }))} />
 		<div>
 			{time && `Last Fetch data at ${time}. `}
-			{fetched && <button onClick={handleRefresh}>Refresh</button>}
+			{fetched && <Button onClick={handleRefresh}>Refresh</Button>}
 		</div>
 		{data.length
 			? <List style={style} data={data} />
@@ -36,27 +28,28 @@ const App = ({ reddits, reddit, redditHandle, orders, order, orderHandle, handle
 	</div>
 );
 
+const name = "async";
 const mapStateToProps = state => {
-	const { reddit, order, history } = state.star;
+	const { reddit, order, history } = state[name];
 	const key = `${reddit}|${order}`;
 	const { data = [], time, fetched, loading } = history[key] || {};
 	return {
-		...state.star,
+		...state[name],
 		data, time, fetched, loading,
 		style: { opacity: fetched && loading ? 0.3 : 1 },
 	};
 };
 const mapDispatchToProps = dispatch => ({
-	redditHandle: e => dispatch({
-		type: "star/GET_DATA",
-		payload: { reddit: e.target.value },
+	redditHandle: reddit => dispatch({
+		type: name + "/GET_DATA",
+		payload: { reddit },
 	}),
-	orderHandle: e => dispatch({
-		type: "star/GET_DATA",
-		payload: { order: e.target.value },
+	orderHandle: order => dispatch({
+		type: name + "/GET_DATA",
+		payload: { order },
 	}),
 	handleRefresh: () => dispatch({
-		type: "star/GET_DATA",
+		type: name + "/GET_DATA",
 	}),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(App);

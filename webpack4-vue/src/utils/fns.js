@@ -1,9 +1,11 @@
-export const lower = v => String(v).toLowerCase();
-export const upper = v => String(v).toUpperCase();
-export const keys = v => Object.keys(v || {});
-export const vals = v => Object.values(v || {});
-export const join = (...v) => Object.assign(...v);
-export const merge = (...v) => Object.assign({}, ...v);
+export const shallow = lib => { // Number.isFinite无类型转换
+	const getKeys = Object.getOwnPropertyNames;
+	const spread = {}; const { prototype: ext } = lib || {};
+	getKeys(ext || {}).forEach(k => (spread[k] = ext[k]));
+	getKeys(lib || {}).forEach(k => (spread[k] = lib[k]));
+	return spread; // 浅拷贝对象和其原型上的属性方法
+}; // true+true=={toString:v=>2}=={valueOf:v=>2}
+const ob = shallow(Object); const { toString } = ob;
 export const getType = v => toString.call(v).slice(8, -1);
 export const isMap = v => getType(v) === "Map";
 export const isSet = v => getType(v) === "Set";
@@ -24,24 +26,29 @@ export const isGenerator = v => isFunction(v) &&
 export const isNum = v => (isNumber(v) || isString(v)) &&
 	/^\s*(?:\+|-)?\s*\d+(?:.\d*)?\s*$/.test(v);
 export const isInt = v => (isNumber(v) || isString(v)) &&
-	/^\s*(?:\+|-)?\s*\d+\s*$/.test(v);
-/* 若存在类型转换一定要小心: isFinite会,Number.isFinite不会
-true+true == {toString: v => 2} == {valueOf: v => 2} */
-export const delay = ms =>
-	new Promise(resolve => setTimeout(resolve, ms));
-export const fdata = (fn, args) => {
-	if (!isFunction(fn)) { return Promise.resolve(fn); }
-	const params = isArray(args) ? args : [args];
-	return Promise.resolve(fn(...params));
-};
+	/^\s*(?:\+|-)?\s*\d+\s*$/.test(v); // isFinite有类型转换
+export const keys = v => ob.keys(v || {});
+export const vals = v => ob.values(v || {});
+export const join = (x, ...v) => ob.assign(x || {}, ...v);
+export const lower = v => String(v).toLowerCase();
+export const upper = v => String(v).toUpperCase();
+export const reject = Promise.reject.bind(Promise);
+export const resolve = Promise.resolve.bind(Promise);
+export const pending = callback => new Promise(callback);
+export const race = (...v) => Promise.race([].concat(v));
+export const over = (...v) => Promise.all([].concat(...v));
+export const delay = ms => pending(r => setTimeout(r, ms));
+export const fdata = (fn, args) => resolve(isFunction(fn)
+	? fn(...(isArray(args) ? args : [args])) : fn);
 export const fmtde = (fn, args) => fdata(fn, args)
 	.then(d => [d, null]).catch(e => [null, e]);
 export const split = (v, slash) => String(v || "")
 	.split(slash || "/").filter(Boolean);
-export const dmt = list => { // 只支持字符串数组去重
-	const obj = {}; // 优选数组去重 [...new Set(list)]
-	isArray(list) && list.forEach(k => (obj[k] = 1));
-	return keys(obj);
+export const dmt = (v, divide) => {
+	const hash = {}; const list = isArray(v) ? v
+		: String(v || "").split(divide || /\s+/);
+	isArray(list) && list.forEach(k => (hash[k] = 1));
+	return keys(hash); // 优选数组去重 [...new Set(list)]
 }; // 从window中取值不会触发console的eslint
 const console = window.console || { memory: {} };
 export const logger = (k, ...args) => console[k](...args);
@@ -55,7 +62,7 @@ export const dir = (...args) => // console.dir 只打印一个参数
 	"profile", "profileEnd", "timeline", "timelineEnd",
 	"time", "timeEnd", "timeStamp", "context",
 ].forEach(k => {
-	if (!console[k]) { console[k] = () => undefined; }
+	if (!console[k]) { console[k] = () => void 0; }
 	log[k] = (m, ...args) => [logger(k, m), log(...args)];
 	dir[k] = (m, ...args) => [logger(k, m), dir(...args)];
 }); // ployfill console global object
@@ -76,33 +83,26 @@ export const unlock = key => {
 // async listener method
 const ASYNC_LISTENER = { promises: {}, resolves: {} };
 export const listener = key => {
+	if (!key) { return; }
 	const { promises, resolves } = ASYNC_LISTENER;
-	if (!promises[key] || !resolves[key]) {
-		promises[key] = new Promise(
-			resolve => (resolves[key] = resolve)
-		);
-	}
+	(promises[key] && resolves[key]) || (promises[key] =
+		pending(res => (resolves[key] = res)));
 	return promises[key];
 };
 export const trigger = (key, result) => {
 	if (!key) { return; }
 	const { promises, resolves } = ASYNC_LISTENER;
-	const ps = promises[key];
-	const rs = resolves[key];
-	// 清除旧resolve函数,并结束promise等待
-	delete resolves[key];
+	const ps = promises[key]; const rs = resolves[key];
+	delete resolves[key]; // 清除旧resolve函数,结束promise等待
 	ps && isFunction(rs) && rs(result);
 };
 // async cache method
 const ASYNC_CACHE = { async: {}, cache: {} };
 export const getCache = (key, fn) => {
 	const { async, cache } = ASYNC_CACHE;
-	if (key in cache) {
-		return Promise.resolve(cache[key]);
-	} else if (!async[key]) {
-		async[key] = Promise.resolve(
-			isFunction(fn) ? fn() : fn);
-	}
+	if (key in cache) { return resolve(cache[key]); }
+	async[key] || (async[key] =
+		resolve(isFunction(fn) ? fn() : fn));
 	async[key].then(v => (cache[key] = v))
 		.then(() => delete async[key])
 		.catch(() => delete async[key]);
@@ -111,11 +111,9 @@ export const getCache = (key, fn) => {
 export const delCache = key => {
 	const { async, cache } = ASYNC_CACHE;
 	if (key) {
-		delete async[key];
-		delete cache[key];
+		delete async[key]; delete cache[key];
 	} else {
-		ASYNC_CACHE.async = {};
-		ASYNC_CACHE.cache = {};
+		ASYNC_CACHE.async = {}; ASYNC_CACHE.cache = {};
 	}
 };
 // string verify tools by RegExp
@@ -246,19 +244,18 @@ export const parse = url => { // 地址解析成对象
 					key = decodeURIComponent(key);
 					val = decodeURIComponent(val.slice(1));
 					key && val && (obj.args[key] = val);
-				} // 正则(**)?无配对时,对应undefined
+				} // 正则(**)?无配对时,对应未定义
 			); // 正则(**)配对什么,就对应什么,哪怕为空字符串
 		}); // args的key和val是各种特殊字符都要处理
 	return obj;
 };
 export const stringify = obj => { // 对象还原成地址
 	const { main, args, hash } = obj || {};
-	let str = "";
-	for (const k in (args || {})) {
+	let str = ""; keys(args).forEach(k => {
 		const key = encodeURIComponent(k || "");
 		const val = encodeURIComponent(args[key] || "");
 		str += key || val ? "&" + key + "=" + val : "";
-	} // args的key和val是各种特殊字符都要处理
+	}); // args的key和val是各种特殊字符都要处理
 	if (str) { str = "?" + str.slice(1); }
 	str += hash ? "#" + encodeURI(hash) : "";
 	return encodeURI(main || "") + str; // main和hash少转义

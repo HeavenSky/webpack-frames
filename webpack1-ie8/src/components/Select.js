@@ -1,8 +1,8 @@
 import React from "react";
 import { Select, Spin } from "antd";
+import { lower, join } from "../utils/fns";
 
 const { Option, OptGroup } = Select;
-const lower = v => String(v || "").toLowerCase();
 /**
  * WrapSelect
  * React Select 封装组件 依赖 antd{Select,Spin}
@@ -23,20 +23,15 @@ const WrapSelect = props => {
 		groupLabelKey = "groupLabel",
 		groupListKey = "groupList", ...res } = props;
 	const extra = {
-		notFoundContent: fetching
-			? <Spin size="small" /> : undefined,
+		notFoundContent: fetching ? <Spin /> : void 0,
 	};
-	if (openSearch) {
-		Object.assign(extra, {
-			allowClear: true,
-			showSearch: true,
-			optionFilterProp: "children",
-			filterOption: (input, option) =>
-				lower(option.props.children)
-					.includes(lower(input)),
-
-		});
-	}
+	openSearch && join(extra, {
+		allowClear: true,
+		showSearch: true,
+		optionFilterProp: "children",
+		filterOption: (input, { props: { children } }) =>
+			lower(children).includes(lower(input)),
+	});
 	return <Select {...extra} {...res}>
 		{options.map((v, i) => {
 			const {

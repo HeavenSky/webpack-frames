@@ -1,4 +1,4 @@
-{
+{ // https://babeljs.io/docs/en/babel-preset-env#usebuiltins
 	"presets": ["@babel/preset-env", "@babel/preset-react"],
 	"plugins": [
 		// Stage 0
@@ -19,11 +19,12 @@
 		// Stage 3
 		"@babel/plugin-syntax-dynamic-import",
 		"@babel/plugin-syntax-import-meta",
-		["@babel/plugin-proposal-class-properties", { "loose": false }],
+		["@babel/plugin-proposal-class-properties", { "loose": true }],
 		"@babel/plugin-proposal-json-strings",
-		// otherwise need "@babel/runtime"
+		// 需要安装`@babel/runtime`
 		"@babel/plugin-transform-runtime",
 		"react-hot-loader/babel",
+		// 启用按需引入时会导致cdn引入无效,代码会被重复打包
 		["import", { "libraryName": "antd", "style": false }]
-	]
+	] // https://github.com/babel/babel/blob/master/packages/babel-preset-stage-0/README.md
 }

@@ -24,7 +24,7 @@ class FormEntry extends Component {
 		rules = isArray(rules) ? rules.slice() : [];
 		rules.push({ validator, ...config, id, label });
 		const { data = {} } = this.state || {};
-		const initialValue = data[id] || undefined;
+		const initialValue = data[id] || void 0;
 		config = { initialValue, ...config, rules };
 		const { props, before, after } = addon || {};
 		const res = props || {};

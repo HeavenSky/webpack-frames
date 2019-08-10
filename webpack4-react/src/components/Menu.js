@@ -1,7 +1,7 @@
 import React, { Component, version } from "react";
 import { withRouter } from "react-router-dom";
 import { Menu, Icon, Breadcrumb } from "antd";
-import { join, tree } from "../utils/fns";
+import { keys, join, tree } from "../utils/fns";
 import { LiText } from "./LiText";
 import "./Menu.less";
 
@@ -47,17 +47,17 @@ const getKeys = (pro, sta) => {
 	const { pathname } = location || {};
 	if (sta && sta.pathname === pathname) { return sta || {}; }
 	let key;
-	for (const x in maps) {
+	keys(maps).find(x => {
 		const { type, to = x, href } = maps[x] || {};
 		if (/^(link|navlink)$/i.test(type) && pathname === to) {
-			key = x; break;
+			key = x; return true;
 		} else if (/^a$/i.test(type) && matchPath(href)) {
-			key = x; break;
+			key = x; return true;
 		} else {
 			const idx = (pathname || "").indexOf(to);
 			idx === 0 && (!key || key < x) && (key = x);
 		}
-	}
+	});
 	if (!key) { return sta || {}; }
 	const res = key.match(/\/[^/]+/g) || [];
 	return {
