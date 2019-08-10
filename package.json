@@ -23,15 +23,15 @@
 		"*.vue": [
 			"prettier --write",
 			"eslint --cache --fix",
-			"git add"
+			"git add -f"
 		],
 		"*.{js,jsx}": [
 			"eslint --cache --fix",
-			"git add"
+			"git add -f"
 		],
 		"*.{ts,md,gql,css,less,scss,html,json,flow,yaml,graphql}": [
 			"prettier --write",
-			"git add"
+			"git add -f"
 		]
 	},
 	"prettier": {

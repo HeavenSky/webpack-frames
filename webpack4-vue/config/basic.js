@@ -24,7 +24,7 @@ const pair = (mod, s) => (s ? mod + s : "") + dpv(mod);
 const poly = [].concat(dpv("antd") ? "media-match" : [],
 	calc("react") < 16 ? [] : "raf/polyfill"); // map&set
 let WK = calc("webpack"); WK = WK < 2 ? 1 : WK < 4 ? 3 : WK;
-WK < 2 && FOR_IE && poly.push('core-js');
+WK < 2 && FOR_IE && poly.push("core-js");
 /* *** repository *** */
 const elecdn = "https://npm.elemecdn.com/";
 const bootcdn = "https://cdn.bootcss.com/";

@@ -36,7 +36,7 @@ const css = [
 	!`${pkgcdn}vant/lib/index.css`,
 	!`${pkgcdn}vant/lib/vant.min.js`,
 ];
-const ie = FOR_IE; const shim = `polyfill`;
+const ie = FOR_IE; const shim = "polyfill";
 /* *** html js resource *** */
 const js = [
 	ie && `${pkgcdn}@babel/${shim}/dist/${shim}.min.js`,

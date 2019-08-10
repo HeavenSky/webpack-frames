@@ -54,19 +54,15 @@
 	* `node-v12.0.0`有问题请先别升级,`node-v12`的最新版已经没有问题
 	* 偶尔出现莫名其妙的打包错误或代码错误,删除`node_modules`重试
 
-### 开发坏境启动
-1. `npm start`
-	* 需要支持ie时请用 `FOR_IE=1 npm start`
-	* 若用cmd执行命令报错, 请在git-bash内执行
+### 开发坏境启动(windows环境请用git-bash)
+1. `npm start` 支持ie时请用 `FOR_IE=1 npm start`
 2. 浏览器打开 http://localhost:8888
 
-### 生产坏境部署
-1. `npm run app`
-	* 需要支持ie时请用 `FOR_IE=1 npm run app`
-	* 若用cmd执行命令报错, 请在git-bash内执行
+### 生产坏境部署(windows环境请用git-bash)
+1. `npm run app` 支持ie时请用 `FOR_IE=1 npm run app`
 2. 拷贝 dist 文件夹内容至服务器即可
 
-### 新增其它功能
+### 新增其它功能(windows环境请用git-bash)
 1. `npm run report` 查看生产包bundle组成
 	* 需要支持ie时请用 `FOR_IE=1 npm run report`
 2. `npm run debug` 新增断点调式启动,端口7777

@@ -1,4 +1,4 @@
-const { MY_PKG, MY_SVC, PROD, min, dmt: { join },
+const { MY_PKG, MY_SVC, PROD,
 	bootcdn, pkgcdn } = require("./basic");
 /* *** file and folder *** */
 const buildFolder = "build";
@@ -64,6 +64,6 @@ if (!PROD && MY_SVC) {
 	delete optSelf.page; // 单独编译一些文件
 } // MY_PKG=a.js,b.css,c.less npm run app
 /* *** modify final configuration *** */
-optSelf.modify = config => null;
+optSelf.modify = config => !config;
 /* *** 对于ie8,直接用babel-polyfill的cdn报错,需转码 *** */
 module.exports = optSelf;

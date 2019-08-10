@@ -38,7 +38,7 @@ const css = [
 	!`${pkgcdn}antd/dist/antd.min.js`,
 	!`${pkgcdn}antd/dist/antd.min.css`,
 ];
-const ie = FOR_IE; const shim = `polyfill`;
+const ie = FOR_IE; const shim = "polyfill";
 /* *** html js resource *** */
 const js = [
 	ie && `${pkgcdn}@babel/${shim}/dist/${shim}.min.js`,

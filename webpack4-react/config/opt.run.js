@@ -1,4 +1,4 @@
-require("./mix"); // 执行文本拼接
+require("./file"); // 执行文本拼接,文件(夹)清理
 const webpack = require("webpack");
 const merge = require("webpack-merge");
 const CopyWebpackPlugin = require("copy-webpack-plugin");

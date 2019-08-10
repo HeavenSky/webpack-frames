@@ -1,11 +1,8 @@
 const webpack = require("webpack");
-const cleanWebpack = require("clean-webpack-plugin");
-const { CleanWebpackPlugin = cleanWebpack } = cleanWebpack;
+const { WK, ver } = require("./basic");
 const { scssStyleLoader, lessStyleLoader, cssStyleLoader,
 	cssModuleLoader, styleLoader } = require("./loader");
-const { WK, ver } = require("./basic");
-const mod = `css/${ver("content")}.css`;
-const plugins = [new CleanWebpackPlugin()];
+const mod = `css/${ver("content")}.css`; const plugins = [];
 const optProd = { devtool: false, module: {}, plugins };
 if (WK < 2) { // devtool: "source-map",
 	const ExtraTWP = require("extract-text-webpack-plugin");
