@@ -1,9 +1,8 @@
 export default {
 	"POST /api/error"(req, res) {
-		const { body, query, params, cookies } = req;
-		console.log({ query, params, cookies });
+		const { query, body } = req;
 		Object.keys(body).forEach(key =>
-			console.log(`\n${key}\n\t\t${body[key]}`));
+			console.log(`${key}\t\t${body[key]}`));
 		res.json({ success: true, query, body });
 	},
 	"ALL /api/upload": () => ({

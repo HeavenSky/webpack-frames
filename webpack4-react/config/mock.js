@@ -30,6 +30,7 @@ https://webpack.docschina.org/configuration/dev-server/
 https://webpack.docschina.org/guides/dependency-management/
 https://github.com/chimurai/http-proxy-middleware#options */
 const multer = require("multer");
+const { black } = require("chalk");
 const chokidar = require("chokidar");
 const { resolve: dir } = require("path");
 const bodyParser = require("body-parser");
@@ -52,11 +53,13 @@ const routeMatch = (route, page, opt) => {
 	args.forEach((k, i) => (result[k.name] = match[i + 1]));
 	return result;
 };
+const logInfo = log.bind(0, black.bgCyan(" INFO "));
+const logError = log.bind(0, black.bgMagenta(" ERROR "));
 const tryEXEC = (func, ...args) => {
 	try {
 		return isFn(func) ? func(...args) : func;
 	} catch (error) {
-		log("tryEXEC error:", { func, args, error });
+		logError("tryEXEC", { func, args, error });
 	}
 };
 const clearRequireCache = file => {
@@ -118,7 +121,7 @@ const httpMock = (app, mockFolder) => {
 	app.all("*", (req, res, next) => {
 		const cb = findCallBack(req, res, next);
 		if (!cb) { return next(); }
-		log(new Date(), req.method, req.path);
+		logInfo(new Date(), req.method, req.path);
 		cb.length ? cb(req, res, next) : Promise.all(
 			parser.map(h => new Promise(resolve =>
 				h(req, res, resolve)))).then(cb);

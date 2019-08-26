@@ -56,27 +56,23 @@
 
 ### 开发坏境启动
 1. `npm start`
-	- 需要支持 ie 时请用
-	- (mac或git-bash环境)`FOR_IE=1 npm start`
-	- (window的cmd环境)`set FOR_IE=1 && npm start`
+	* 需要支持 ie 时请用
+	* `npm run env -- FOR_IE=1 npm start`
 2. 浏览器打开 http://localhost:8888
 
 ### 生产坏境部署
 1. `npm run app`
-	- 需要支持 ie 时请用
-	- (mac或git-bash环境)`FOR_IE=1 npm run app`
-	- (window的cmd环境)`set FOR_IE=1 && npm run app`
+	* 需要支持 ie 时请用
+	* `npm run env -- FOR_IE=1 npm run app`
 2. 拷贝 dist 文件夹内容至服务器即可
 
 ### 新增其它功能(windows 环境请用 git-bash)
 1. `npm run report` 查看生产包 bundle 组成
-	- 需要支持 ie 时请用
-	- (mac或git-bash环境)`FOR_IE=1 npm run report`
-	- (window的cmd环境)`set FOR_IE=1 && npm run report`
+	* 需要支持 ie 时请用
+	* `npm run env -- FOR_IE=1 npm run report`
 2. `npm run debug` 新增断点调式启动,端口 7777
-	- 需要支持 ie 时请用
-	- (mac或git-bash环境)`FOR_IE=1 npm run debug`
-	- (window的cmd环境)`set FOR_IE=1 && npm run debug`
+	* 需要支持 ie 时请用
+	* `npm run env -- FOR_IE=1 npm run debug`
 
 ### 更新 package.json
 * 安装`npm i -g npm-check-updates`

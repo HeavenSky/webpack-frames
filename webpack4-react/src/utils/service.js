@@ -1,17 +1,16 @@
 import $ from "jquery";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { isFunction, dir, pending, trigger } from "./fns";
-// 各浏览器支持的 localStorage 和 sessionStorage 容量上限不同
-const ST = window.localStorage || window.sessionStorage;
-export const clsStore = (...v) => ST && ST.clear(...v);
-export const getStore = (...v) => ST && ST.getItem(...v);
-export const setStore = (...v) => ST && ST.setItem(...v);
-export const delStore = (...v) => ST && ST.removeItem(...v);
-// 单个 cookie 保存的数据不能超过 4KB
-export const getCookie = (...v) => Cookies.get(...v);
-export const setCookie = (...v) => Cookies.set(...v);
-export const delCookie = (...v) => Cookies.remove(...v);
+import { isFunction, dir, tryEXEC } from "./fns";
+
+const handleStore = key => (...args) => // sessionStorage
+	tryEXEC(() => window.localStorage[key](...args));
+export const clsStore = handleStore("clear");
+export const getStore = handleStore("getItem");
+export const setStore = handleStore("setItem");
+export const delStore = handleStore("removeItem");
+export const { get: getCookie, set: setCookie,
+	remove: delCookie } = Cookies; // 单个cookie数据最大4kb
 // 跨域请求headers 压缩数据响应headers
 export const AUTH_KEY = "Authorization";
 export const AUTH_TOKEN_KEY = "x-auth-token";
@@ -30,16 +29,22 @@ export const ACCEPT_ENCODING = {
 	VAL: "br, gzip, deflate, compress, identity, *",
 }; // https://qgy18.com/request-compress 压缩 POST 数据
 export const ERR_HANDLE = (data, status, statusText) => {
-	const isOk = [200, 304].includes(status);
-	const error = isOk ? data && data.error : data;
-	const { code, abbr, view, desc,
-		message = view, stack = desc } = error || {};
-	const intro = code && abbr ? `[REST]${code} ${abbr}`
-		: `[HTTP]${status} ${statusText}`;
-	return error ? { intro, message, stack } : null;
+	// code abbr view desc error stack message exception
+	let { error, message, exception } = data || {};
+	const { code, abbr, view, desc } = error || {};
+	if (status === 200 && !error) { return; }
+	if (!exception) { exception = void 0; }
+	if (error === message) { error = void 0; }
+	if (message === statusText) { message = void 0; }
+	let intro = `[HTTP]${status} ${statusText}`;
+	if (code && abbr) {
+		intro = `[SELF]${code} ${abbr}`;
+		return { intro, message: view, stack: desc };
+	}
+	return { intro, message, stack: exception };
 };
-const DF = v => "data" in (v || {}) ? v.data : v; // dataFmt
-const PF = v => v; // promiseFmt 数据格式化
+const RF = v => v; // response数据格式化
+const PF = v => v; // promise数据格式化
 // jquery 常用请求封装 详细见file/my/heaven.js
 export const $get = // data 为请求参数
 	(url, data, type = "GET", dataType = "JSON") =>
@@ -64,22 +69,18 @@ export const $form = // data 为 FormData 对象
 export const jqCheck = (xhr, check) => {
 	// xhr 为 jquery 的 deferred 对象
 	isFunction(check) || (check = ERR_HANDLE);
-	return pending(res => xhr.always(() => {
-		const { responseText, status, statusText,
+	return new Promise(resolve => xhr.always(() => {
+		const { status, statusText, responseText,
 			responseJSON: data = responseText } = xhr;
 		const err = check(data, status, statusText);
 		// eslint-disable-next-line no-throw-literal
-		if (err) { throw { ...err, data, xhr }; }
-		res(DF(data));
+		if (err) { throw { ...err, data, res: xhr }; }
+		resolve(RF(data));
 	}));
 };
-export const jq = (config, check) => {
-	const { key, ...req } = config || {};
-	const result = PF(jqCheck($.ajax(req), check));
-	key && trigger(key, result);
-	return result;
-};
-// 创建 axios 请求实例
+export const jq = (config, check) =>
+	PF(jqCheck($.ajax(config), check));
+/* *************** 开始 axios service 实例 *************** */
 export const service = axios.create({
 	validateStatus: Boolean, baseURL: "/rest", timeout: 0,
 });
@@ -129,22 +130,20 @@ service.interceptors.response.use( // respone 拦截器
 		throw error;
 	}
 );
+/* *************** 结束 axios service 实例 *************** */
 export const axCheck = (xhr, check) => {
 	// xhr 为 axios 的 promise 对象
 	isFunction(check) || (check = ERR_HANDLE);
-	return xhr.then(response => {
-		const { data, status, statusText } = response || {};
+	return xhr.then(res => {
+		const { data, status, statusText } = res || {};
 		const err = check(data, status, statusText);
 		// eslint-disable-next-line no-throw-literal
-		if (err) { throw { ...err, response }; }
-		return DF(data);
+		if (err) { throw { ...err, data, res }; }
+		return RF(data);
 	});
 };
-export const ax = (config, check) => {
-	const { key, ...req } = config || {};
-	const result = PF(axCheck(service.request(req), check));
-	key && trigger(key, result); return result;
-};
+export const ax = (config, check) =>
+	PF(axCheck(service.request(config), check));
 export const downLink = (link, name) => {
 	const a = document.createElement("a"); a.href = link;
 	a.style.display = "none"; a.target = "_blank";

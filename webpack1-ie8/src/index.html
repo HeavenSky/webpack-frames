@@ -1,13 +1,13 @@
 <!doctype html>
 <html>
 <head>
-	<meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1" />
-	<meta http-equiv="cache-control" content="no-transform" />
-	<meta http-equiv="cache-control" content="no-siteapp" />
-	<meta http-equiv="cache-control" content="no-cache" />
+	<meta charset="utf-8" />
 	<meta http-equiv="imagetoolbar" content="no" />
 	<meta http-equiv="pragma" content="no-cache" />
-	<meta charset="utf-8" />
+	<meta http-equiv="cache-control" content="no-cache" />
+	<meta http-equiv="cache-control" content="no-siteapp" />
+	<meta http-equiv="cache-control" content="no-transform" />
+	<meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1" />
 	<meta name="renderer" content="webkit" />
 	<meta name="apple-touch-fullscreen" content="yes" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
@@ -20,11 +20,27 @@
 </head>
 <body>
 	<div id="app"></div>
-	<!--[if lt IE 9]>
-	<script type="text/javascript" src="<%= p %>js/ie.lib.js"></script>
-	<script type="text/javascript">window.onerror=function(){var data={};var args=arguments;function transfer(key,value){if(value==null||typeof value!=="object"){data[key]=value;}else{Object.getOwnPropertyNames(value).forEach(function(v){data[key+"-"+v]=value[v];});}}try{["message","source","rowNo","colNo","detail"].forEach(function(v,i){transfer(v,args[i]);});$.post("/api/error",data);console.error(data);}catch(error){}return true;};</script>
-	<![endif]-->
-	<script type="text/javascript">/*Fix Safari innerHeight is 0 in iframe*/document.body.clientHeight;</script>
+	<script type="text/javascript">
+		window.onerror = function () {
+			try {
+				var keys = ["message", "source", "line", "column", "error"];
+				for (var data = {}, i = 0; i < keys.length; i++) {
+					var key = keys[i]; var value = arguments[i];
+					data[key] = value || "* " + value;
+					if (value && typeof value === "object") {
+						var names = Object.getOwnPropertyNames(value);
+						for (var j = 0; j < names.length; j++) {
+							var name = names[j]; var text = value[name];
+							data[key + "-" + name] = text || "* " + text;
+						}
+					}
+				}
+				console.log(JSON.stringify(data));
+			} catch (error) { }
+		}; // environment: <%= process.env.NODE_ENV %>
+		document.body.clientHeight; // fix Safari innerHeight zero in iframe
+	</script>
+	<!--[if lt IE 9]><script type="text/javascript" src="<%= p %>js/ie.lib.js"></script><![endif]-->
 	<% for (const v of js||[]) { %><script type="text/javascript" src="<%= v %>"></script><% } %>
 </body>
 </html>

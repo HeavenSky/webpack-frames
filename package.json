@@ -20,12 +20,8 @@
 		]
 	},
 	"lint-staged": {
-		"*.vue": [
+		"*.{js,jsx,vue}": [
 			"prettier --write",
-			"eslint --cache --fix",
-			"git add -f"
-		],
-		"*.{js,jsx}": [
 			"eslint --cache --fix",
 			"git add -f"
 		],
@@ -47,13 +43,13 @@
 	"dependencies": {
 		"@commitlint/cli": "^8.1.0",
 		"@commitlint/config-conventional": "^8.1.0",
-		"eslint": "^6.1.0",
+		"eslint": "^6.2.2",
 		"eslint-config-ali": "^8.0.2",
-		"eslint-config-egg": "^7.4.1",
-		"eslint-config-react-app": "^5.0.0",
+		"eslint-config-egg": "^7.5.0",
+		"eslint-config-react-app": "^5.0.1",
 		"eslint-plugin-babel": "^5.3.0",
 		"eslint-plugin-flowtype": "^4.2.0",
-		"eslint-plugin-react-hooks": "^1.7.0",
+		"eslint-plugin-react-hooks": "^2.0.1",
 		"eslint-plugin-vue": "^5.2.3",
 		"mime-types": "^2.1.24",
 		"prettier": "^1.18.2",

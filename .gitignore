@@ -13,6 +13,7 @@ target
 *tmp
 *temp
 *cache
+!static
 node_modules*
 package-lock.json
 npm-shrinkwrap.json

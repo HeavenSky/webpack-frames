@@ -1,12 +1,5 @@
-export const shallow = lib => { // Number.isFinite无类型转换
-	const getKeys = Object.getOwnPropertyNames;
-	const spread = {}; const { prototype: ext } = lib || {};
-	getKeys(ext || {}).forEach(k => (spread[k] = ext[k]));
-	getKeys(lib || {}).forEach(k => (spread[k] = lib[k]));
-	return spread; // 浅拷贝对象和其原型上的属性方法
-}; // true+true=={toString:v=>2}=={valueOf:v=>2}
-const ob = shallow(Object); const { toString } = ob;
-export const getType = v => toString.call(v).slice(8, -1);
+export const getType = v => // 用window上toString在ie会报错
+	Object.prototype.toString.call(v).slice(8, -1);
 export const isMap = v => getType(v) === "Map";
 export const isSet = v => getType(v) === "Set";
 export const isDate = v => getType(v) === "Date";
@@ -23,107 +16,69 @@ export const isString = v => typeof v === "string";
 export const isSymbol = v => typeof v === "symbol";
 export const isGenerator = v => isFunction(v) &&
 	getType(v) === "GeneratorFunction";
+export const isAsync = v => isFunction(v) &&
+	getType(v) === "AsyncFunction";
 export const isNum = v => (isNumber(v) || isString(v)) &&
 	/^\s*(?:\+|-)?\s*\d+(?:.\d*)?\s*$/.test(v);
 export const isInt = v => (isNumber(v) || isString(v)) &&
 	/^\s*(?:\+|-)?\s*\d+\s*$/.test(v); // isFinite有类型转换
-export const keys = v => ob.keys(v || {});
-export const vals = v => ob.values(v || {});
-export const join = (x, ...v) => ob.assign(x || {}, ...v);
-export const lower = v => String(v).toLowerCase();
-export const upper = v => String(v).toUpperCase();
-export const reject = Promise.reject.bind(Promise);
-export const resolve = Promise.resolve.bind(Promise);
-export const pending = callback => new Promise(callback);
-export const race = (...v) => Promise.race([].concat(v));
-export const over = (...v) => Promise.all([].concat(...v));
-export const delay = ms => pending(r => setTimeout(r, ms));
-export const fdata = (fn, args) => resolve(isFunction(fn)
-	? fn(...(isArray(args) ? args : [args])) : fn);
-export const fmtde = (fn, args) => fdata(fn, args)
-	.then(d => [d, null]).catch(e => [null, e]);
-export const split = (v, slash) => String(v || "")
-	.split(slash || "/").filter(Boolean);
-export const dmt = (v, divide) => {
-	const hash = {}; const list = isArray(v) ? v
-		: String(v || "").split(divide || /\s+/);
-	isArray(list) && list.forEach(k => (hash[k] = 1));
-	return keys(hash); // 优选数组去重 [...new Set(list)]
-}; // 从window中取值不会触发console的eslint
-const console = window.console || { memory: {} };
-export const logger = (k, ...args) => console[k](...args);
+export const lower = v => String(v || "").toLowerCase();
+export const upper = v => String(v || "").toUpperCase();
+export const vals = v => Object.values(v || {});
+export const keys = v => Object.keys(v || {});
+export const join = (base, ...args) =>
+	Object.assign(base || {}, ...args);
+export const delayControl = ms => {
+	const dc = {}; // delay control 延时控制器
+	dc.promise = new Promise((resolve, reject) => {
+		dc.resolve = resolve; dc.reject = reject;
+	}); dc.timer = ms > -1 && setTimeout(dc.resolve, ms);
+	return dc;
+}; export const delay = ms => delayControl(ms).promise;
+export const fdata = (fn, ...args) => // 函数转换成promise
+	Promise.resolve(isFunction(fn) ? fn(...args) : fn);
+export const fmtde = (fn, ...args) => fdata(fn, ...args)
+	.then(data => [data, null]).catch(err => [null, err]);
+export const split = (v, divide) => // 分割字符串并且筛选非空
+	String(v || "").split(divide || "/").filter(Boolean);
+export const dmt = (v, divide) => { // [...new Set(list)]
+	const hash = {}; divide || (divide = /\s+/);
+	isArray(v) || (v = String(v || "").split(divide));
+	v.forEach(k => (hash[k] = 1)); return keys(hash);
+}; // eslint-disable-next-line no-global-assign
+const logs = console || (console = { memory: {} });
+export const logger = (k, ...args) => logs[k](...args);
 export const log = (...args) => logger("log", ...args);
 export const dir = (...args) => // console.dir 只打印一个参数
 	logger("dir", args.length > 1 ? args : args[0]);
-[ // browser console logger tools
+[ // browser console logger tools, ployfill for console
 	"debug", "error", "info", "log", "warn", "dir",
 	"dirxml", "table", "trace", "group", "groupCollapsed",
 	"groupEnd", "clear", "count", "assert", "markTimeline",
 	"profile", "profileEnd", "timeline", "timelineEnd",
 	"time", "timeEnd", "timeStamp", "context",
 ].forEach(k => {
-	if (!console[k]) { console[k] = () => void 0; }
+	if (!logs[k]) { logs[k] = () => void 0; }
 	log[k] = (m, ...args) => [logger(k, m), log(...args)];
 	dir[k] = (m, ...args) => [logger(k, m), dir(...args)];
-}); // ployfill console global object
-if (!window.console) { window.console = console; }
-// async lock method
-const ASYNC_LOCKS = {};
-export const dolock = key => {
-	if (key != null && String(key)) {
-		if (ASYNC_LOCKS[key]) { return true; }
-		ASYNC_LOCKS[key] = true;
-	}
-};
-export const unlock = key => {
-	if (key != null && String(key)) {
-		ASYNC_LOCKS[key] = false;
-	}
-};
-// async listener method
-const ASYNC_LISTENER = { promises: {}, resolves: {} };
-export const listener = key => {
-	if (!key) { return; }
-	const { promises, resolves } = ASYNC_LISTENER;
-	(promises[key] && resolves[key]) || (promises[key] =
-		pending(res => (resolves[key] = res)));
-	return promises[key];
-};
-export const trigger = (key, result) => {
-	if (!key) { return; }
-	const { promises, resolves } = ASYNC_LISTENER;
-	const ps = promises[key]; const rs = resolves[key];
-	delete resolves[key]; // 清除旧resolve函数,结束promise等待
-	ps && isFunction(rs) && rs(result);
-};
-// async cache method
-const ASYNC_CACHE = { async: {}, cache: {} };
-export const getCache = (key, fn) => {
-	const { async, cache } = ASYNC_CACHE;
-	if (key in cache) { return resolve(cache[key]); }
-	async[key] || (async[key] =
-		resolve(isFunction(fn) ? fn() : fn));
-	async[key].then(v => (cache[key] = v))
-		.then(() => delete async[key])
-		.catch(() => delete async[key]);
-	return async[key];
-};
-export const delCache = key => {
-	const { async, cache } = ASYNC_CACHE;
-	if (key) {
-		delete async[key]; delete cache[key];
-	} else {
-		ASYNC_CACHE.async = {}; ASYNC_CACHE.cache = {};
-	}
-};
-// string verify tools by RegExp
+}); const DICT_WAIT = {};
+export const listen = key => (DICT_WAIT[key] ||
+	(DICT_WAIT[key] = delayControl())).promise;
+export const trigger = (key, data) => DICT_WAIT[key] &&
+	[DICT_WAIT[key].resolve(data), (DICT_WAIT[key] = 0)];
+const DICT_LOCK = {}; export const dolock = key =>
+	DICT_LOCK[key] ? true : !(DICT_LOCK[key] = true);
+export const unlock = key => (DICT_LOCK[key] = false);
+const DICT_CACHE = {}; export const getCache = (key, fn) =>
+	DICT_CACHE[key] || (DICT_CACHE[key] = fdata(fn));
+export const delCache = key => delete DICT_CACHE[key];
 export const regCheck = (v, ok, no) => {
 	let good = false; // 至少执行过一次检查且检查正确
 	const err = (re, bo) => (isArray(re) ? re : [re]).find(
 		x => isRegExp(x) && !(good = x.test(v) === bo));
 	return !err(ok, true) && !err(no, false) && good;
-};
-/* 邮箱格式name@domain name规则:最多64个字符
+}; // string verify tools by RegExp
+/** 邮箱格式name@domain name规则:最多64个字符
  * domain规则:必须为顶级域名,域名后缀2-6个字符
  * http://faqs.org/rfcs/rfc1035.html 域名限制
  * labels:63 octets or less;names:255 octets or less */
@@ -154,10 +109,7 @@ const pEXP = "^([+0]?[1-9]\\d{1,2}-?)?(1([3589]\\d|" +
 	"[2-9]\\d{6,7}(-\\d{3,})?)$";
 export const phoneCheck = v => new RegExp(pEXP).test(v);
 export const calcText = text => {
-	const type = typeof text;
-	if (type === "number" || type === "boolean") {
-		text = String(text);
-	} else if (type !== "string") { return 0; }
+	text = String(text || "");
 	// eslint-disable-next-line no-control-regex
 	const ascii = text.match(/[\x00-\xff]/g) || [];
 	// surrogate pair 代理字符对2个算1个; ascii字符 算半个字符
@@ -211,28 +163,7 @@ export const verIE = () => {
 	const mod = document.documentMode;
 	return isIE ? { ver, mod } : {};
 }; // 返回{ver:IE版本,mod:兼容版本}, 仅支持11以下版本或模式
-const browsers = [ // name version ok/list no/list
-	["ie", /\bmsie\W*([.\d]+)/i],
-	["ie", /\brv:([.\d]+)\W*like gecko\b/i],
-	["uc", /\bucweb\W*([.\d]+)/i],
-	["uc", /\bucbrowser\W*([.\d]+)/i],
-	["opera", /\bopr\W*([.\d]+)/i],
-	["opera", /\bopera\W*([.\d]+)/i],
-	["opera", /\bopera\b.*\bversion\W*([.\d]+)/i],
-	["firefox", /\bfirefox\W*([.\d]+)/i],
-	["safari", /\bversion\W*([.\d]+)\s.*\bsafari\b/i],
-	["chrome", /\bchrome\W*([.\d]+)/i],
-]; // 参考 https://github.com/skillnull/Get-Device-Info
-export const verClient = () => {
-	const { platform, userAgent } = window.navigator;
-	const [name, ver] = browsers.find(
-		([, v, ok, no]) => regCheck(userAgent, isArray(ok)
-			? ok.concat(v) : [ok, v], no)) || [];
-	if (name && isRegExp(ver)) {
-		const [, version = ""] = ver.exec(userAgent);
-		return { name, version, platform, userAgent };
-	} else { return { platform, userAgent }; }
-};
+// 判断浏览器 https://github.com/skillnull/Get-Device-Info
 export const parse = url => { // 地址解析成对象
 	const obj = { main: "", args: {}, hash: "" };
 	String(url || "").replace(/^([^?#]*)(\?[^#]*)?(#.*)?$/,

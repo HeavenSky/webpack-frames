@@ -1,6 +1,6 @@
 /* *** constants *** */
-const { NODE_ENV, MY_PKG, MY_SVC } = process.env;
-const PROD = NODE_ENV === "production"; const FOR_IE = 1;
+const { NODE_ENV, MY_PKG, MY_SVC, FOR_IE } = process.env;
+const PROD = NODE_ENV === "production";
 const { isArray } = Array; const min = PROD ? ".min" : "";
 const ts = new Date().toISOString().replace(/[-:.]/g, "_");
 /* *** directory *** */

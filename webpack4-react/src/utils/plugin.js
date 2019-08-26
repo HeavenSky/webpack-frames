@@ -1,21 +1,23 @@
 import { gcs, create, loadJs } from "./dom";
-import { keys, over, getCache } from "./fns";
+import { keys, getCache } from "./fns";
+
 // 单行文字自适应大小
 export const fitText = (target, text, rdx = 3) => {
-	const div = create("div", text, { parent: target, attrs: { style: "display:none;border:0;margin:0;padding:0;width:auto;min-width:unset;max-width:unset;overflow:visible;position:relative;visibility:hidden;white-space:nowrap;font:inherit;columns:inherit;transform:inherit;text-indent:inherit;word-spacing:inherit;letter-spacing:inherit;text-transform:inherit;" } });
+	const style = "display:none;border:0;margin:0;padding:0;width:auto;min-width:unset;max-width:unset;overflow:visible;position:relative;visibility:hidden;white-space:nowrap;font:inherit;columns:inherit;transform:inherit;text-indent:inherit;word-spacing:inherit;letter-spacing:inherit;text-transform:inherit;";
+	const opts = { parent: target, attrs: { style } };
+	const div = create("div", text, opts);
 	const limit = parseFloat(gcs(target).width) || 0;
 	const width = parseFloat(gcs(div).width) || 0;
 	const sfs = parseFloat(gcs(div).fontSize) || 0;
 	target.innerText = text;
-	if (limit && width && sfs) {
-		rdx = rdx > 0 && rdx < 9 ? rdx >> 0 : 0;
-		const tfs = (sfs * limit / width).toFixed(rdx);
-		target.style.fontSize = tfs + "px";
-	}
+	if (!(limit && width && sfs)) { return; }
+	rdx = rdx > 0 && rdx < 9 ? rdx >> 0 : 0;
+	const tfs = (sfs * limit / width).toFixed(rdx);
+	target.style.fontSize = tfs + "px";
 };
 // 用来手动加载excel导出依赖的js
 export const xlsxOk = () => getCache("xlsxOk",
-	() => over([ // npmh xlsx;npmh file-saver;
+	() => Promise.all([ // npmh xlsx;npmh file-saver;
 		"npm/xlsx/dist/xlsx.full.min.js",
 		"npm/file-saver/dist/FileSaver.min.js",
 	].map(v => loadJs("https://cdn.jsdelivr.net/" + v))));

@@ -3,11 +3,10 @@ import Loadable from "react-loadable";
 import btn from "!svg-url-loader?noquotes!./btn.svg";
 import pmHome from "promise-loader?global,home!./Home";
 import cbHome from "bundle-loader?lazy&name=home!./Home";
-import { pending } from "./fns";
 const fnHome = () => import(|* webpackChunkName: "home" *| "./Home");
 const LoadableHome = Loadable({
 	delay: 200, timeout: 3000,
-	loader: fnHome || pmHome || () => pending(cbHome),
+	loader: fnHome || pmHome || () => new Promise(cbHome),
 	render(loaded, props) { return <loaded.default {...props} />; },
 	loading({ pastDelay, timedOut, error, retry }) { return <Spin />; },
 });

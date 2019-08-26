@@ -9,6 +9,7 @@ import { RouteMenu } from "../../components/Menu";
 import { NAV_MENUS, NAV_MAPS } from "../../constants/columns";
 import "./App.less";
 
+const throwErr = () => { throw Error("测试点击报错"); };
 const NoAu = withRouter(props =>
 	<Upload name="imageFile" action="/upload" showUploadList>
 		<Alert message={props.location.pathname} />
@@ -37,7 +38,7 @@ const App = () => <HashRouter>
 				<NoAu />
 				<Async />
 			</Content>
-			<Footer className="c-footer" />
+			<Footer className="c-footer" onClick={throwErr} />
 		</Layout>
 	</Layout>
 </HashRouter>;

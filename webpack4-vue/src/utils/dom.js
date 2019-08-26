@@ -1,4 +1,4 @@
-import { keys, join, pending, dmt } from "./fns";
+import { keys, join, dmt } from "./fns";
 export const attachEvt = (ele, evt, listener, capture) => {
 	const target = ele || document;
 	const handler = e => {
@@ -63,20 +63,21 @@ export const create = (tag, html, opts) => {
 	join(el, props); parent && parent.appendChild(el);
 	return el;
 };
-export const load = (tag, attrs) => pending((res, rej) => {
-	const el = create(tag, null, { attrs });
-	const done = () => res({ target: el });
-	el.onload = done; el.onerror = rej;
-	el.onreadystatechange = () => "complete,loaded"
-		.indexOf(el.readyState) > -1 && done();
-	document.body.appendChild(el);
-	const { src, href, data, complete } = el;
-	const isImg = src && /^img$/i.test(tag);
-	const isCss = href && /^link$/i.test(tag);
-	const isData = data && /^object$/i.test(tag);
-	isImg && complete && done();
-	src || isCss || isData || done();
-});
+export const load = (tag, attrs) => new Promise(
+	(resolve, reject) => {
+		const el = create(tag, null, { attrs });
+		const done = () => resolve({ target: el });
+		el.onload = done; el.onerror = reject;
+		el.onreadystatechange = () => "complete,loaded"
+			.indexOf(el.readyState) > -1 && done();
+		document.body.appendChild(el);
+		const { src, href, data, complete } = el;
+		const isImg = src && /^img$/i.test(tag);
+		const isCss = href && /^link$/i.test(tag);
+		const isData = data && /^object$/i.test(tag);
+		isImg && complete && done();
+		src || isCss || isData || done();
+	});
 export const loadImg = src => load("img", { src });
 export const loadCss = href =>
 	load("link", { rel: "stylesheet", href });
@@ -138,8 +139,8 @@ export const delCls = (el, cls) => {
 	const result = list.filter(v => !del.includes(v));
 	el.className = dmt(result).join(" ");
 };
-export const ready = f => pending(res => attachEvt(
-	document, "DOMContentLoaded", res, false)).then(f);
+export const ready = fn => new Promise(resolve => attachEvt(
+	document, "DOMContentLoaded", resolve, false)).then(fn);
 export const clientInfo = () => {
 	const { documentElement: html, head, body } = document;
 	const { clientWidth: vw, clientHeight: vh } = html;

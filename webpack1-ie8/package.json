@@ -14,7 +14,8 @@
 		"debug": "node --inspect-brk=7777 app.js",
 		"report": "npm run app --report",
 		"dll": "echo No DllPlugin!!!",
-		"log": "standard-version"
+		"log": "standard-version",
+		"env": "cross-env"
 	},
 	"husky": {
 		"hooks": {
@@ -28,12 +29,8 @@
 		]
 	},
 	"lint-staged": {
-		"*.vue": [
+		"*.{js,jsx,vue}": [
 			"prettier --write",
-			"eslint --cache --fix",
-			"git add -f"
-		],
-		"*.{js,jsx}": [
 			"eslint --cache --fix",
 			"git add -f"
 		],
@@ -85,40 +82,37 @@
 		"css-loader": "^3.2.0",
 		"cssnano": "^4.1.10",
 		"es3ify-webpack-plugin": "^0.1.0",
-		"eslint": "^6.1.0",
+		"eslint": "^6.2.2",
 		"eslint-config-ali": "^8.0.2",
-		"eslint-config-egg": "^7.4.1",
-		"eslint-config-react-app": "^5.0.0",
+		"eslint-config-egg": "^7.5.0",
+		"eslint-config-react-app": "^5.0.1",
 		"eslint-plugin-babel": "^5.3.0",
 		"eslint-plugin-flowtype": "^4.2.0",
-		"eslint-plugin-react-hooks": "^1.7.0",
+		"eslint-plugin-react-hooks": "^2.0.1",
 		"eslint-plugin-vue": "^5.2.3",
 		"esm": "^3.2.25",
 		"export-from-ie8": "^1.0.5",
 		"friendly-errors-webpack-plugin": "^1.7.0",
 		"html-webpack-plugin": "^3.2.0",
-		"husky": "^3.0.3",
+		"husky": "^3.0.4",
 		"js-cookie": "^2.2.1",
-		"less": "^3.9.0",
-		"lint-staged": "^9.2.1",
+		"less": "^3.10.3",
+		"lint-staged": "^9.2.4",
 		"media-match": "^2.0.3",
 		"moment": "^2.24.0",
 		"multer": "^1.4.2",
 		"node-sass": "^4.12.0",
 		"nprogress": "^0.2.0",
-		"numeral": "^2.0.6",
 		"pace-less": "^1.0.2",
 		"postcss-loader": "^3.0.0",
 		"postcss-plugin-px2rem": "^0.8.1",
 		"prettier": "^1.18.2",
 		"promise-loader": "^1.0.0",
-		"pubsub-js": "^1.7.0",
 		"react-loadable": "^5.5.0",
 		"react-router-dom": "^5.0.1",
 		"redux": "^4.0.4",
-		"sass-loader": "^7.2.0",
+		"sass-loader": "^7.3.1",
 		"shelljs": "^0.8.3",
-		"signals": "^1.0.0",
 		"standard-version": "^7.0.0",
 		"url-loader": "^2.1.0",
 		"webpack-bundle-analyzer": "^3.4.1",

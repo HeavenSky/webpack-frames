@@ -65,9 +65,9 @@ if (!PROD && MY_SVC) {
 } // MY_PKG=a.js,b.css,c.less npm run app
 /* *** 开发用本地cdn,生产用外域cdn *** */
 LIB[`vue-all${min}.js`] = [
-	`vue/dist/vue.esm.browser${min}.js`,
-	`vuex/dist/vuex.esm.browser${min}.js`,
-	`vue-router/dist/vue-router.esm.browser${min}.js`,
+	`vue/dist/vue${min}.js`,
+	`vuex/dist/vuex${min}.js`,
+	`vue-router/dist/vue-router${min}.js`,
 ];
 /* *** modify final configuration *** */
 optSelf.modify = config => !join(config.externals, {

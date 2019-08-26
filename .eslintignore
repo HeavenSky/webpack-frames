@@ -16,4 +16,5 @@ target
 *temp
 *cache
 node_modules*
-package-*.json
+package-lock.json
+npm-shrinkwrap.json

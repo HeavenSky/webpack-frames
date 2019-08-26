@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import get from "lodash/get";
 import nprogress from "nprogress";
-import { isFunction, isObject, join, resolve } from "./fns";
+import { isFunction, isObject, join } from "./fns";
 
 Vue.use(Vuex); // 全局处理ELEMENT和IVIEW的默认展示
 Vue.prototype.$ELEMENT = { zIndex: 1111, size: "mini" };
@@ -10,11 +10,11 @@ Vue.prototype.$IVIEW = { transfer: true, size: "small" };
 export const wrap = (router, before, after) => {
 	router.beforeEach((to, from, next) => {
 		nprogress.start();
-		resolve(isFunction(before) && before(to, from))
-			.then(route => {
-				if (!route) { throw Error("INVALID"); }
-				nprogress.done(); next(route);
-			}).catch(() => next());
+		Promise.resolve(isFunction(before) &&
+			before(to, from)).then(route => {
+			if (!route) { throw Error("INVALID"); }
+			nprogress.done(); next(route);
+		}).catch(() => next());
 	});
 	router.afterEach((to, from) => {
 		nprogress.done();

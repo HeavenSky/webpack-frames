@@ -1,4 +1,4 @@
-import { listener, over } from "../../utils/fns";
+import { listen } from "../../utils/fns";
 import { ASYNC, UPDATE } from "../../utils/store";
 import { jq } from "../../utils/service";
 
@@ -99,9 +99,9 @@ export default {
 				prefix: `${name}/division`,
 				lock: `${name}/division`,
 			});
-			const result = await over([
-				listener(`${name}/patent_RES`),
-				listener(`${name}/division_RES`),
+			const result = await Promise.all([
+				listen(`${name}/patent_RES`),
+				listen(`${name}/division_RES`),
 			]);
 			const [patent, division] = result.map(({ payload, success }) => success ? payload : []);
 			dispatch({
