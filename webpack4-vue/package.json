@@ -8,10 +8,10 @@
 	"scripts": {
 		"bin": "webpack --cache --colors --profile --progress --hide-modules",
 		"svc": "webpack-dev-server --cache --colors --profile --progress",
-		"start": "NODE_ENV=development npm run svc",
+		"start": "cross-env NODE_ENV=development npm run svc",
+		"dev": "cross-env NODE_ENV=development npm run bin",
+		"app": "cross-env NODE_ENV=production npm run bin",
 		"debug": "node --inspect-brk=7777 app.js",
-		"dev": "NODE_ENV=development npm run bin",
-		"app": "NODE_ENV=production npm run bin",
 		"report": "npm run app --report",
 		"dll": "echo No DllPlugin!!!",
 		"log": "standard-version"
@@ -76,6 +76,7 @@
 		"babel-plugin-import": "^1.12.0",
 		"cookie-parser": "^1.4.4",
 		"copy-webpack-plugin": "^5.0.4",
+		"cross-env": "^5.2.0",
 		"css-loader": "^3.2.0",
 		"cssnano": "^4.1.10",
 		"element-ui": "^2.11.1",
