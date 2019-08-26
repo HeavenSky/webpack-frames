@@ -43,6 +43,7 @@
 		"endOfLine": "lf",
 		"htmlWhitespaceSensitivity": "ignore",
 		"jsxSingleQuote": false,
+		"printWidth": 80,
 		"singleQuote": false,
 		"tabWidth": 4,
 		"trailingComma": "es5",
