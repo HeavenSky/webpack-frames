@@ -1,5 +1,5 @@
 ### Badge
-* [check](https://eslint.cn) & [format](https://prettier.io)
+* [check](https://eslint.cn) && [format](https://prettier.io)
 ![](https://img.shields.io/npm/v/eslint.svg?label=eslint)
 ![](https://img.shields.io/npm/v/prettier.svg?label=prettier)
 * [webpack1-ie8](webpack1-ie8)
@@ -66,7 +66,7 @@
 	* `npm run env -- FOR_IE=1 npm run app`
 2. 拷贝 dist 文件夹内容至服务器即可
 
-### 新增其它功能(windows 环境请用 git-bash)
+### 新增其它功能
 1. `npm run report` 查看生产包 bundle 组成
 	* 需要支持 ie 时请用
 	* `npm run env -- FOR_IE=1 npm run report`

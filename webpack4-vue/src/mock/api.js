@@ -1,9 +1,9 @@
 export default {
 	"POST /api/error"(req, res) {
-		const { query, body } = req;
-		Object.keys(body).forEach(key =>
-			console.log(`${key}\t\t${body[key]}`));
-		res.json({ success: true, query, body });
+		const { query } = req; const { log } = console;
+		Object.keys(req.body).forEach(key =>
+			log(`${key}\t\t${req.body[key]}`));
+		res.json({ success: true, query });
 	},
 	"ALL /api/upload": () => ({
 		target: "http://74.120.174.62/upload.php",

@@ -25,9 +25,6 @@ const example = {
 };
 /* require在webpack和nodejs中差异很大,状态码`http-status`
 webpack中require.resolve返回的是模块id,cache里键也是模块id
-https://webpack.js.org/guides/dependency-management/
-https://webpack.docschina.org/configuration/dev-server/
-https://webpack.docschina.org/guides/dependency-management/
 https://github.com/chimurai/http-proxy-middleware#options */
 const multer = require("multer");
 const chokidar = require("chokidar");
@@ -57,12 +54,11 @@ const logger = (type, ...args) => {
 	const bg = type === "ERROR" ? bgRed : bgCyan;
 	log(bg(` ${type} `), new Date(), ...args);
 };
-const tryEXEC = (func, ...args) => {
-	try {
-		return isFn(func) ? func(...args) : func;
-	} catch (error) {
-		logger("ERROR", "tryEXEC", { func, args, error });
-	}
+const tryEXEC = (fn, ...args) => {
+	try { // eslint-disable-next-line no-new-func
+		return isSt(fn) ? Function(`return(${fn})`)()
+			: isFn(fn) ? fn(...args) : fn;
+	} catch (e) { logger("tryEXEC:", { fn, args, e }); }
 };
 const clearRequireCache = file => {
 	const data = require.cache[file] || {};

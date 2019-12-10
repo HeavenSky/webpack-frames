@@ -1,33 +1,31 @@
 require("./file"); // 执行文本拼接,文件(夹)清理
 const webpack = require("webpack");
 const merge = require("webpack-merge");
+const ModulePlugin = require("./hook");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { buildFolder, outputFolder, staticFolder,
 	compileFolder, templateFile, LIB, IPT, modify,
 	title, ico, css, js, page } = require("./opt.self");
-const { scssStyleLoader, lessStyleLoader, cssStyleLoader,
-	cssModuleLoader, styleLoader } = require("./loader");
+const { scssStyleLoader, lessStyleLoader, styleLoader, cfg,
+	cssModuleLoader, cssStyleLoader } = require("./loader");
 const { FOR_IE, PROD, isArray, WK, ts, dir, rel, ver, fmt,
-	dmt: { keys, join }, calc, poly } = require("./basic");
+	keys, join, calc, poly } = require("./basic");
 const mode = PROD ? "production" : "development";
 const copyList = [ // 文件和文件夹拷贝列表
 	{ context: dir(buildFolder), from: "*.js", to: "js" },
 	{ context: dir(buildFolder), from: "*.css", to: "css" },
 ].concat(PROD ? dir(staticFolder) : []);
 const plugins = [
+	new ModulePlugin(), new CopyWebpackPlugin(copyList),
 	new webpack.DefinePlugin({
 		"process.env.NODE_ENV": JSON.stringify(mode),
 	}),
-	new webpack.ContextReplacementPlugin(
-		/moment[/\\]locale/i, /zh-cn/i
-	), // 还有一个ignorePlugin
-	new CopyWebpackPlugin(copyList),
-]; // https://vue-loader.vuejs.org/zh/migrating.html
+];
 if (calc("vue-loader") >= 15) {
 	const VueLodPlugin = require("vue-loader/lib/plugin");
 	plugins.push(new VueLodPlugin());
-}
+} // https://vue-loader.vuejs.org/zh/migrating.html
 const out = `js/${ver("chunk")}.js`;
 const minimizer = []; const splitChunks = {};
 const optNow = require(PROD ? "./opt.prod" : "./opt.dev");
@@ -37,15 +35,12 @@ const optRun = {
 	output: { // publicPath必须以/结尾,防止路径拼接出错
 		path: dir(outputFolder), publicPath: void 0,
 		filename: out, chunkFilename: out, pathinfo: !PROD,
-		library: ["MyLib", "[name]"], libraryTarget: "umd",
+		// library: ["SKY", "[name]"], libraryTarget: "umd",
 	}, // 开发环境chunkhash更合适,但与热部署不兼容,妥协用hash
 	module: { // module-variables,module-methods,performance
 		rules: [{
-			test: /\.jsx?(\?.*)?$/i,
-			use: [{
-				loader: "babel-loader",
-				options: { cacheDirectory: true },
-			}],
+			test: /\.(js|jsx|mjs)(\?.*)?$/i,
+			use: [{ loader: "babel-loader", options: cfg }],
 			include: dir("src"),
 			exclude: dir(staticFolder),
 		}, {
@@ -75,22 +70,19 @@ const optRun = {
 				},
 			}],
 		}],
-	}, // https://webpack.docschina.org/api/module-methods
+	},
 	resolve: {
-		alias: {
-			"@": dir("src"), vue$: "vue/dist/vue.esm",
-			"@ant-design/icons/lib/dist$": "@/alias/icons",
-		},
-		extensions: [".js", ".jsx", ".vue", ".json"],
-	}, // https://webpack.docschina.org/api/module-variables
+		alias: { "@": dir("src") },
+		extensions: ".js|.jsx|.mjs|.vue|.json".split("|"),
+	}, // https://vuejs.org/v2/guide/installation.html
 	externals: { jquery: "$", wangeditor: "wangEditor" },
-}; // https://webpack.docschina.org/guides/build-performance
+};
 const rhl = "react-hot-loader"; // ie浏览器兼容处理
 const rhlPath = `${rhl}/dist/${rhl}.production.min`;
 if (FOR_IE) { optRun.resolve.alias[`${rhl}$`] = rhlPath; }
 if (WK < 2) {
 	optRun.module.postLoaders = [{
-		test: /\.jsx?(\?.*)?$/i,
+		test: /\.(js|jsx|mjs)(\?.*)?$/i,
 		loader: "export-from-ie8/loader",
 		query: { cacheDirectory: true },
 	}];
@@ -101,7 +93,7 @@ if (WK < 2) {
 	delete optRun.module.rules;
 	const Es3ifyPlugin = require("es3ify-webpack-plugin");
 	plugins.push(new Es3ifyPlugin({
-		test: /\.jsx?(\?.*)?$/i, sourceMap: false,
+		test: /\.(js|jsx|mjs)(\?.*)?$/i, sourceMap: false,
 	}));
 	optRun.resolve.extensions.unshift("");
 }
@@ -111,29 +103,23 @@ const O = {
 	compress: { drop_console: true }, mangle: true,
 	output: { beautify: false }, keep_fnames: false,
 };
-if (WK < 4) {
-	delete optRun.mode; delete optRun.optimization;
+if (WK < 4) { // context当前目录 resource目标文件 chunks模块
+	plugins.push(new webpack.optimize.CommonsChunkPlugin({
+		name: "vendor", children: true, deepChildren: true,
+		minChunks: mod => /node_modules/.test(mod.resource),
+	}), new webpack.optimize.CommonsChunkPlugin({
+		name: "runtime", minChunks: Infinity,
+	})); // 抽取webpack每次运行编译时的代码变化,文件会很小
 	PROD && plugins.push(new (require("uglifyjs" +
 		"-webpack-plugin"))({ ...X, uglifyOptions: O }));
-	plugins.push(new webpack.optimize.CommonsChunkPlugin({
-		name: "vendor", minSize: 0, // chunks:[name]
-		minChunks: ({ context, resource }, count) =>
-			context && resource && count > 1 &&
-			!context.startsWith(dir(compileFolder)),
-	})); // context引用起点 resource引用目标 count引用次数
-	plugins.push(new webpack.optimize.CommonsChunkPlugin({
-		name: "runtime", minChunks: Infinity,
-	})); // 抽取webpack每次运行编译时的变化,文件会比较小
+	delete optRun.mode; delete optRun.optimization;
 } else {
 	PROD && minimizer.push(new (require("terser" +
 		"-webpack-plugin"))({ ...X, terserOptions: O }));
-	const vendor = {
+	const vendor = { // mod._chunks 模块Set对象
 		name: "vendor", chunks: "all", enforce: true,
-		minChunks: 2, minSize: 0, // chunks:[{name}]
-		test: ({ type, context, resource }, _chunks) =>
-			context && (type || resource) &&
-			!context.startsWith(dir(compileFolder)),
-	}; // type模块类型 context引用起点 resource引用目标
+		test: mod => /node_modules/.test(mod.resource),
+	}; // context当前目录 resource目标文件 type类型
 	splitChunks.cacheGroups = { vendor };
 	optRun.optimization.runtimeChunk = { name: "runtime" };
 	const { loader } = require("mini-css-extract-plugin");

@@ -3,9 +3,8 @@ import { keys, getCache } from "./fns";
 
 // 单行文字自适应大小
 export const fitText = (target, text, rdx = 3) => {
-	const style = "display:none;border:0;margin:0;padding:0;width:auto;min-width:unset;max-width:unset;overflow:visible;position:relative;visibility:hidden;white-space:nowrap;font:inherit;columns:inherit;transform:inherit;text-indent:inherit;word-spacing:inherit;letter-spacing:inherit;text-transform:inherit;";
-	const opts = { parent: target, attrs: { style } };
-	const div = create("div", text, opts);
+	const opt = { tag: "div", attrs: { style: "display:none;border:0;margin:0;padding:0;width:auto;min-width:unset;max-width:unset;overflow:visible;position:relative;visibility:hidden;white-space:nowrap;font:inherit;columns:inherit;transform:inherit;text-indent:inherit;word-spacing:inherit;letter-spacing:inherit;text-transform:inherit;" }, props: { innerText: text } };
+	const div = create(opt); target.append(div);
 	const limit = parseFloat(gcs(target).width) || 0;
 	const width = parseFloat(gcs(div).width) || 0;
 	const sfs = parseFloat(gcs(div).fontSize) || 0;

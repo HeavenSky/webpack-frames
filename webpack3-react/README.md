@@ -7,11 +7,12 @@
 ### 请仔细阅读上级目录的[README.md](../README.md)
 部分重复的文档说明已经提取到上级目录的`README.md`,若有疑问请先参考
 
-### webpack4-react
+### webpack3-react
+* 本目录文件夹和`webpack4-react`一致,故若需要自行复制一份
 * 采用 `react` 和 `antd` 兼容到浏览器 `IE9` 的 `demo` 例子
 * 所有 `dependency` 和 `dev dependency` 均采用最新版本, 具体请见 `package.json`
 
-### 技术栈介绍
+### 历史技术栈介绍[已大改]
 * 初期搭建的时候, 完全参考 https://github.com/brickspert `砖家`的 https://github.com/brickspert/react-family `react-family`项目配置
 * 后期配置上改动也很大, 引入了 `antd` `cross-env` `less` `autoprefixer`, 以及配置上的加入多个单页应用的处理
 * 关于 `redux` 的是否使用, 个人感觉, 一上来就用 `redux`, 组件耦合高, 逻辑结构复杂, 不利于提取组件和组件迁移复用等; 使用 `redux` 真的是属于吃力不讨好的事情; `如果你不清楚要不要用 redux, 那么就不用`; `redux` 写的项目代码耦合太高, 改动和变更起来十分费劲

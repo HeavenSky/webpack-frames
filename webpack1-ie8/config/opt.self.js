@@ -25,8 +25,8 @@ const css = [
 	!"fa/fa-5.x.min.css",
 	"antd/antd-1.11.6.css",
 	"editor/wangeditor.min.css",
-	!`${bootcdn}antd/1.11.6/antd.min.css`,
-	`${bootcdn}normalize/7.0.0/normalize.min.css`,
+	!`${pkgcdn}antd@1.11.6/dist/antd.min.css`,
+	`${pkgcdn}normalize.css@7/normalize.min.css`,
 	// highlight.js
 	!`${pkgcdn}highlight.js/lib/highlight.min.js`,
 	!`${pkgcdn}highlight.js/styles/atom-one-dark.min.css`,
@@ -62,7 +62,7 @@ if (!PROD && MY_SVC) {
 } else if (PROD && MY_PKG) {
 	optSelf.IPT = { ...MY_PKG.split(",") };
 	delete optSelf.page; // 单独编译一些文件
-} // MY_PKG=a.js,b.css,c.less npm run app
+} // MY_PKG=ms,./a.js,./b.css npm run app
 /* *** modify final configuration *** */
 optSelf.modify = config => !config;
 /* *** 对于ie8,直接用babel-polyfill的cdn报错,需转码 *** */

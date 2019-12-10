@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8" />
@@ -21,24 +21,53 @@
 <body>
 	<div id="app"></div>
 	<script type="text/javascript">
-		window.onerror = function () {
-			try {
-				var keys = ["message", "source", "line", "column", "error"];
-				for (var data = {}, i = 0; i < keys.length; i++) {
-					var key = keys[i]; var value = arguments[i];
-					data[key] = value || "* " + value;
-					if (value && typeof value === "object") {
-						var names = Object.getOwnPropertyNames(value);
-						for (var j = 0; j < names.length; j++) {
-							var name = names[j]; var text = value[name];
-							data[key + "-" + name] = text || "* " + text;
-						}
-					}
-				}
-				console.log(JSON.stringify(data));
-			} catch (error) { }
-		}; // environment: <%= process.env.NODE_ENV %>
-		document.body.clientHeight; // fix Safari innerHeight zero in iframe
+		!function () {
+			"use strict";
+			function isFn(f) { return typeof f === "function"; }
+			function isOb(v) { return v && typeof v === "object"; }
+			function check(x) {
+				try { isOb(x) && JSON.stringify(x); }
+				catch (e) { return "[error]" + e; }
+			}
+			function spread(ob, loop) {
+				if (!isOb(ob)) { return ob; }
+				var kk = Object.getOwnPropertyNames(ob); var vv = {};
+				for (var i = 0; i < kk.length; i++) {
+					var vvi = ob[kk[i]]; vv[kk[i]] = loop > 0
+						? spread(vvi, loop - 1) : check(vvi) || vvi;
+				} return vv;
+			}
+			function logger() {
+				var args = arguments; var logs = console.LOGS || "";
+				logs += new Date().toLocaleString();
+				logs += "\n******LOGS START******\n";
+				for (var i = 0; i < args.length; logs += "\n") {
+					logs += JSON.stringify(spread(args[i++], 2), 0, 2);
+				} logs += "\n******LOGS END******\n";
+				console.LOGS = logs.slice(-1e5); // 十万字符内日志
+			}
+			var ks = [
+				"trace", "time", "timeEnd", "timeLog", "timeStamp",
+				"clear", "timeline", "timelineEnd", "markTimeline",
+				"group", "groupCollapsed", "groupEnd", "exception",
+				"profile", "profileEnd", "profiles", "show", "log",
+				"dir", "dirxml", "assert", "info", "warn", "error",
+				"count", "countReset", "context", "table", "debug"
+			]; isOb(console) || (console = { memory: {} });
+			for (var j = 0; j < ks.length; j++) {
+				isFn(console[ks[j]]) || (console[ks[j]] = logger);
+			} var fn = window.onerror; // env: <%= process.env.NODE_ENV %>
+			var ps = ["message", "source", "line", "column", "error"];
+			window.onerror = function () {
+				try {
+					var err = {}; var args = arguments;
+					isFn(fn) && fn.apply(window, args);
+					for (var i = 0; i < ps.length; i++) {
+						err[ps[i]] = spread(args[i]);
+					} console.log("GlobalError:", err);
+				} catch (error) { }
+			}; document.body.clientHeight; // fix Safari innerHeight zero in iframe
+		}();
 	</script>
 	<!--[if lt IE 9]><script type="text/javascript" src="<%= p %>js/ie.lib.js"></script><![endif]-->
 	<% for (const v of js||[]) { %><script type="text/javascript" src="<%= v %>"></script><% } %>

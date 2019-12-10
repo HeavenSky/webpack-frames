@@ -37,52 +37,39 @@ export const prevent = e => {
 	e.preventDefault && e.preventDefault();
 	e.returnValue = false;
 };
-/*
+/* >> elementFromPoint elementsFromPoint <<
 mousedown  -->  touchstart
 mousemove  -->  touchmove
 mouseup    -->  touchend
 <-- click dblclick -->
 mouseover  -->  touchstart
 mouseout   -->  touchend
-<-- touchcancel -->
-querySelector querySelectorAll
-elementFromPoint elementsFromPoint
-*/
-export const query = k => (s, e = document) => e[k](s);
-export const q = query("querySelector");
-export const qId = query("getElementById");
-export const qs = query("querySelectorAll");
-export const qsTag = query("getElementsByTagName");
-export const qsClass = query("getElementsByClassName");
-export const create = (tag, html, opts) => {
+<-- touchcancel --> */
+export const create = ({ tag, props, attrs }) => {
 	/^[a-z]+[1-6]?$/i.test(tag) || (tag = "span");
-	const el = document.createElement(tag);
-	el.innerHTML = html || "";
-	const { attrs, props, parent } = opts || {};
+	const el = join(document.createElement(tag), props);
 	keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
-	join(el, props); parent && parent.appendChild(el);
-	return el;
-};
-export const load = (tag, attrs) => new Promise(
-	(resolve, reject) => {
-		const el = create(tag, null, { attrs });
-		const done = () => resolve({ target: el });
-		el.onload = done; el.onerror = reject;
-		el.onreadystatechange = () => "complete,loaded"
-			.indexOf(el.readyState) > -1 && done();
-		document.body.appendChild(el);
-		const { src, href, data, complete } = el;
-		const isImg = src && /^img$/i.test(tag);
-		const isCss = href && /^link$/i.test(tag);
-		const isData = data && /^object$/i.test(tag);
-		isImg && complete && done();
-		src || isCss || isData || done();
+	return el; // querySelector querySelectorAll
+}; // getElementById getElementsBy(Tag|Class)Name
+export const loadImg = src =>
+	new Promise((resolve, reject) => {
+		const img = join(new Image(), { src });
+		img.onload = resolve; img.onerror = reject;
+		img.complete && resolve();
 	});
-export const loadImg = src => load("img", { src });
-export const loadCss = href =>
-	load("link", { rel: "stylesheet", href });
+export const load = (tag, attrs) =>
+	new Promise((resolve, reject) => {
+		const el = create({ tag, attrs });
+		el.onload = resolve; el.onerror = reject;
+		el.onreadystatechange = () => "complete,loaded"
+			.indexOf(el.readyState) > -1 && resolve();
+		document.head.appendChild(el);
+	});
+export const loadData = data => load("object", { data });
 export const loadJs = src =>
 	load("script", { type: "text/javascript", src });
+export const loadCss = href =>
+	load("link", { rel: "stylesheet", href });
 export const gcs = el => {
 	const { getComputedStyle: calc } = window;
 	return calc ? calc(el) : el.currentStyle;
@@ -104,12 +91,13 @@ export const hd = (baseFontSize, sketchWidth) => {
 	let rate = 1;
 	if (isNew || isUCHD) {
 		html.style.fontSize = baseFontSize + "px";
-		const div = create("div", null, { parent: body });
-		div.style.width = "1rem";
+		const div = create({ tag: "div" });
+		div.style.width = "1rem"; body.appendChild(div);
 		rate = baseFontSize / parseFloat(gcs(div).width);
 		div.remove();
-	} // 清除当前meta配置
-	[...qs("meta[name=viewport]")].forEach(d => d.remove());
+	}
+	[...document.querySelectorAll("meta[name=viewport]")]
+		.forEach(d => d.remove()); // 清除当前的meta配置
 	let content = "width=device-width,";
 	if (isNew && !uchd) { // UC内核不能设置target-densitydpi
 		content += "target-densitydpi=device-dpi,";
@@ -118,13 +106,13 @@ export const hd = (baseFontSize, sketchWidth) => {
 	content += `initial${hd}maximum${hd}minimum${hd}`;
 	content += "user-scalable=no,viewport-fit=cover";
 	const attrs = { name: "viewport", content };
-	create("meta", null, { attrs, parent: head });
+	head.appendChild(create({ tag: "meta", attrs }));
 	const resize = window.requestAnimationFrame(() => {
 		const zoom = rate * (sketchWidth > 0
 			? html.clientWidth / sketchWidth : 1);
 		html.style.fontSize = (baseFontSize * zoom) + "px";
 	}); // 移动端组件大多不支持rem,需要自己写组件
-	return [resize(), attachEvt(window, "resize", resize)];
+	resize(); attachEvt(window, "resize", resize);
 };
 export const hasCls = (el, cls) => {
 	const list = dmt(el.className); const has = dmt(cls);

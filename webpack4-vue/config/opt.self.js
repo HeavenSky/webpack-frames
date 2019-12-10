@@ -1,4 +1,4 @@
-const { MY_PKG, MY_SVC, FOR_IE, PROD, min, dmt: { join },
+const { MY_PKG, MY_SVC, FOR_IE, PROD, min, join,
 	bootcdn, pkgcdn } = require("./basic");
 /* *** file and folder *** */
 const buildFolder = "build";
@@ -24,7 +24,7 @@ const ico = "favicon.ico";
 const css = [
 	!"fa/fa-5.x.min.css",
 	"editor/wangeditor.min.css",
-	`${bootcdn}normalize/8.0.1/normalize.min.css`,
+	`${pkgcdn}normalize.css/normalize.min.css`,
 	// highlight.js
 	!`${pkgcdn}highlight.js/lib/highlight.min.js`,
 	!`${pkgcdn}highlight.js/styles/atom-one-dark.min.css`,
@@ -62,7 +62,7 @@ if (!PROD && MY_SVC) {
 } else if (PROD && MY_PKG) {
 	optSelf.IPT = { ...MY_PKG.split(",") };
 	delete optSelf.page; // 单独编译一些文件
-} // MY_PKG=a.js,b.css,c.less npm run app
+} // MY_PKG=ms,./a.js,./b.css npm run app
 /* *** 开发用本地cdn,生产用外域cdn *** */
 LIB[`vue-all${min}.js`] = [
 	`vue/dist/vue${min}.js`,

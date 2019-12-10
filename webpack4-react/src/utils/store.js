@@ -3,10 +3,11 @@ import { Provider } from "react-redux";
 import { render as draw } from "react-dom";
 import { applyMiddleware, createStore } from "redux";
 import {
-	isArray, isObject, isFunction, join, vals,
-	log, fdata, split, dolock, unlock, trigger,
+	isArray, isObject, isFunction, initLock, undoLock,
+	join, vals, log, fdata, trigger,
 } from "./fns";
 
+const fmt = v => `${v || ""}`.split("/").filter(Boolean);
 const STATE_MAP = {}; const MODEL_MAP = {};
 const AFTER_INIT = []; const BEFORE_INIT = [];
 // async/sync action type
@@ -23,8 +24,8 @@ export const print = store => next => action => {
 };
 export const update = (state, action) => {
 	const { type, payload, path } = action || {};
-	const types = split(type);
-	const [func] = types.splice(-1, 1, ...split(path));
+	const types = fmt(type);
+	const [func] = types.splice(-1, 1, ...fmt(path));
 	if (func !== UPDATE || !types.length) { return state; }
 	const data = isObject(payload) ? payload
 		: { [types.splice(-1, 1)]: payload };
@@ -39,23 +40,21 @@ export const update = (state, action) => {
 // 模仿dva且自动加载model的封装实现
 const reducer = (st, ac) => update(st || STATE_MAP, ac);
 const middleware = store => next => action => {
-	const { type, fn, args, prefix, lock } = action || {};
-	if (type === ASYNC) {
-		const error = []; // 中间件处理异步
+	const { type, fn, prefix, lock } = action || {};
+	if (type === ASYNC) { // 中间件处理异步
+		const error = ["Invalid ASYNC action:"];
 		fn || error.push("ASYNC missing `fn`!");
 		prefix || error.push("ASYNC missing `prefix`!");
-		const err = error.join(" ");
-		err && log.error(err, action);
-		if (err || dolock(lock)) { return next(action); }
+		error.length > 1 && log.error(error, action);
+		const exit = error.length > 1 || initLock(lock);
+		if (exit) { return next(action); }
 		store.dispatch({ type: `${prefix}_REQ`, action });
-		const end = success => payload =>
-			unlock(lock) || store.dispatch({
-				type: `${prefix}_RES`,
-				success, payload, action,
-			});
-		return fdata(fn, args).then(end(true), end(false));
+		const end = success => payload => store.dispatch({
+			type: `${prefix}_RES`, success, payload, action,
+		}) === undoLock(lock);
+		return fdata(fn).then(end(!0), end(!1));
 	} // 针对二级结构type执行对应model的effect
-	const [name, method, more] = split(type);
+	const [name, method, more] = fmt(type);
 	if (more || !method) { return next(action); }
 	trigger(name + "/" + method, action);
 	const { effects } = MODEL_MAP[name] || {};

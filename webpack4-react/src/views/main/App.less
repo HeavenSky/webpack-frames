@@ -1,7 +1,8 @@
 @header: #76bad5;
 .ant-table table {
 	border-collapse: collapse;
-	th, td {
+	th,
+	td {
 		overflow: hidden;
 		padding: 8px;
 		min-width: 130px;
@@ -20,6 +21,9 @@
 		font-weight: bold;
 	}
 }
+.row .title .row-drag {
+	background-image: url(drag.svg) !important;
+}
 .c-whole {
 	::-webkit-scrollbar {
 		display: none;
@@ -27,35 +31,42 @@
 	.c-sider {
 		float: left;
 	}
-	.logo {
-		margin: 16px;
-		height: 32px;
-	}
 	.c-content {
 		padding: 20px;
 		height: calc(100vh - 112px);
-		form {
-			display: flex;
-
-		}
-		.ant-input {
+		.todo {
+			padding-top: 20px;
 			width: 50%;
 		}
-		.ant-btn, .ant-input, .ant-select {
+		form {
+			display: flex;
+		}
+		.ant-btn,
+		.ant-input,
+		.ant-select {
 			margin-right: 10px;
 		}
-		.ant-alert, .ant-select {
+		.ant-alert,
+		.ant-select {
 			margin-top: 10px;
 			width: 160px;
 		}
 	}
-	.c-sider, .c-content {
+	.c-sider,
+	.c-content {
 		overflow: auto;
 	}
-	.c-sider, .c-layout {
+	.c-sider,
+	.c-layout {
 		height: 100vh;
 	}
-	.c-header, .c-footer, .logo {
+	.c-header,
+	.c-footer,
+	.logo {
 		background-color: @header;
+	}
+	.logo {
+		margin: 16px;
+		height: 32px;
 	}
 }

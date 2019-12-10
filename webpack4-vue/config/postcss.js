@@ -13,7 +13,5 @@ delete plugins["postcss-plugin-px2rem"];
 delete plugins["postcss-preset-env"];
 PROD || (delete plugins.cssnano);
 module.exports = {
-	plugins,
-	minimize: PROD,
-	sourceMap: !PROD,
+	plugins, minimize: PROD, sourceMap: !PROD,
 };

@@ -8,5 +8,6 @@
 部分重复的文档说明已经提取到上级目录的`README.md`,若有疑问请先参考
 
 ### webpack3-vue
+* 本目录文件夹和`webpack4-vue`一致,故若需要自行复制一份
 * 采用 `vue` 和 `element-ui` 兼容到浏览器 `IE9` 的 `demo` 例子
 * 所有 `dependency` 和 `dev dependency` 均采用最新版本, 具体请见 `package.json`

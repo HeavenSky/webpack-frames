@@ -37,21 +37,21 @@ const optDev = {
 if (WK < 2) {
 	optDev.plugins.push(new webpack.NamedModulesPlugin());
 	optDev.module.loaders = [{
-		test: /_\.css(\?.*)?$/i,
+		test: /\.css\?module$/i,
 		loaders: [
 			styleLoader,
 			cssModuleLoader,
 			"postcss-loader",
 		],
 	}, {
-		test: /[^_]\.css(\?.*)?$/i,
+		test: /\.css$/i,
 		loaders: [
 			styleLoader,
 			cssStyleLoader,
 			"postcss-loader",
 		],
 	}, {
-		test: /_\.less(\?.*)?$/i,
+		test: /\.less\?module$/i,
 		loaders: [
 			styleLoader,
 			cssModuleLoader,
@@ -59,7 +59,7 @@ if (WK < 2) {
 			lessStyleLoader,
 		],
 	}, {
-		test: /[^_]\.less(\?.*)?$/i,
+		test: /\.less$/i,
 		loaders: [
 			styleLoader,
 			cssStyleLoader,
@@ -67,7 +67,7 @@ if (WK < 2) {
 			lessStyleLoader,
 		],
 	}, {
-		test: /_\.scss(\?.*)?$/i,
+		test: /\.scss\?module$/i,
 		loaders: [
 			styleLoader,
 			cssModuleLoader,
@@ -75,7 +75,7 @@ if (WK < 2) {
 			scssStyleLoader,
 		],
 	}, {
-		test: /[^_]\.scss(\?.*)?$/i,
+		test: /\.scss$/i,
 		loaders: [
 			styleLoader,
 			cssStyleLoader,

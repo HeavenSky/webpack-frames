@@ -7,43 +7,43 @@ const optProd = { devtool: false, module: {}, plugins };
 if (WK < 2) { // devtool: "source-map",
 	const ExtraTWP = require("extract-text-webpack-plugin");
 	const loader = new ExtraTWP(mod, { allChunks: true });
+	// webpack1 比较特殊, 不需要 style-loader, 加了反而报错, less scss 在生产环境的编译配置很特殊
+	// https://github.com/webpack-contrib/extract-text-webpack-plugin/blob/webpack-1/README.md
 	optProd.module.loaders = [{
-		test: /_\.css(\?.*)?$/i,
+		test: /\.css\?module$/i,
 		loader: loader.extract(
 			cssModuleLoader,
 			"postcss-loader"
 		),
 	}, {
-		test: /[^_]\.css(\?.*)?$/i,
+		test: /\.css$/i,
 		loader: loader.extract(
 			cssStyleLoader,
 			"postcss-loader"
 		),
 	}, {
-		// webpack1 比较特殊, 不需要 style-loader, 加了反而报错, less scss 在生产环境的编译配置很特殊
-		// https://github.com/webpack-contrib/extract-text-webpack-plugin/blob/webpack-1/README.md
-		test: /_\.less(\?.*)?$/i,
+		test: /\.less\?module$/i,
 		loader: loader.extract([
 			cssModuleLoader,
 			"postcss-loader",
 			lessStyleLoader,
 		]),
 	}, {
-		test: /[^_]\.less(\?.*)?$/i,
+		test: /\.less$/i,
 		loader: loader.extract([
 			cssStyleLoader,
 			"postcss-loader",
 			lessStyleLoader,
 		]),
 	}, {
-		test: /_\.scss(\?.*)?$/i,
+		test: /\.scss\?module$/i,
 		loader: loader.extract([
 			cssModuleLoader,
 			"postcss-loader",
 			scssStyleLoader,
 		]),
 	}, {
-		test: /[^_]\.scss(\?.*)?$/i,
+		test: /\.scss$/i,
 		loader: loader.extract([
 			cssStyleLoader,
 			"postcss-loader",

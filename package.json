@@ -1,12 +1,34 @@
 {
 	"name": "eslint-es6",
 	"version": "0.0.1",
-	"license": "MIT",
-	"main": "index.js",
+	"keywords": [],
+	"private": true,
+	"license": "MIT|ISC",
 	"author": "HeavenSky",
-	"description": "eslint check es6 react vue",
+	"description": "study improve",
+	"repository": "github:HeavenSky/repo",
+	"homepage": "https://github.com/HeavenSky",
+	"bugs": {
+		"url": "https://github.com/HeavenSky",
+		"email": "li.heaven@qq.com"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.com"
+	},
+	"engines": {
+		"node": ">11",
+		"npm": ">6"
+	},
+	"bin": {
+		"bin-cli": "bin/cli.js"
+	},
+	"module": "esm/index.js",
+	"main": "src/index.js",
+	"man": "man/doc.man",
+	"browser": "chrome",
 	"scripts": {
-		"start": "eslint ./ --cache --fix --ext .js,.jsx,.vue"
+		"start": "eslint ./ --cache --fix --ext .js,.jsx,.mjs,.vue",
+		"release": "standard-version"
 	},
 	"husky": {
 		"hooks": {
@@ -20,12 +42,12 @@
 		]
 	},
 	"lint-staged": {
-		"*.{js,jsx,vue}": [
+		"*.{ts,tsx,js,jsx,mjs,vue}": [
 			"prettier --write",
 			"eslint --cache --fix",
 			"git add -f"
 		],
-		"*.{ts,md,gql,css,less,scss,html,json,flow,yaml,graphql}": [
+		"*.{md,mdx,gql,graphql,css,less,scss,html,json,flow,yaml}": [
 			"prettier --write",
 			"git add -f"
 		]
@@ -40,20 +62,27 @@
 		"trailingComma": "es5",
 		"useTabs": true
 	},
-	"devDependencies": {},
+	"bundledDependencies": [],
+	"peerDependencies": {},
+	"devDependencies": {
+		"eslint": "^5.16.0"
+	},
 	"dependencies": {
-		"@commitlint/cli": "^8.1.0",
-		"@commitlint/config-conventional": "^8.1.0",
-		"eslint": "^6.2.2",
+		"@commitlint/cli": "^8.2.0",
+		"@commitlint/config-conventional": "^8.2.0",
 		"eslint-config-ali": "^8.0.2",
-		"eslint-config-egg": "^7.5.0",
-		"eslint-config-react-app": "^5.0.1",
+		"eslint-config-egg": "^8.0.0",
+		"eslint-config-react-app": "^5.1.0",
 		"eslint-plugin-babel": "^5.3.0",
-		"eslint-plugin-flowtype": "^4.2.0",
-		"eslint-plugin-react-hooks": "^2.0.1",
-		"eslint-plugin-vue": "^5.2.3",
-		"mime-types": "^2.1.24",
-		"prettier": "^1.18.2",
+		"eslint-plugin-flowtype": "^4.5.2",
+		"eslint-plugin-react-hooks": "^2.3.0",
+		"eslint-plugin-vue": "^6.0.1",
+		"husky": "^3.1.0",
+		"lint-staged": "^9.5.0",
+		"mime-types": "^2.1.25",
+		"prettier": "^1.19.1",
+		"standard-version": "^7.0.1",
+		"terser": "^4.4.2",
 		"tinify": "^1.6.0-beta.2"
 	}
 }
