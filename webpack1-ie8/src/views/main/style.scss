@@ -1,0 +1,23 @@
+.wrap {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	>.ant-menu {
+		z-index: 11;
+	}
+	.main {
+		padding: 20px;
+		flex: 1;
+		overflow: auto;
+	}
+	.offset {
+		display: inline-block;
+		margin: 0 8px;
+	}
+	.wd120 {
+		width: 120px;
+	}
+	.wd200 {
+		width: 200px;
+	}
+}

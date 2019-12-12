@@ -5,14 +5,15 @@ import { HashRouter, Switch, Route, Redirect } from "react-router-dom";
 
 import { RouteMenu } from "../../components/Menu";
 import { NAV_MENUS, NAV_MAPS } from "../../constants/columns";
-import "./App.less";
+import "./style.less";
+import "./style.scss";
 
 import Loadable from "react-loadable";
 import pmHome from "promise-loader?global,home!./Home";
 const Home = Loadable({ loader: pmHome, loading: Spin });
 
 const NoAu = () => <div><Spin />页面出小差,呜呜呜...</div>;
-const App = () => <HashRouter><div>
+const App = () => <HashRouter><div className="wrap">
 	<RouteMenu
 		theme="dark"
 		mode="horizontal"

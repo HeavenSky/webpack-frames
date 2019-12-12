@@ -1,3 +1,54 @@
+######eclipse&studio######
+#	*.ap_
+#	*.apk
+#	*.bak
+#	*.dex
+#	*.iml
+#	*.jks
+#	*.log
+#	*.swp
+#	*.tmp
+#	*.class
+#	*.launch
+#	*.pydevproject
+#	.idea
+#	.gradle
+#	.target
+#	.project
+#	.cproject
+#	.loadpath
+#	.metadata
+#	.settings
+#	.texlipse
+#	.buildpath
+#	.classpath
+#	.navigation
+#	.factorypath
+#	.springBeans
+#	.recommenders
+#	.tern-project
+#	.externalNativeBuild
+#	.externalToolBuilders
+#	bin
+#	gen
+#	out
+#	tmp
+#	temp
+#	build
+#	gradle
+#	target
+#	captures
+#	proguard
+#	local.properties
+#语法说明:
+#以斜杠"/"开头表根目录;
+#以星号"*"通配多个字符;
+#以问号"?"通配单个字符;
+#以方括号"[]"包含单个字符的匹配列表;
+#以叹号"!"表示不忽略(跟踪)匹配到的文件或目录;
+#若含"/"字符,则均从根目录相对路径的头部开始匹配;
+#官方文档https://git-scm.com/docs/gitignore
+#语言模板https://github.com/github/gitignore
 .hg
 .git
 .svn
@@ -11,9 +62,11 @@ build
 target
 .*/
 *~
+*bak
 *tmp
 *temp
 *cache
 node_modules*
+report.*.json
 package-lock.json
 npm-shrinkwrap.json
