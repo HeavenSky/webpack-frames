@@ -18,21 +18,21 @@ const dps = join(null, dependencies, devDependencies);
 const dpv = mod => (/[\d.]+/.exec(dps[mod]) || [])[0];
 const calc = mod => parseFloat(dpv(mod)); // 异常返回NaN
 const pair = (mod, s) => (s ? mod + s : "") + dpv(mod);
-const poly = ["html5shiv", "core-js", "regenerator-runtime"]
-	.concat(dpv("antd") ? "media-match" : [], // 加 Map+Set
-		calc("react") < 16 ? [] : "raf/polyfill");
+const poly = ["core-js", "regenerator-runtime"].concat(
+	"html5shiv", dpv("antd") ? "media-match" : [], // IE
+	calc("react") < 16 ? [] : "raf/polyfill"); // Map+Set
 let WK = calc("webpack"); WK = WK < 2 ? 1 : WK < 4 ? 3 : WK;
 /* *** repository *** */
-const elecdn = "https://npm.elemecdn.com/";
-const bootcdn = "https://cdn.bootcss.com/";
-const sfile = "https://cdn.staticfile.org/";
-const ghcdn = "https://cdn.jsdelivr.net/gh/";
-const wpcdn = "https://cdn.jsdelivr.net/wp/";
-const pkgcdn = "https://cdn.jsdelivr.net/npm/";
 const cdnjs = "https://cdnjs.cloudflare.com/ajax/libs/";
-// https://unpkg.com/* https://jsdelivr.com/package/npm/*
+const sfile = "https://cdn.staticfile.org/";
+const bootc = "https://cdn.bootcss.com/"; // jsdelivr.com
+const baomt = "https://lib.baomitu.com/"; // css.loli.net
+const eleme = "https://npm.elemecdn.com/"; // bootcdn.cn
+const wpcdn = "https://cdn.jsdelivr.net/wp/"; // cdnjs.com
+const ghcdn = "https://cdn.jsdelivr.net/gh/"; // unpkg.com
+const npcdn = "https://cdn.jsdelivr.net/npm/";
 module.exports = { // prefix,suffix
 	MY_PKG, MY_SVC, FOR_IE, PROD, WK, isArray, min, ts,
 	dir, rel, ver, fmt, dpv, keys, join, calc, pair, poly,
-	elecdn, bootcdn, sfile, ghcdn, wpcdn, pkgcdn, cdnjs,
+	cdnjs, sfile, bootc, baomt, eleme, wpcdn, ghcdn, npcdn,
 };

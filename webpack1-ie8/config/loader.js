@@ -1,10 +1,12 @@
+/* https://vue-loader.vuejs.org/zh/migrating.html
+https://github.com/vuejs/vue-style-loader#options
+https://github.com/webpack-contrib/style-loader#options
+https://github.com/webpack-contrib/css-loader#options
+https://github.com/webpack-contrib/sass-loader#options
+https://github.com/webpack-contrib/less-loader#options
+https://vuejs.org/v2/guide/installation.html */
 const { PROD, WK, dpv, keys, calc } = require("./basic");
-// https://github.com/vuejs/vue-style-loader#options
-// https://github.com/webpack-contrib/style-loader#options
-// https://github.com/webpack-contrib/css-loader#options
-// https://github.com/webpack-contrib/sass-loader#options
-// https://github.com/webpack-contrib/less-loader 找options
-const parseUrl = false; // 是否使用样式的相对路径解析
+const parseUrl = true; // 是否解析样式内相对路径
 const styleLoader = {
 	loader: "style-loader", options: { sourceMap: !PROD },
 };
@@ -72,7 +74,7 @@ if (WK < 2) { // webpack1压缩样式:less成功,css失败
 		"@babel/proposal-json-strings",
 		["@babel/proposal-class-properties", { loose: true }],
 		// https://babeljs.io/docs/en/babel-plugin-transform-runtime
-		["@babel/transform-runtime", { corejs: 3 }],
+		["@babel/transform-runtime", { corejs: { version: 3, proposals: true } }],
 	].concat(["antd", "antd-mobile", "vant"].map(k => ["import", { libraryName: k, style: false }, k]));
 }
 module.exports = loaders;

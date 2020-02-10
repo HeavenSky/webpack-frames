@@ -24,9 +24,9 @@
 ![](https://img.shields.io/npm/v/element-ui.svg?label=element-ui)
 
 ### 更新说明
-1. `webpack4-vue`和`webpack3-vue`包含的文件夹完全一致
-2. `webpack4-react`和`webpack3-react`包含的文件夹完全一致
-3. 考虑到一致就没有在代码中再复制一份了,若有需要请自行拷贝
+1. `webpack4-vue`和`webpack3-vue`包含的文件夹完全一致,有需要请自行复制
+2. `webpack4-react`和`webpack3-react`包含的文件夹完全一致,有需要请自行复制
+3. [webpack2和3差异](https://github.com/webpack/webpack/releases/tag/v3.0.0)很小,基本上直接3替换2也没问题,这里只讨论版本1/3/4,[官方迁移文档](https://webpack.js.org/migrate)
 4. 开发环境已经做了热重载,若想开发环境兼容ie11以下,请清除热重载
 	* 文件`.babelrc`的`plugins`中移除`react-hot-loader/babel`
 	* `package.json`的`devDependencies`中移除`react-hot-loader`

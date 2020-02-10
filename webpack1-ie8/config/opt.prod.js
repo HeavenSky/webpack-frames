@@ -4,11 +4,11 @@ const { scssStyleLoader, lessStyleLoader, cssStyleLoader,
 	cssModuleLoader, styleLoader } = require("./loader");
 const mod = `css/${ver("content")}.css`; const plugins = [];
 const optProd = { devtool: false, module: {}, plugins };
-if (WK < 2) { // devtool: "source-map",
+// WK1特殊:不需要style-loader,加了反而报错,less|scss在生产环境的编译配置也是不一样的
+// https://github.com/webpack-contrib/extract-text-webpack-plugin/blob/webpack-1
+if (WK < 2) { // devtool: "hidden-source-map",
 	const ExtraTWP = require("extract-text-webpack-plugin");
 	const loader = new ExtraTWP(mod, { allChunks: true });
-	// webpack1 比较特殊, 不需要 style-loader, 加了反而报错, less scss 在生产环境的编译配置很特殊
-	// https://github.com/webpack-contrib/extract-text-webpack-plugin/blob/webpack-1/README.md
 	optProd.module.loaders = [{
 		test: /\.css\?module$/i,
 		loader: loader.extract(
@@ -143,8 +143,8 @@ if (WK < 2) { // devtool: "source-map",
 			filename: mod, chunkFilename: mod,
 		})
 	);
-}
-const analyzer = require("webpack-bundle-analyzer");
-process.env.npm_config_report &&
-	plugins.push(new analyzer.BundleAnalyzerPlugin());
+} // http://webpack.github.io/analyse
+const wba = require("webpack-bundle-analyzer");
+process.env.npm_config_report && plugins.push(new wba
+	.BundleAnalyzerPlugin({ generateStatsFile: true }));
 module.exports = optProd;

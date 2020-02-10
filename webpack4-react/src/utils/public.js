@@ -1,11 +1,8 @@
 import moment from "moment";
+import "moment/locale/zh-cn";
+// moment.locale("en" || "zh-cn");
 import nprogress from "nprogress";
 import "nprogress/nprogress.css";
-import "./public.less";
-import { ready, clientInfo } from "./dom";
-// global variable for debug
-window.GLOBAL = { moment, nprogress };
-ready(() => { // 暂不考虑做高清方案,大多组件不是rem尺寸
-	const { body, fc } = clientInfo(); // 兼容移动端点击事件
-	fc && fc.attach(body); // 其实FastClick也存在兼容性问题
-}); // pace-less/themes/*.less 自动进度条主题样式
+import "./public.less"; // pace-less/themes/*.less 进度条主题
+// 高清方案需要组件时rem尺寸,FastClick在ios的输入框移动焦点有问题
+window.__ALL = { moment, nprogress }; // global variable

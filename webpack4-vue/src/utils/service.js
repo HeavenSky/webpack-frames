@@ -1,7 +1,7 @@
 import $ from "jquery";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { isFunction, dir, tryEXEC } from "./fns";
+import { isFunction, tryEXEC } from "./fns";
 
 const handleStore = key => (...args) => // sessionStorage
 	tryEXEC(() => window.localStorage[key](...args));
@@ -13,8 +13,8 @@ export const { get: getCookie, set: setCookie,
 	remove: delCookie } = Cookies; // 单个cookie数据最大4kb
 // 跨域请求headers 压缩数据响应headers
 export const AUTH_KEY = "Authorization";
-export const AUTH_TOKEN_KEY = "x-auth-token";
-export const XSRF_TOKEN_KEY = "x-xsrf-token";
+export const AUTH_TOKEN_KEY = "X-AUTH-TOKEN";
+export const CSRF_TOKEN_KEY = "X-CSRF-TOKEN";
 export const CONTENT_TYPE = {
 	KEY: "Content-Type",
 	XML: "text/xml; charset=utf-8",
@@ -80,55 +80,42 @@ export const jqCheck = (xhr, check) => {
 };
 export const jq = (config, check) =>
 	PF(jqCheck($.ajax(config), check));
+/* axios 常用请求封装, request 拦截器, response 拦截器
+https://github.com/axios/axios#request-method-aliases
+service.post/put/patch(url, data, { params, headers });
+service.get/delete/head/options(url, { params, headers });
+下载二进制文件增加参数 {responseType:"blob"} jquery 不支持此方法
+const { KEY, URL, JSON } = CONTENT_TYPE;
+service.defaults.headers.get[KEY] = URL;
+service.defaults.headers.put[KEY] = JSON;
+service.defaults.headers.post[KEY] = JSON;
+service.defaults.headers.delete[KEY] = JSON;
+service.defaults.headers.common[AUTH_KEY] = ""; */
 /* *************** 开始 axios service 实例 *************** */
 export const service = axios.create({
 	validateStatus: Boolean, baseURL: "/rest", timeout: 0,
 });
-/* axios 常用请求封装
-service.get/delete/head/options(url, { params, headers });
-service.post/put/patch(url, data, { params, headers });
-下载二进制文件增加参数 {responseType:"blob"} jquery 不支持此方法
-service.defaults.headers.get[CONTENT_TYPE.KEY] = CONTENT_TYPE.URL;
-service.defaults.headers.put[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
-service.defaults.headers.post[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
-service.defaults.headers.delete[CONTENT_TYPE.KEY] = CONTENT_TYPE.JSON;
-service.defaults.headers.common[AUTH_TOKEN_KEY] = AUTH_KEY;
-https://github.com/axios/axios#request-method-aliases */
-service.interceptors.request.use( // request 拦截器
-	config => {
-		config.headers[AUTH_TOKEN_KEY] = AUTH_KEY;
-		return config;
-	}, // 在发送请求时执行函数,可用来给 headers 携带 token
-	error => {
-		dir.error("service.request.error", error);
-		throw error;
-	}
+service.interceptors.request.use(
+	config => config, // 修改请求发送的配置信息,如headers
+	error => error // 请求发送的异常错误信息
 );
-service.interceptors.response.use( // respone 拦截器
-	response => { // validateStatus 返回 true 时执行
-		/* response = {
-			data: {} || "", // `data` 给服务器发送请求的响应数据信息
-			status: 200, // `status` 给服务器发送请求的响应 HTTP 状态码
-			statusText: "OK", // `statusText` 给服务器发送请求的响应 HTTP 状态信息
-			headers: {}, // `headers` 给服务器发送请求的响应 HTTP 响应头
-			config: {}, // `config` 给服务器发送请求的配置信息
-			request: {}, // `request` 给服务器发送请求的请求信息
-		}; */
-		const { headers } = response || {};
-		const token = (headers || {})[AUTH_TOKEN_KEY];
-		setStore(AUTH_TOKEN_KEY, token);
-		return response;
-	},
-	error => { // validateStatus 返回 false 时执行
-		/* error = {
-			message: "", // `message` 给服务器发送请求的响应错误标题
-			response: {}, // `headers` 给服务器发送请求的响应信息
-			request: {}, // `request` 给服务器发送请求的请求信息
-			config: {}, // `config` 给服务器发送请求的配置信息
-		}; */
-		dir.error("service.response.error", error);
-		throw error;
-	}
+service.interceptors.response.use(
+	response => response, // validateStatus 返回真值
+	/* response = {
+		data: {} || "", // `data` 请求返回的响应数据
+		status: 200, // `status` 请求响应的状态码
+		statusText: "OK", // `statusText` 请求响应的状态信息
+		headers: {}, // `headers` 请求响应的信息头
+		config: {}, // `config` 请求发送的配置信息
+		request: {}, // `request` 请求发送的数据信息
+	}; */
+	error => error // validateStatus 返回假值
+	/* error = {
+		message: "", // `message` 请求响应的错误标题
+		config: {}, // `config` 请求发送的配置信息
+		request: {}, // `request` 请求发送的数据信息
+		response: {}, // `response` 请求返回的响应数据
+	}; */
 );
 /* *************** 结束 axios service 实例 *************** */
 export const axCheck = (xhr, check) => {

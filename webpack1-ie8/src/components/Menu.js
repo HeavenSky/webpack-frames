@@ -29,10 +29,9 @@ const renderAllMenu = (menus, maps) => tree(menus, (rest, children, key) => {
 		</Menu.Item>;
 	}
 });
-
-const matchPath = path => {
+const urlDiff = url => {
 	const { origin, href } = window.location;
-	return href.slice(origin.length).indexOf(path) === 0;
+	return !href.slice(origin.length).indexOf(url);
 };
 const getList = arr => {
 	if (!arr) { return []; }
@@ -51,7 +50,7 @@ const getKeys = (pro, sta) => {
 		const { type, to = x, href } = maps[x] || {};
 		if (/^(link|navlink)$/i.test(type) && pathname === to) {
 			key = x; return true;
-		} else if (/^a$/i.test(type) && matchPath(href)) {
+		} else if (/^a$/i.test(type) && urlDiff(href)) {
 			key = x; return true;
 		} else {
 			const idx = (pathname || "").indexOf(to);

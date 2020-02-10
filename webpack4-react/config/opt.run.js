@@ -25,7 +25,7 @@ const plugins = [
 if (calc("vue-loader") >= 15) {
 	const VueLodPlugin = require("vue-loader/lib/plugin");
 	plugins.push(new VueLodPlugin());
-} // https://vue-loader.vuejs.org/zh/migrating.html
+} // 开发环境chunkhash更合适,但与热部署不兼容,优化不用hash
 const out = `js/${ver("chunk")}.js`;
 const minimizer = []; const splitChunks = {};
 const optNow = require(PROD ? "./opt.prod" : "./opt.dev");
@@ -35,8 +35,7 @@ const optRun = {
 	output: { // publicPath必须以/结尾,防止路径拼接出错
 		path: dir(outputFolder), publicPath: void 0,
 		filename: out, chunkFilename: out, pathinfo: !PROD,
-		// library: ["SKY", "[name]"], libraryTarget: "umd",
-	}, // 开发环境chunkhash更合适,但与热部署不兼容,妥协用hash
+	}, // library: ["SKY", "[name]"], libraryTarget: "umd",
 	module: { // module-variables,module-methods,performance
 		rules: [{
 			test: /\.(js|jsx|mjs)(\?.*)?$/i,
@@ -58,6 +57,7 @@ const optRun = {
 				options: {
 					limit: 4000,
 					name: `img/${ver()}.[ext]`,
+					publicPath: PROD ? "../" : void 0,
 				},
 			}],
 		}, {
@@ -67,19 +67,29 @@ const optRun = {
 				options: {
 					limit: 4000,
 					name: `font/${ver()}.[ext]`,
+					publicPath: PROD ? "../" : void 0,
 				},
 			}],
 		}],
 	},
 	resolve: {
-		alias: { "@": dir("src") },
+		alias: { // 易错:开发和生产html|css|js内资源路径不一致
+			"@": dir("src"), "core-js-pure": "core-js",
+			debug: "@/utils/debug", // 换掉debug:打包大,es6
+			"@ant-design/icons/lib/dist": "@/utils/icons",
+		}, // vue分两种包:仅运行时(默认,省30%包大小),包含编译器
 		extensions: ".js|.jsx|.mjs|.vue|.json".split("|"),
-	}, // https://vuejs.org/v2/guide/installation.html
+	},
 	externals: { jquery: "$", wangeditor: "wangEditor" },
 };
-const rhl = "react-hot-loader"; // ie浏览器兼容处理
-const rhlPath = `${rhl}/dist/${rhl}.production.min`;
-if (FOR_IE) { optRun.resolve.alias[`${rhl}$`] = rhlPath; }
+const rhl = "react-hot-loader";
+const rhld = `${rhl}/dist/${rhl}.production.min`;
+const hl = FOR_IE && { [`${rhl}$`]: rhld }; // IE
+join(optRun.resolve.alias, hl, WK > 2 ? {
+	"core-js/library/fn": "core-js/es", // v3
+	"babel-runtime": "@babel/runtime-corejs3",
+	"@babel/runtime": "@babel/runtime-corejs3",
+} : { "core-js$": "core-js/library" });
 if (WK < 2) {
 	optRun.module.postLoaders = [{
 		test: /\.(js|jsx|mjs)(\?.*)?$/i,
@@ -99,7 +109,7 @@ if (WK < 2) {
 }
 const X = { cache: true, parallel: true, sourceMap: false };
 const O = {
-	ie8: WK < 2, safari10: true, warnings: false,
+	ie8: FOR_IE, safari10: true, warnings: false,
 	compress: { drop_console: true }, mangle: true,
 	output: { beautify: false }, keep_fnames: false,
 };
@@ -117,7 +127,7 @@ if (WK < 4) { // context当前目录 resource目标文件 chunks模块
 	PROD && minimizer.push(new (require("terser" +
 		"-webpack-plugin"))({ ...X, terserOptions: O }));
 	const vendor = { // mod._chunks 模块Set对象
-		name: "vendor", chunks: "all", enforce: true,
+		name: "vendor", chunks: "all", minChunks: 2,
 		test: mod => /node_modules/.test(mod.resource),
 	}; // context当前目录 resource目标文件 type类型
 	splitChunks.cacheGroups = { vendor };
@@ -202,8 +212,8 @@ const addEntryPage = name => {
 	arg.js = arg.js.filter(Boolean).map(fu);
 	arg.css = arg.css.filter(Boolean).map(fu);
 	plugins.push(new HtmlWebpackPlugin(opt));
-};
-isArray(page) && page.forEach(addEntryPage); // 多页面打包
+}; // 多页面打包
+isArray(page) && page.forEach(addEntryPage);
 (page && page.length) || (copyList.length = 0);
 /* *** modify final configuration  *** */
 const config = merge(optNow, optRun);

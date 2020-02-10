@@ -1,5 +1,4 @@
-const { MY_PKG, MY_SVC, PROD,
-	bootcdn, pkgcdn } = require("./basic");
+const { MY_PKG, MY_SVC, PROD, npcdn } = require("./basic");
 /* *** file and folder *** */
 const buildFolder = "build";
 const outputFolder = "dist";
@@ -8,12 +7,10 @@ const mockApiFolder = "src/mock";
 const compileFolder = "src/views";
 const templateFile = "src/index.html";
 /* *** file merge config *** */
-const LIB = { // 纯文本拼接,无编译过程
-	/* "ie8.lib.js": ["./ie8.js", "./dom4.js"],
-	"style.css": ["normalize/normalize.min.css",
-		"./editor/wangeditor.min.css"],
-	"jquery.js": "jquery/dist/jquery.min.js", */
-};
+const LIB = {}; // 纯文本拼接,无编译过程
+/* "ie.lib.js": ["ie8", "json", "./a.js"],
+"layout.css": ["./b.less", "pkg/c.scss",],
+"jquery.js": "jquery/dist/jquery.min.js", */
 /* *** module entry config *** */
 const IPT = {};
 /* *** html title config *** */
@@ -25,27 +22,22 @@ const css = [
 	!"fa/fa-5.x.min.css",
 	"antd/antd-1.11.6.css",
 	"editor/wangeditor.min.css",
-	!`${pkgcdn}antd@1.11.6/dist/antd.min.css`,
-	`${pkgcdn}normalize.css@7/normalize.min.css`,
+	`${npcdn}normalize.css@7/normalize.min.css`,
 	// highlight.js
-	!`${pkgcdn}highlight.js/lib/highlight.min.js`,
-	!`${pkgcdn}highlight.js/styles/atom-one-dark.min.css`,
-	!`${pkgcdn}highlight.js/styles/atom-one-light.min.css`,
+	!`${npcdn}highlight.js/lib/highlight.min.js`,
+	!`${npcdn}highlight.js/styles/atom-one-dark.min.css`,
+	!`${npcdn}highlight.js/styles/atom-one-light.min.css`,
 	// antd-mobile
-	!`${pkgcdn}antd-mobile/dist/antd-mobile.min.js`,
-	!`${pkgcdn}antd-mobile/dist/antd-mobile.min.css`,
+	!`${npcdn}antd-mobile/dist/antd-mobile.min.js`,
+	!`${npcdn}antd-mobile/dist/antd-mobile.min.css`,
 	// antd
-	!`${pkgcdn}antd/dist/antd.min.js`,
-	!`${pkgcdn}antd/dist/antd.min.css`,
+	!`${npcdn}antd/dist/antd.min.js`,
+	!`${npcdn}antd/dist/antd.min.css`,
 ];
 /* *** html js resource *** */
 const js = [
-	!`${pkgcdn}@ant-design/icons/lib/umd.js`,
-	`${bootcdn}jquery/1.12.4/jquery.min.js`,
+	`${npcdn}jquery@1/dist/jquery.min.js`,
 	"editor/wangeditor.min.js",
-	!"js/wangeditor.min.js",
-	!"js/fastclick.min.js",
-	!"js/pace.min.js",
 ];
 /* *** html entry config *** */
 const page = ["index"];
@@ -56,7 +48,7 @@ const optSelf = {
 	LIB, IPT, title, ico, css, js, page,
 }; // 生产包做静态服务器 MY_SVC=dist npm start
 if (!PROD && MY_SVC) {
-	+MY_SVC || (optSelf.staticFolder = MY_SVC);
+	optSelf.staticFolder = MY_SVC;
 	optSelf.IPT = { fns: "@/utils/fns" };
 	delete optSelf.page; // 仅启动静态文件服务
 } else if (PROD && MY_PKG) {

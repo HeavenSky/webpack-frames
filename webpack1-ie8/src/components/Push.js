@@ -38,7 +38,7 @@ onChange(info) {
 }
 4. file对象内容
 const file = {
-	type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	type: "application/vnd.xxx.sheet",
 	uid: "rc-upload-1517509949936-2",
 	name: "upload.xlsx",
 	size: 6611,
@@ -108,14 +108,14 @@ const Push = props => {
 		},
 	};
 	return <Upload.Dragger {...param} {...res}>
-		<p className="ant-upload-drag-icon">
+		<div className="ant-upload-drag-icon">
 			<Icon type="inbox" />
-		</p>
-		<p className="ant-upload-text">
+		</div>
+		<div className="ant-upload-text">
 			{list.length ? "重新上传"
 				: "点击或将文件拖拽到这里上传"}
-		</p>
-		<p className="ant-upload-hint">文件上传要求提示</p>
+		</div>
+		<div className="ant-upload-hint">文件上传要求</div>
 	</Upload.Dragger>;
 };
 export default Push;

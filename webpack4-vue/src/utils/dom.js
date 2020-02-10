@@ -2,7 +2,7 @@ import { keys, join, dmt } from "./fns";
 export const attachEvt = (ele, evt, listener, capture) => {
 	const target = ele || document;
 	const handler = e => {
-		const event = e || window.event;
+		const event = e || window.event || {};
 		const src = event.srcElement || event.target;
 		const [touch] = event.targetTouches || [];
 		const { prototype } = window.Touch || {};
@@ -76,9 +76,9 @@ export const gcs = el => {
 };
 export const hd = (baseFontSize, sketchWidth) => {
 	baseFontSize = baseFontSize > 0 ? baseFontSize : 100;
-	const { document, navigator } = window;
 	const { documentElement: html, head, body } = document;
-	const dpr = window.devicePixelRatio || 1;
+	const { navigator, devicePixelRatio } = window;
+	const dpr = devicePixelRatio || 1;
 	const ua = navigator.userAgent;
 	const android = ua.match(/android/i);
 	const webkit = ua.match(/applewebkit\/(\d{3})/i);
@@ -97,7 +97,7 @@ export const hd = (baseFontSize, sketchWidth) => {
 		div.remove();
 	}
 	[...document.querySelectorAll("meta[name=viewport]")]
-		.forEach(d => d.remove()); // 清除当前的meta配置
+		.forEach(meta => meta.remove()); // 清除当前meta
 	let content = "width=device-width,";
 	if (isNew && !uchd) { // UC内核不能设置target-densitydpi
 		content += "target-densitydpi=device-dpi,";
@@ -107,13 +107,12 @@ export const hd = (baseFontSize, sketchWidth) => {
 	content += "user-scalable=no,viewport-fit=cover";
 	const attrs = { name: "viewport", content };
 	head.appendChild(create({ tag: "meta", attrs }));
-	const resize = window.requestAnimationFrame(() => {
+	const resize = requestAnimationFrame(() => {
 		const zoom = rate * (sketchWidth > 0
 			? html.clientWidth / sketchWidth : 1);
 		html.style.fontSize = (baseFontSize * zoom) + "px";
-	}); // 移动端组件大多不支持rem,需要自己写组件
-	resize(); attachEvt(window, "resize", resize);
-};
+	}); resize(); attachEvt(window, "resize", resize);
+}; // 移动端组件大多不支持rem,需要自己写组件
 export const hasCls = (el, cls) => {
 	const list = dmt(el.className); const has = dmt(cls);
 	return !has.filter(v => !list.includes(v)).length;
@@ -132,9 +131,8 @@ export const ready = fn => new Promise(resolve => attachEvt(
 export const clientInfo = () => {
 	const { documentElement: html, head, body } = document;
 	const { clientWidth: vw, clientHeight: vh } = html;
-	const { FastClick: fc, devicePixelRatio: dpr,
-		navigator: { userAgent: ua } } = window;
-	return { html, head, body, vw, vh, fc, dpr, ua };
+	const { devicePixelRatio: dpr } = window;
+	return { html, head, body, vw, vh, dpr };
 };
 export const getScroll = () => {
 	const { documentElement: html, body } = document;

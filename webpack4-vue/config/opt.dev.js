@@ -6,7 +6,7 @@ const { FOR_IE, WK, dir } = require("./basic");
 const { httpMock } = require("./mock");
 const optSelf = require("./opt.self");
 const optDev = {
-	devtool: !FOR_IE && "cheap-module-eval-source-map",
+	devtool: FOR_IE || "cheap-module-eval-source-map",
 	module: {},
 	plugins: [
 		new ErrFmt(),

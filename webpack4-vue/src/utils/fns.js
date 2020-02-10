@@ -10,33 +10,30 @@ export const isString = v => typeof v === "string";
 export const isSymbol = v => typeof v === "symbol";
 export const isNum = v => Number(v) === parseFloat(v);
 export const isInt = v => Number(v) === parseInt(v, 10);
-export const delay = ms => new Promise(resolve =>
-	setTimeout(resolve, ms)); export const join =
-		(x, ...v) => Object.assign(x || {}, ...v);
-export const vals = v => Object.values(v || {});
-export const keys = v => Object.keys(v || {});
 export const lower = v => `${v}`.toLowerCase();
 export const upper = v => `${v}`.toUpperCase();
-export const dc = ms => {
-	let resolve, reject; // delay control 延时控制器
-	const cb = (x, y) => { resolve = x; reject = y; };
-	const promise = new Promise(cb);
-	const timer = ms > -1 && setTimeout(resolve, ms);
-	return { promise, resolve, reject, timer, ms };
-}; // isFinite会做类型转换;Number.isFinite不做类型转换
-export const fdata = (fn, ...args) => // 函数转换成promise
-	Promise.resolve(isFunction(fn) ? fn(...args) : fn);
-export const fmtde = (fn, ...args) => fdata(fn, ...args)
-	.then(d => [d, void 0]).catch(e => [void 0, e]);
-export const dmt = (items, divide) => {
-	const list = isArray(items) ? items : isString(items)
-		? items.split(divide || /\s+/) : [];
-	return [...new Set(list)]; // 去重
+export const keys = v => Object.keys(v || {});
+export const vals = v => Object.values(v || {});
+export const join = (v, ...args) => Object.assign(v || {},
+	...args); export const delay = ms => new Promise(
+	resolve => setTimeout(resolve, ms)); // ms<2^31
+export const dc = ms => { // delay control 延时控制
+	const ob = { ms }; ob.promise = new Promise(
+		(resolve, reject) => join(ob, { resolve, reject }));
+	ob.timer = setTimeout(ob.resolve, ms); return ob;
+}; // window.isFinite 类型转换, Number.isFinite 无转换
+export const fdata = async (fn, ...args) =>
+	await isFunction(fn) ? fn(...args) : fn;
+export const fmtde = (...args) => fdata(...args)
+	.then(d => [d, null]).catch(e => [null, e]);
+export const dmt = (v, sep) => { // 使用Set快速去重
+	const list = isString(v) ? v.split(sep || /\s+/) : v;
+	return [...new Set(isArray(list) ? list : [])];
 }; // eslint-disable-next-line no-global-assign
 const clog = console || (console = { memory: {} });
 export const logger = (k, ...args) => clog[k](...args);
 export const log = (...args) => logger("log", ...args);
-export const dir = (...args) => // console.dir 只打印一个参数
+export const dir = (...args) => // console.dir 仅支持单参数
 	logger("dir", args.length > 1 ? args : args[0]);
 [ // browser console logger tools, ployfill for console
 	"trace", "time", "timeEnd", "timeLog", "timeStamp",
@@ -49,25 +46,25 @@ export const dir = (...args) => // console.dir 只打印一个参数
 	if (!clog[k]) { clog[k] = () => void 0; }
 	log[k] = (m, ...args) => [logger(k, m), log(...args)];
 	dir[k] = (m, ...args) => [logger(k, m), dir(...args)];
-}); const MAP_IU = {}; export const initLock = // 阻塞解锁
-	k => k && MAP_IU[k] ? true : !(MAP_IU[k] = true);
-export const undoLock = k => delete MAP_IU[k];
-const MAP_LT = {}; export const listen = k => // 监听触发
-	(MAP_LT[k] || (MAP_LT[k] = dc())).promise;
-export const trigger = (k, data) => MAP_LT[k] &&
-	[MAP_LT[k].resolve(data), delete MAP_LT[k]];
-const MAP_GD = {}; export const getCache = // 缓存删除
-	(k, fn) => MAP_GD[k] || (MAP_GD[k] = fdata(fn));
-export const delCache = k => delete MAP_GD[k];
+}); const LOCK_MAP = {}; export const initLock = // 阻塞+解锁
+	k => k && LOCK_MAP[k] ? true : !(LOCK_MAP[k] = true);
+export const undoLock = k => delete LOCK_MAP[k];
+const EVENT_MAP = {}; export const listen = k => // 监听+触发
+	(EVENT_MAP[k] || (EVENT_MAP[k] = dc())).promise;
+export const trigger = (k, data) => EVENT_MAP[k] &&
+	[EVENT_MAP[k].resolve(data), delete EVENT_MAP[k]];
+const CACHE_MAP = {}; export const getCache = // 缓存+删除
+	(k, fn) => CACHE_MAP[k] || (CACHE_MAP[k] = fdata(fn));
+export const delCache = k => delete CACHE_MAP[k];
 export const lockAsync = (fn, key) => {
-	const LOCK = key == null ? Math.random() : key;
+	const LOCK = key || Math.random();
 	return async () => initLock(LOCK) ||
 		[await fmtde(fn), undoLock(LOCK)];
 }; export const calcText = text => {
-	text = `${text || ""}`;
+	text = text == null ? "" : `${text}`;
 	// eslint-disable-next-line no-control-regex
 	const ascii = text.match(/[\x00-\xff]/g) || [];
-	// surrogate pair 代理字符对2个算1个; ascii字符 算半个字符
+	// surrogate pair代理字符对算1个; ascii字符算1/2个
 	const reg = /[\ud800-\udbff][\udc00-\udfff]/g;
 	const pair = text.match(reg) || [];
 	return text.length - (ascii.length / 2) - pair.length;
@@ -97,17 +94,20 @@ const pEXP = "^([+0]?[1-9]\\d{1,2}-?)?(1([3589]\\d|" +
 	"[2-9]\\d{6,7}(-\\d{3,})?)$";
 export const phoneCheck = v => new RegExp(pEXP).test(v);
 export const validator = (rule, value, callback) => {
-	const { label, type, reg, msg, must, required,
-		int, min, max, _min, _max } = rule;
-	const isNull = value == null || /^\s*$/.test(value);
-	const need = must || required; let err;
-	if (isNull && need) {
-		err = `${label}不能为空!`;
+	const { label, type, must, reg, msg, pre,
+		int, min, max, _min, _max } = rule || {};
+	isFunction(pre) && (value = pre(value));
+	const empty = value == null || /^\s*$/.test(value);
+	const vType = typeof value; let err;
+	if (vType !== type) {
+		err = `${label}类型错误, 要求${type}类型`;
+	} else if (must && empty) {
+		err = `${label}不能为空或全由空白字符组成`;
 	} else if (isRegExp(reg) && !reg.test(value)) {
-		err = msg;
+		err = label + (msg || "");
 	} else if (type === "number") {
-		if (!isNum(value)) {
-			err = `${label}必须为数字!`;
+		if (!Number.isFinite(value)) {
+			err = `${label}必须为数值!`;
 		} else if (int && !isInt(value)) {
 			err = `${label}必须为整数!`;
 		} else if (min != null && value < min) {
@@ -115,14 +115,19 @@ export const validator = (rule, value, callback) => {
 		} else if (max != null && value > max) {
 			err = `${label}最大值为${max}!`;
 		} else if (_min != null && value <= _min) {
-			err = `${label}需要大于${_min}!`;
+			err = `${label}必须大于${_min}!`;
 		} else if (_max != null && value >= _max) {
-			err = `${label}需要小于${_max}!`;
+			err = `${label}必须小于${_max}!`;
 		}
-	} else if (min != null && calcText(value) < min) {
-		err = `${label}至少${min}个中文或${min * 2}个英文!`;
-	} else if (max != null && calcText(value) > max) {
-		err = `${label}顶多${max}个中文或${max * 2}个英文!`;
+	} else if (type === "string") {
+		const len = calcText(value);
+		if (min != null && len < min) {
+			err = `${label}最少由${min}个中文` +
+				`或${min * 2}个英文字符组成!`;
+		} else if (max != null && len > max) {
+			err = `${label}最多由${max}个中文` +
+				`或${max * 2}个英文字符组成!`;
+		}
 	} callback(err);
 }; export const tryEXEC = (fn, ...args) => {
 	try { // eslint-disable-next-line no-new-func
@@ -178,9 +183,9 @@ export const verIE = () => tryEXEC("/*@cc_on !@*/false") ? {
 	const render = (data, key) => {
 		if (isArray(data)) { return data.map(render); }
 		if (data == null) { return null; }
-		const { children, ...rest } = data || {};
-		return circle(rest, render(children, key), key);
-	}; // circle(rest,children,key)=>element
+		const { children, ...args } = data || {};
+		return circle(args, render(children, key), key);
+	}; // circle(args,children,key)=>element
 	return render(source); // 可以用来渲染嵌套类组件
 }; export const formatUrl = link => loop({ link }, old => {
 	let { http, link } = old || {};

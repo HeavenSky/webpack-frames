@@ -2,8 +2,13 @@
 	"parserOptions": {
 		"parser": "babel-eslint",
 		"sourceType": "module",
-		"ecmaVersion": 9,
-		"ecmaFeatures": { "jsx": true }
+		"ecmaVersion": 10,
+		"ecmaFeatures": {
+			"experimentalObjectRestSpread": true,
+			"impliedStrict": true,
+			"globalReturn": true,
+			"jsx": true
+		}
 	},
 	"env": {
 		"commonjs": true,

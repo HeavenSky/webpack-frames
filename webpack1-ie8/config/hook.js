@@ -1,5 +1,3 @@
-const { WK } = require("./basic");
-const LKS = Object.keys(require("lodash"));
 /** https://webpack.docschina.org/api/module-factories
 https://webpack.docschina.org/plugins/commons-chunk-plugin
 https://webpack.js.org/plugins/split-chunks-plugin
@@ -8,6 +6,8 @@ https://webpack.js.org/guides/build-performance
 https://webpack.js.org/configuration/dev-server
 https://webpack.js.org/api/module-variables
 https://webpack.js.org/api/module-methods */
+const { WK } = require("./basic");
+const LKS = Object.keys(require("lodash"));
 const NAME = "ModulePlugin";
 class ModulePlugin {
 	constructor(option) { this.option = option; }
@@ -15,20 +15,14 @@ class ModulePlugin {
 		const hookMaps = {
 			normalModuleFactory: {
 				beforeResolve(module) {
-					const { request } = module || {};
-					if (/^lodash\.([a-z]*)$/i.test(request)) { // lodash统一版本按需加载
-						module.request = request.replace(/^lodash\.([a-z]*)$/i, (_, fn) =>
-							`lodash/${LKS.find(v => v.toLowerCase() === fn) || fn}`);
-					} else {
-						[ // vue分两种包:仅运行时(默认,省30%包大小),包含编译器
-							[/^debug$/, "@/utils/debug"], // debug很大且编译有es6,替换掉
-							[/^@ant-design\/icons\/lib\/dist$/, "@/utils/icons"],
-						].forEach(([reg, str]) => {
-							if (!reg.test(request)) { return; }
-							module.request = request.replace(reg, str);
-						});
+					const { request } = module || {}; let check, query;
+					if ((check = /^lodash\.([a-z]+)$/.exec(request))) { // lodash统一,按需加载
+						query = LKS.find(v => v.toLowerCase() === `${check[1]}`.toLowerCase());
+						module.request = `lodash/${query || check[1]}`;
+					} else if ((check = /^regenerator-runtime.*$/.exec(request))) {
+						module.request = require.resolve(request);
 					}
-					return module;
+					return module; // return console.log(`\n\n\t${request}\n`);
 				},
 			},
 			contextModuleFactory: {

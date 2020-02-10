@@ -1,14 +1,18 @@
+/* postcss.config.js当postcss-loader无options参数时生效
+https://github.com/postcss/postcss-loader#options
+https://github.com/pigcan/postcss-plugin-px2rem
+https://github.com/csstools/postcss-preset-env */
 const { PROD } = require("./basic");
-// https://github.com/postcss/postcss-loader#options
 const plugins = {
 	autoprefixer: {},
 	cssnano: { safe: true },
 	"postcss-preset-env": {},
 	"postcss-plugin-px2rem": {
 		rootValue: 100,
+		unitPrecision: 2,
 		minPixelValue: 2,
 	},
-}; // postcss.config.js 生效需要 postcss-loader 无 options
+};
 delete plugins["postcss-plugin-px2rem"];
 delete plugins["postcss-preset-env"];
 PROD || (delete plugins.cssnano);
